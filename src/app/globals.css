@@ -1,0 +1,73 @@
+@import "tailwindcss";
+
+@theme {
+  /* Screens */
+  --breakpoint-sm: 640px;
+  --breakpoint-md: 960px;
+  --breakpoint-lg: 1280px;
+
+  /* Colors */
+  --color-black: #000000;
+  --color-white: #FFFFFF;
+  --color-gray-950: #181818;
+  --color-gray-900: #232323;
+  --color-gray-800: #2F2F2F;
+  --color-gray-600: #5F5F5F;
+  --color-gray-500: #949494;
+  --color-gray-300: #C6C6C6;
+  --color-gray-200: #E6E6E6;
+  --color-gray-50: #F5F5F5;
+  --color-red: #DF3331;
+  --color-red-dark: #CA2121;
+
+  /* Fonts */
+  --font-display: "Playfair Display", Georgia, serif;
+  --font-serif: "Libre Baskerville", Georgia, serif;
+  --font-sans: "Inter", "Helvetica Neue", Helvetica, Arial, sans-serif;
+
+  /* Font sizes */
+  --text-xs: 12px;
+  --text-xs--line-height: 15px;
+  --text-sm: 13px;
+  --text-sm--line-height: 15px;
+  --text-base: 14px;
+  --text-base--line-height: 14px;
+  --text-lg: 18px;
+  --text-lg--line-height: 27px;
+  --text-xl: 20px;
+  --text-xl--line-height: 28px;
+  --text-2xl: 28px;
+  --text-2xl--line-height: 32px;
+  --text-3xl: 38px;
+  --text-3xl--line-height: 38px;
+  --text-4xl: 40px;
+  --text-4xl--line-height: 40px;
+  --text-5xl: 55px;
+  --text-5xl--line-height: 55px;
+
+  /* Letter spacing */
+  --tracking-tighter: -0.1px;
+  --tracking-tight: -0.05em;
+  --tracking-normal: 0;
+  --tracking-wide: 0.025em;
+  --tracking-wider: 0.05em;
+
+  /* Max widths */
+  --container-article: 700px;
+  --container-content: 1200px;
+
+  /* Transitions */
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+
+  /* Aspect ratios */
+  --aspect-3/2: 3 / 2;
+}
+
+/* Base styles */
+body {
+  font-family: var(--font-sans);
+  background-color: var(--color-white);
+  color: var(--color-black);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
