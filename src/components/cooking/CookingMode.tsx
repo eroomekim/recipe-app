@@ -1,0 +1,145 @@
+"use client";
+
+import { useState, useEffect, useCallback, useMemo } from "react";
+import CookingStep from "./CookingStep";
+import IngredientDrawer from "./IngredientDrawer";
+import { useWakeLock } from "@/hooks/useWakeLock";
+import { scaleIngredient } from "@/lib/ingredient-scaler";
+import type { RecipeDetail, ScaledIngredient } from "@/types";
+
+interface CookingModeProps {
+  recipe: RecipeDetail;
+  onExit: () => void;
+}
+
+export default function CookingMode({ recipe, onExit }: CookingModeProps) {
+  const [currentStep, setCurrentStep] = useState(0);
+  const [scaleFactor, setScaleFactor] = useState(1);
+  const [checkedIngredients, setCheckedIngredients] = useState<Set<number>>(new Set());
+  const wakeLock = useWakeLock();
+
+  // Request wake lock on mount
+  useEffect(() => {
+    wakeLock.request();
+    return () => { wakeLock.release(); };
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Prevent body scroll
+  useEffect(() => {
+    document.body.style.overflow = "hidden";
+    return () => { document.body.style.overflow = ""; };
+  }, []);
+
+  // Keyboard navigation
+  useEffect(() => {
+    function handleKey(e: KeyboardEvent) {
+      if (e.key === "ArrowRight" || e.key === " ") {
+        e.preventDefault();
+        setCurrentStep((s) => Math.min(s + 1, recipe.instructions.length - 1));
+      } else if (e.key === "ArrowLeft") {
+        setCurrentStep((s) => Math.max(s - 1, 0));
+      } else if (e.key === "Escape") {
+        onExit();
+      }
+    }
+    window.addEventListener("keydown", handleKey);
+    return () => window.removeEventListener("keydown", handleKey);
+  }, [recipe.instructions.length, onExit]);
+
+  // Scaled ingredients
+  const scaledIngredients: ScaledIngredient[] = useMemo(() => {
+    return recipe.ingredients.map((ing, i) => {
+      const scaled = scaleIngredient(
+        { text: ing.text, quantity: ing.quantity, unit: ing.unit, name: ing.name },
+        scaleFactor
+      );
+      return {
+        ...scaled,
+        checked: checkedIngredients.has(i),
+      };
+    });
+  }, [recipe.ingredients, scaleFactor, checkedIngredients]);
+
+  const toggleIngredient = useCallback((index: number) => {
+    setCheckedIngredients((prev) => {
+      const next = new Set(prev);
+      if (next.has(index)) next.delete(index);
+      else next.add(index);
+      return next;
+    });
+  }, []);
+
+  const goPrev = () => setCurrentStep((s) => Math.max(s - 1, 0));
+  const goNext = () => setCurrentStep((s) => Math.min(s + 1, recipe.instructions.length - 1));
+
+  return (
+    <div className="fixed inset-0 z-50 bg-black text-white flex flex-col">
+      {/* Top bar */}
+      <div className="flex items-center justify-between px-5 py-3 border-b border-white/10">
+        <h1 className="font-display text-base font-bold text-white truncate max-w-[60%]">
+          {recipe.title}
+        </h1>
+        <button
+          onClick={onExit}
+          className="font-sans text-xs font-semibold uppercase tracking-wider text-white/50 hover:text-white transition-colors"
+        >
+          Exit
+        </button>
+      </div>
+
+      {/* Step content — large tap zones */}
+      <div className="flex-1 relative">
+        <CookingStep
+          stepNumber={currentStep + 1}
+          totalSteps={recipe.instructions.length}
+          text={recipe.instructions[currentStep].text}
+        />
+
+        {/* Left tap zone */}
+        {currentStep > 0 && (
+          <button
+            onClick={goPrev}
+            className="absolute left-0 top-0 bottom-0 w-1/3"
+            aria-label="Previous step"
+          />
+        )}
+
+        {/* Right tap zone */}
+        {currentStep < recipe.instructions.length - 1 && (
+          <button
+            onClick={goNext}
+            className="absolute right-0 top-0 bottom-0 w-1/3"
+            aria-label="Next step"
+          />
+        )}
+
+        {/* Visible nav arrows */}
+        <div className="absolute bottom-4 left-0 right-0 flex justify-between px-6">
+          <button
+            onClick={goPrev}
+            disabled={currentStep === 0}
+            className="font-sans text-sm text-white/40 disabled:invisible hover:text-white transition-colors"
+          >
+            ← Prev
+          </button>
+          <button
+            onClick={goNext}
+            disabled={currentStep === recipe.instructions.length - 1}
+            className="font-sans text-sm text-white/40 disabled:invisible hover:text-white transition-colors"
+          >
+            Next →
+          </button>
+        </div>
+      </div>
+
+      {/* Ingredient drawer */}
+      <IngredientDrawer
+        ingredients={scaledIngredients}
+        onToggle={toggleIngredient}
+        scaleFactor={scaleFactor}
+        originalServings={recipe.servings}
+        onScaleChange={setScaleFactor}
+      />
+    </div>
+  );
+}
