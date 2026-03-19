@@ -40,6 +40,14 @@ export default function ImportForm() {
   const [dietary, setDietary] = useState<string[]>([]);
   const [saving, setSaving] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
+  const [servings, setServings] = useState("");
+  const [substitutions, setSubstitutions] = useState<
+    { ingredient: string; substitute: string; notes: string }[]
+  >([]);
+  const [storageTips, setStorageTips] = useState("");
+  const [makeAheadNotes, setMakeAheadNotes] = useState("");
+  const [servingSuggestions, setServingSuggestions] = useState("");
+  const [techniqueNotes, setTechniqueNotes] = useState("");
 
   async function handleExtract(e: React.FormEvent) {
     e.preventDefault();
@@ -70,6 +78,18 @@ export default function ImportForm() {
       setMealTypes(recipe.suggestedMealTypes);
       setCuisines(recipe.suggestedCuisines);
       setDietary(recipe.suggestedDietary);
+      setServings(recipe.servings?.toString() ?? "");
+      setSubstitutions(
+        recipe.substitutions?.map((s) => ({
+          ingredient: s.ingredient,
+          substitute: s.substitute,
+          notes: s.notes ?? "",
+        })) ?? []
+      );
+      setStorageTips(recipe.storageTips ?? "");
+      setMakeAheadNotes(recipe.makeAheadNotes ?? "");
+      setServingSuggestions(recipe.servingSuggestions ?? "");
+      setTechniqueNotes(recipe.techniqueNotes ?? "");
     } catch {
       setExtractError("Failed to connect to server");
     } finally {
@@ -114,6 +134,12 @@ export default function ImportForm() {
           mealTypes,
           cuisines,
           dietary,
+          servings: servings ? parseInt(servings, 10) : undefined,
+          substitutions: substitutions.filter((s) => s.ingredient && s.substitute),
+          storageTips: storageTips || undefined,
+          makeAheadNotes: makeAheadNotes || undefined,
+          servingSuggestions: servingSuggestions || undefined,
+          techniqueNotes: techniqueNotes || undefined,
         }),
       });
 
@@ -238,6 +264,119 @@ export default function ImportForm() {
           placeholder="45"
           min="0"
         />
+
+        <Input
+          label="Servings"
+          type="number"
+          value={servings}
+          onChange={(e) => setServings(e.target.value)}
+          placeholder="4"
+          min="1"
+        />
+
+        {/* Substitutions */}
+        <div>
+          <label className="block font-sans text-xs font-semibold uppercase tracking-wider text-gray-600 mb-1">
+            Substitutions
+          </label>
+          {substitutions.map((sub, i) => (
+            <div key={i} className="flex gap-2 mb-2 items-start">
+              <input
+                value={sub.ingredient}
+                onChange={(e) => {
+                  const updated = [...substitutions];
+                  updated[i] = { ...updated[i], ingredient: e.target.value };
+                  setSubstitutions(updated);
+                }}
+                placeholder="Original ingredient"
+                className="flex-1 border border-gray-300 px-3 py-2 font-serif text-sm text-black focus:outline-none focus:border-black transition-colors"
+              />
+              <span className="text-gray-500 py-2">→</span>
+              <input
+                value={sub.substitute}
+                onChange={(e) => {
+                  const updated = [...substitutions];
+                  updated[i] = { ...updated[i], substitute: e.target.value };
+                  setSubstitutions(updated);
+                }}
+                placeholder="Substitute"
+                className="flex-1 border border-gray-300 px-3 py-2 font-serif text-sm text-black focus:outline-none focus:border-black transition-colors"
+              />
+              <button
+                onClick={() => setSubstitutions(substitutions.filter((_, j) => j !== i))}
+                className="text-gray-500 hover:text-black px-2 py-2 text-sm"
+                aria-label="Remove substitution"
+              >
+                &times;
+              </button>
+            </div>
+          ))}
+          <button
+            onClick={() =>
+              setSubstitutions([...substitutions, { ingredient: "", substitute: "", notes: "" }])
+            }
+            className="font-sans text-xs text-gray-600 hover:text-black transition-colors"
+          >
+            + Add substitution
+          </button>
+        </div>
+
+        {/* Collapsible supplementary notes */}
+        <details className="group">
+          <summary className="font-sans text-xs font-semibold uppercase tracking-wider text-gray-600 cursor-pointer hover:text-black transition-colors">
+            Additional Notes (storage, tips, serving)
+          </summary>
+          <div className="space-y-4 mt-4">
+            <div>
+              <label className="block font-sans text-xs font-semibold uppercase tracking-wider text-gray-600 mb-1">
+                Storage Tips
+              </label>
+              <textarea
+                value={storageTips}
+                onChange={(e) => setStorageTips(e.target.value)}
+                rows={2}
+                placeholder="How to store leftovers..."
+                className="w-full border border-gray-300 px-4 py-3 font-serif text-sm text-black placeholder:text-gray-500 focus:outline-none focus:border-black transition-colors resize-y"
+              />
+            </div>
+            <div>
+              <label className="block font-sans text-xs font-semibold uppercase tracking-wider text-gray-600 mb-1">
+                Make-Ahead Notes
+              </label>
+              <textarea
+                value={makeAheadNotes}
+                onChange={(e) => setMakeAheadNotes(e.target.value)}
+                rows={2}
+                placeholder="Prep-ahead instructions..."
+                className="w-full border border-gray-300 px-4 py-3 font-serif text-sm text-black placeholder:text-gray-500 focus:outline-none focus:border-black transition-colors resize-y"
+              />
+            </div>
+            <div>
+              <label className="block font-sans text-xs font-semibold uppercase tracking-wider text-gray-600 mb-1">
+                Serving Suggestions
+              </label>
+              <textarea
+                value={servingSuggestions}
+                onChange={(e) => setServingSuggestions(e.target.value)}
+                rows={2}
+                placeholder="What to serve with..."
+                className="w-full border border-gray-300 px-4 py-3 font-serif text-sm text-black placeholder:text-gray-500 focus:outline-none focus:border-black transition-colors resize-y"
+              />
+            </div>
+            <div>
+              <label className="block font-sans text-xs font-semibold uppercase tracking-wider text-gray-600 mb-1">
+                Technique Notes
+              </label>
+              <textarea
+                value={techniqueNotes}
+                onChange={(e) => setTechniqueNotes(e.target.value)}
+                rows={2}
+                placeholder="Tips and tricks..."
+                className="w-full border border-gray-300 px-4 py-3 font-serif text-sm text-black placeholder:text-gray-500 focus:outline-none focus:border-black transition-colors resize-y"
+              />
+            </div>
+          </div>
+        </details>
 
         <Divider className="my-6" />
 
