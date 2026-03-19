@@ -3,6 +3,29 @@
 
 import { useState, useEffect, useCallback, useRef } from "react";
 
+// Web Speech API type declarations (not in default TS lib)
+interface SpeechRecognitionEvent extends Event {
+  results: SpeechRecognitionResultList;
+}
+
+interface SpeechRecognitionInstance extends EventTarget {
+  continuous: boolean;
+  interimResults: boolean;
+  lang: string;
+  onresult: ((event: SpeechRecognitionEvent) => void) | null;
+  onerror: (() => void) | null;
+  onend: (() => void) | null;
+  start(): void;
+  stop(): void;
+}
+
+declare global {
+  interface Window {
+    SpeechRecognition?: new () => SpeechRecognitionInstance;
+    webkitSpeechRecognition?: new () => SpeechRecognitionInstance;
+  }
+}
+
 interface VoiceControlProps {
   onCommand: (command: "next" | "previous" | "repeat" | "ingredients") => void;
   enabled: boolean;
@@ -11,7 +34,7 @@ interface VoiceControlProps {
 export default function VoiceControl({ onCommand, enabled }: VoiceControlProps) {
   const [listening, setListening] = useState(false);
   const [supported, setSupported] = useState(false);
-  const recognitionRef = useRef<SpeechRecognition | null>(null);
+  const recognitionRef = useRef<SpeechRecognitionInstance | null>(null);
   const onCommandRef = useRef(onCommand);
   onCommandRef.current = onCommand; // always latest, avoids re-creating recognition
 
