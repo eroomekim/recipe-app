@@ -1,3 +1,11 @@
+// src/types/index.ts
+
+export interface SubstitutionData {
+  ingredient: string;
+  substitute: string;
+  notes?: string;
+}
+
 export interface ExtractedRecipe {
   title: string;
   ingredients: string[];
@@ -7,6 +15,13 @@ export interface ExtractedRecipe {
   suggestedCuisines: string[];
   suggestedDietary: string[];
   suggestedCookTimeMinutes: number | null;
+  // New fields
+  servings: number | null;
+  substitutions: SubstitutionData[];
+  storageTips: string;
+  makeAheadNotes: string;
+  servingSuggestions: string;
+  techniqueNotes: string;
 }
 
 export interface CreateRecipeRequest {
@@ -19,6 +34,13 @@ export interface CreateRecipeRequest {
   mealTypes: string[];
   cuisines: string[];
   dietary: string[];
+  // New fields
+  servings?: number;
+  substitutions?: SubstitutionData[];
+  storageTips?: string;
+  makeAheadNotes?: string;
+  servingSuggestions?: string;
+  techniqueNotes?: string;
 }
 
 export interface RecipeCardData {
@@ -30,6 +52,7 @@ export interface RecipeCardData {
   ingredientCount: number;
   instructionCount: number;
   firstInstruction: string | null;
+  isFavorite: boolean;
   tags: {
     name: string;
     type: "MEAL_TYPE" | "CUISINE" | "DIETARY";
@@ -43,14 +66,32 @@ export interface RecipeDetail {
   cookTime: number | null;
   images: string[];
   createdAt: string;
+  servings: number | null;
+  storageTips: string | null;
+  makeAheadNotes: string | null;
+  servingSuggestions: string | null;
+  techniqueNotes: string | null;
+  personalNotes: string | null;
+  personalAdaptations: string | null;
+  isFavorite: boolean;
   ingredients: {
     id: string;
     text: string;
     order: number;
+    quantity: number | null;
+    unit: string | null;
+    name: string | null;
   }[];
   instructions: {
     id: string;
     text: string;
+    order: number;
+  }[];
+  substitutions: {
+    id: string;
+    ingredient: string;
+    substitute: string;
+    notes: string | null;
     order: number;
   }[];
   tags: {
