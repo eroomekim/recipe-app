@@ -8,12 +8,13 @@ datasource db {
 }
 
 model User {
-  id        String   @id
-  email     String   @unique
-  name      String?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  recipes   Recipe[]
+  id          String       @id
+  email       String       @unique
+  name        String?
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  recipes     Recipe[]
+  collections Collection[]
 }
 
 model Recipe {
@@ -35,11 +36,12 @@ model Recipe {
   isFavorite          Boolean   @default(false)
   lastViewedAt        DateTime?
 
-  user          User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user          User               @relation(fields: [userId], references: [id], onDelete: Cascade)
   ingredients   Ingredient[]
   instructions  Instruction[]
   tags          RecipeTag[]
   substitutions Substitution[]
+  collections   RecipeCollection[]
 
   @@index([userId])
   @@index([createdAt])
@@ -97,6 +99,41 @@ model RecipeTag {
   tag      Tag    @relation(fields: [tagId], references: [id], onDelete: Cascade)
 
   @@id([recipeId, tagId])
+}
+
+model Collection {
+  id          String             @id @default(cuid())
+  userId      String
+  name        String
+  description String?
+  createdAt   DateTime           @default(now())
+  updatedAt   DateTime           @updatedAt
+
+  user    User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  recipes RecipeCollection[]
+
+  @@index([userId])
+}
+
+model RecipeCollection {
+  recipeId     String
+  collectionId String
+
+  recipe     Recipe     @relation(fields: [recipeId], references: [id], onDelete: Cascade)
+  collection Collection @relation(fields: [collectionId], references: [id], onDelete: Cascade)
+
+  @@id([recipeId, collectionId])
+}
+
+model SmartCollectionCache {
+  id          String   @id @default(cuid())
+  userId      String
+  type        String
+  recipeIds   String[]
+  generatedAt DateTime @default(now())
+
+  @@unique([userId, type])
+  @@index([userId])
 }
 
 enum TagType {
