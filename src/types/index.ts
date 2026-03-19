@@ -99,3 +99,30 @@ export interface RecipeDetail {
     type: "MEAL_TYPE" | "CUISINE" | "DIETARY";
   }[];
 }
+
+export interface CollectionData {
+  id: string;
+  name: string;
+  description: string | null;
+  recipeCount: number;
+  previewImages: string[];
+}
+
+export interface SmartCollectionData {
+  id: string;
+  name: string;
+  type: "rule" | "ai";
+  recipeIds: string[];
+  recipeCount: number;
+  previewImages: string[];
+}
+
+export interface ScaledIngredient {
+  text: string;
+  scaledText: string;
+  quantity: number | null;
+  scaledQuantity: number | null;
+  unit: string | null;
+  name: string | null;
+  checked: boolean;
+}
