@@ -2,7 +2,7 @@ import { createClient } from "@/lib/supabase/server";
 import { prisma } from "@/lib/prisma";
 import { ensureUser } from "@/lib/auth";
 import { redirect } from "next/navigation";
-import RecipeGrid from "@/components/recipes/RecipeGrid";
+import RecipeCollection from "@/components/recipes/RecipeCollection";
 import Link from "next/link";
 import type { RecipeCardData } from "@/types";
 
@@ -45,6 +45,7 @@ export default async function RecipesPage() {
     ingredientCount: r._count.ingredients,
     instructionCount: r._count.instructions,
     firstInstruction: r.instructions[0]?.text ?? null,
+    isFavorite: r.isFavorite,
     tags: r.tags.map((rt) => ({
       name: rt.tag.name,
       type: rt.tag.type,
@@ -79,7 +80,7 @@ export default async function RecipesPage() {
           {recipeCards.length} {recipeCards.length === 1 ? "Recipe" : "Recipes"}
         </span>
       </div>
-      <RecipeGrid recipes={recipeCards} />
+      <RecipeCollection recipes={recipeCards} />
     </main>
   );
 }
