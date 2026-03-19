@@ -1,9 +1,11 @@
 "use client";
 
+import { useState } from "react";
 import ImageCarousel from "./ImageCarousel";
 import PersonalNotes from "./PersonalNotes";
 import FavoriteButton from "./FavoriteButton";
 import AddToCollectionButton from "./AddToCollectionButton";
+import CookingMode from "@/components/cooking/CookingMode";
 import Divider from "@/components/ui/Divider";
 import type { RecipeDetail } from "@/types";
 
@@ -20,6 +22,8 @@ export default function RecipePage({
   totalPages,
   onClose,
 }: RecipePageProps) {
+  const [cooking, setCooking] = useState(false);
+
   const mealTypes = recipe.tags
     .filter((t) => t.type === "MEAL_TYPE")
     .map((t) => t.name);
@@ -30,6 +34,10 @@ export default function RecipePage({
   const additionalImages = recipe.images.slice(4);
 
   const rubricParts = [...mealTypes, ...cuisines].filter(Boolean);
+
+  if (cooking) {
+    return <CookingMode recipe={recipe} onExit={() => setCooking(false)} />;
+  }
 
   return (
     <div className="bg-white max-w-article mx-auto overflow-y-auto max-h-[90vh]">
@@ -115,6 +123,12 @@ export default function RecipePage({
             </a>
           )}
           <AddToCollectionButton recipeId={recipe.id} />
+          <button
+            onClick={() => setCooking(true)}
+            className="bg-black text-white font-sans text-xs font-semibold uppercase tracking-wider px-4 py-1.5 hover:bg-gray-900 transition-colors"
+          >
+            Start Cooking
+          </button>
         </div>
 
         {/* Personal notes */}
