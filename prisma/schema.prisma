@@ -25,10 +25,21 @@ model Recipe {
   images       String[]
   createdAt    DateTime      @default(now())
   updatedAt    DateTime      @updatedAt
-  user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
-  ingredients  Ingredient[]
-  instructions Instruction[]
-  tags         RecipeTag[]
+  servings            Int?
+  storageTips         String?
+  makeAheadNotes      String?
+  servingSuggestions  String?
+  techniqueNotes      String?
+  personalNotes       String?
+  personalAdaptations String?
+  isFavorite          Boolean   @default(false)
+  lastViewedAt        DateTime?
+
+  user          User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  ingredients   Ingredient[]
+  instructions  Instruction[]
+  tags          RecipeTag[]
+  substitutions Substitution[]
 
   @@index([userId])
   @@index([createdAt])
@@ -39,6 +50,9 @@ model Ingredient {
   recipeId String
   text     String
   order    Int
+  quantity Float?
+  unit     String?
+  name     String?
   recipe   Recipe @relation(fields: [recipeId], references: [id], onDelete: Cascade)
 
   @@index([recipeId])
@@ -50,6 +64,19 @@ model Instruction {
   text     String
   order    Int
   recipe   Recipe @relation(fields: [recipeId], references: [id], onDelete: Cascade)
+
+  @@index([recipeId])
+}
+
+model Substitution {
+  id         String  @id @default(cuid())
+  recipeId   String
+  ingredient String
+  substitute String
+  notes      String?
+  order      Int
+
+  recipe Recipe @relation(fields: [recipeId], references: [id], onDelete: Cascade)
 
   @@index([recipeId])
 }
