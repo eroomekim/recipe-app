@@ -4,7 +4,7 @@
 
 ## Overview
 
-A mobile-first, editorial-style recipe collection app inspired by The New Yorker's design language. Users paste food blog URLs, AI extracts the recipe, and it's saved to a personal collection. The MVP covers project setup, the design system, authentication, AI-powered recipe import, and a grid-based recipe collection view.
+A mobile-first, editorial-style recipe collection app inspired by The New Yorker's design language. Users paste food blog URLs, the server extracts the recipe via JSON-LD / HTML scraping, and it's saved to a personal collection. The MVP covers project setup, the design system, authentication, server-side recipe import, and a grid-based recipe collection view.
 
 ## Key Decisions (Deviations from PRD)
 
@@ -13,7 +13,7 @@ A mobile-first, editorial-style recipe collection app inspired by The New Yorker
 | Database | PostgreSQL (generic) | Supabase (hosted Postgres) |
 | Auth | NextAuth.js + credentials + Google OAuth | Supabase Auth (email/password + Google OAuth) |
 | Image Storage | Store source blog URLs only | Download & store in Supabase Storage |
-| AI Extraction | Flexible (fetch via AI) | Cheerio scrape → pass HTML to Anthropic API |
+| Extraction | Flexible (fetch via AI) | Cheerio scrape → JSON-LD schema.org parsing + HTML fallback (no AI) |
 | Scope | Phases 1–5 | Phases 1–2 (MVP) |
 
 ## Deferred to Post-MVP
@@ -39,7 +39,7 @@ A mobile-first, editorial-style recipe collection app inspired by The New Yorker
 | Database | Supabase (PostgreSQL) |
 | ORM | Prisma |
 | Auth | Supabase Auth (email/password + Google OAuth) |
-| AI | Anthropic API (Claude) |
+| Extraction | Cheerio (JSON-LD + HTML parsing) |
 | Scraping | Cheerio |
 | Image Storage | Supabase Storage |
 | Deployment | Vercel |
@@ -152,7 +152,7 @@ Dietary: Vegan, Vegetarian, Gluten-Free, Dairy-Free, Keto, Paleo, Nut-Free, Low-
 - `/signup` — email/password registration + "Sign up with Google" button
 - Styled to match the design system (minimal, typography-first)
 
-## 4. AI Recipe Extraction Pipeline
+## 4. Recipe Extraction Pipeline
 
 ### Flow
 
@@ -160,10 +160,12 @@ Dietary: Vegan, Vegetarian, Gluten-Free, Dairy-Free, Keto, Paleo, Nut-Free, Low-
 2. Client sends `POST /api/extract` with `{ url }`
 3. Server validates URL format
 4. Server fetches the page with `fetch()`
-5. Cheerio parses HTML — extracts `<body>`, strips `<script>`, `<style>`, `<nav>`, `<footer>`, ads. Collects all `<img>` tags with `src` and `alt` attributes
-6. Cleaned HTML + image list sent to Anthropic API with structured prompt requesting JSON: title, ingredients, instructions, relevant image URLs (2–8, food/step images only), suggested tags, cook time
-7. AI response parsed and validated against expected JSON shape
-8. Result returned to client for review
+5. Cheerio parses HTML and extracts recipe data:
+   a. Extracts all `<script type="application/ld+json">` blocks and searches for a `schema.org/Recipe` object (handles direct objects, arrays, and `@graph` patterns from Yoast SEO / WP Recipe Maker)
+   b. If JSON-LD found: maps fields to `ExtractedRecipe` (title, ingredients, instructions, images, tags, cook time)
+   c. If not found: falls back to HTML pattern matching using common recipe card selectors (WPRM, Tasty Recipes, itemprop microdata)
+   d. Collects page images, filtering out logos/icons/tracking pixels
+6. Structured result returned to client for review
 
 ### Image Handling
 
@@ -176,7 +178,8 @@ Images are downloaded and uploaded to Supabase Storage at **save time**, not ext
 ### Error Handling
 
 - URL unreachable → clear error message to user
-- AI extraction fails or malformed JSON → retry once, then show error with manual entry fallback
+- No structured recipe data found (no JSON-LD, HTML fallback yields nothing) → return 422 with helpful message suggesting manual entry
+- Extraction fails → retry once, then show error with manual entry fallback
 - Image download fails → skip that image, continue with the rest
 
 ### Rate Limiting (MVP)
@@ -270,7 +273,7 @@ src/
 │   │   ├── client.ts           # Browser Supabase client
 │   │   ├── server.ts           # Server Supabase client
 │   │   └── middleware.ts       # Auth middleware helper
-│   ├── ai.ts                   # Scraping + Anthropic extraction logic
+│   ├── scraper.ts              # JSON-LD + HTML recipe extraction logic
 │   ├── storage.ts              # Supabase Storage upload helpers
 │   └── utils.ts
 ├── hooks/
@@ -375,8 +378,8 @@ SUPABASE_SERVICE_ROLE_KEY=
 # Database (Supabase connection string)
 DATABASE_URL=
 
-# AI
-ANTHROPIC_API_KEY=
+# Extraction (no API key required — uses server-side scraping)
+# ANTHROPIC_API_KEY=
 
 # Optional
 RATE_LIMIT_DAILY=20

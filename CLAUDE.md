@@ -1,6 +1,6 @@
 # Recipe Book — Product Requirements Document
 
-> A mobile-first, editorial-style recipe collection app inspired by The New Yorker's design language. Built with Next.js, Tailwind CSS, PostgreSQL + Prisma, and AI-powered recipe extraction.
+> A mobile-first, editorial-style recipe collection app inspired by The New Yorker's design language. Built with Next.js, Tailwind CSS, PostgreSQL + Prisma, and server-side recipe extraction.
 
 ---
 
@@ -25,11 +25,11 @@
 
 ### Vision
 
-A personal recipe book that imports recipes from food blogs via URL, automatically extracting titles, ingredients, instructions, and 2–8 images using AI. Recipes are categorized and tagged for filtering. The browsing experience is a card/page-flip booklet — one recipe at a time — with an editorial design aesthetic mirroring The New Yorker's typography-first, restrained visual language.
+A personal recipe book that imports recipes from food blogs via URL, automatically extracting titles, ingredients, instructions, and 2–8 images using server-side scraping of structured recipe data (JSON-LD / schema.org). Recipes are categorized and tagged for filtering. The browsing experience is a card/page-flip booklet — one recipe at a time — with an editorial design aesthetic mirroring The New Yorker's typography-first, restrained visual language.
 
 ### Core Value Proposition
 
-- **Paste a URL** → AI extracts the recipe, images, and suggests tags
+- **Paste a URL** → server-side scraper extracts the recipe, images, and suggests tags
 - **Review and edit** before saving to your personal collection
 - **Browse like a booklet** — flip through recipes one at a time
 - **Search and filter** by meal type, cuisine, dietary tags, and cook time
@@ -100,19 +100,20 @@ A personal recipe book that imports recipes from food blogs via URL, automatical
 
 ## 4. Feature Specifications
 
-### 4.1 AI Recipe Extraction
+### 4.1 Recipe Extraction (Server-Side Scraping)
 
 **Input:** A URL to a food blog recipe page.
 
 **Process:**
 1. User pastes URL into import form
 2. Server-side API route receives URL
-3. AI model (implementation flexible — Anthropic API, OpenAI, or similar) is called with a prompt to:
-   - Fetch and parse the page content
-   - Extract: title, ingredients list, instructions list, 2–8 food/step images (skip logos, ads, icons)
-   - Suggest: meal type(s), cuisine(s), dietary tag(s), cook time in minutes
-4. Return structured JSON to client
-5. Client renders review/edit form pre-populated with extracted data
+3. Server fetches the page with `fetch()`
+4. Cheerio parses HTML and extracts recipe data via two strategies:
+   - **Primary: JSON-LD parsing** — extracts `schema.org/Recipe` structured data from `<script type="application/ld+json">` tags (handles direct objects, arrays, and `@graph` patterns from Yoast SEO / WP Recipe Maker)
+   - **Fallback: HTML pattern matching** — uses common recipe card selectors (WPRM, Tasty Recipes, `itemprop` microdata) when no JSON-LD is present
+5. Maps extracted fields to `ExtractedRecipe` shape: title, ingredients, instructions, 2–8 images (filtering out logos/icons/tracking pixels), suggested tags (meal type, cuisine, dietary), and cook time (parsed from ISO 8601 durations)
+6. Return structured JSON to client
+7. Client renders review/edit form pre-populated with extracted data
 
 **Output JSON shape:**
 ```json
@@ -124,14 +125,16 @@ A personal recipe book that imports recipes from food blogs via URL, automatical
   "suggestedMealTypes": ["Dinner"],
   "suggestedCuisines": ["Italian"],
   "suggestedDietary": ["Vegetarian"],
-  "suggestedCookTimeMinutes": 45
+  "suggestedCookTimeMinutes": 45,
+  "_meta": { "method": "json-ld" }
 }
 ```
 
 **Error handling:**
 - If extraction fails, show a clear error message and offer manual entry fallback
 - If the URL is unreachable, inform the user
-- Rate limit AI calls per user (e.g., 20 imports/day)
+- If no structured recipe data is found (no JSON-LD and HTML fallback yields nothing), return 422 with a helpful message
+- Rate limit extraction calls per user (e.g., 20 imports/day)
 
 ### 4.2 Recipe Review & Edit
 
@@ -463,7 +466,7 @@ const inter = Inter({
 | Database | **PostgreSQL** |
 | ORM | **Prisma** |
 | Authentication | **NextAuth.js** (Auth.js v5) — Email/password + Google OAuth |
-| AI Extraction | Server-side API route calling an LLM with web search/fetch capability (Anthropic API recommended, but implementation flexible) |
+| Extraction | **Cheerio** — JSON-LD (`schema.org/Recipe`) parsing + HTML fallback selectors. No external AI API required. |
 | Image Storage | Store image URLs from source blogs (no re-hosting in v1). Consider Cloudinary or S3 for future image caching/optimization. |
 | Deployment | **Vercel** (recommended) or any Node.js host |
 | Package Manager | **pnpm** (recommended) or npm |
@@ -498,7 +501,7 @@ recipe-book/
 │   │       │   ├── route.ts      # GET (list), POST (create)
 │   │       │   └── [id]/route.ts # GET, PUT, DELETE
 │   │       └── extract/
-│   │           └── route.ts      # POST — AI extraction endpoint
+│   │           └── route.ts      # POST — server-side recipe extraction endpoint
 │   ├── components/
 │   │   ├── ui/                   # Generic UI primitives
 │   │   │   ├── Button.tsx
@@ -526,7 +529,7 @@ recipe-book/
 │   ├── lib/
 │   │   ├── prisma.ts             # Prisma client singleton
 │   │   ├── auth.ts               # NextAuth config
-│   │   ├── ai.ts                 # AI extraction logic
+│   │   ├── scraper.ts             # JSON-LD + HTML recipe extraction logic
 │   │   └── utils.ts              # Shared utilities
 │   ├── hooks/
 │   │   ├── useRecipes.ts         # Recipe CRUD hooks
@@ -694,7 +697,7 @@ const dietary = ['Vegan', 'Vegetarian', 'Gluten-Free', 'Dairy-Free', 'Keto',
 
 ### `POST /api/extract`
 
-AI-powered recipe extraction from URL.
+Server-side recipe extraction from URL.
 
 **Request:**
 ```json
@@ -903,10 +906,10 @@ NEXTAUTH_SECRET=
 GOOGLE_CLIENT_ID=
 GOOGLE_CLIENT_SECRET=
 
-# AI (choose one)
-ANTHROPIC_API_KEY=
-# or
-OPENAI_API_KEY=
+# Extraction (no API key required — uses server-side scraping)
+# AI extraction deferred to future phase
+# ANTHROPIC_API_KEY=
+# OPENAI_API_KEY=
 
 # Optional
 RATE_LIMIT_DAILY=20
@@ -938,7 +941,7 @@ RATE_LIMIT_DAILY=20
 
 ### Phase 2 — Core Recipe Features
 
-- [ ] Build `/api/extract` route with AI recipe extraction
+- [ ] Build `/api/extract` route with server-side recipe extraction
 - [ ] Build Import page (URL input → extraction → review/edit → save)
 - [ ] Build `/api/recipes` CRUD routes
 - [ ] Build RecipeCard component

@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
-import { scrapeRecipePage, extractRecipe } from "@/lib/ai";
+import { scrapePage, extractRecipeFromPage } from "@/lib/scraper";
 
 // Simple in-memory rate limiting
 const rateLimitMap = new Map<string, { count: number; date: string }>();
@@ -57,9 +57,29 @@ export async function POST(request: Request) {
   // Attempt extraction with one retry
   for (let attempt = 0; attempt < 2; attempt++) {
     try {
-      const { html, images } = await scrapeRecipePage(url);
-      const recipe = await extractRecipe(html, images);
-      return NextResponse.json(recipe);
+      const page = await scrapePage(url);
+      const recipe = extractRecipeFromPage(page);
+
+      // Validate we got something useful
+      if (!recipe.title || recipe.title === "Untitled Recipe") {
+        if (recipe.ingredients.length === 0 && recipe.instructions.length === 0) {
+          return NextResponse.json(
+            {
+              error:
+                "Could not extract a recipe from this page. The page may not contain structured recipe data. Try a different URL or use manual entry.",
+            },
+            { status: 422 }
+          );
+        }
+      }
+
+      return NextResponse.json({
+        ...recipe,
+        sourceUrl: url,
+        _meta: {
+          method: page.jsonLd ? "json-ld" : "html-fallback",
+        },
+      });
     } catch (err) {
       if (attempt === 1) {
         console.error("Extraction failed after retry:", err);
