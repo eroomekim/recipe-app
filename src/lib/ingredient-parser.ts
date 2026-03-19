@@ -61,7 +61,7 @@ function extractQuantity(text: string): { quantity: number; rest: string } | nul
     }
   }
 
-  const match = text.match(/^(\d+)\s+(\d+)\/(\d+)\s+(.*)$/s);
+  const match = text.match(/^(\d+)\s+(\d+)\/(\d+)\s+(.*)$/);
   if (match) {
     const whole = parseInt(match[1], 10);
     const num = parseInt(match[2], 10);
@@ -71,7 +71,7 @@ function extractQuantity(text: string): { quantity: number; rest: string } | nul
     }
   }
 
-  const fracMatch = text.match(/^(\d+)\/(\d+)\s+(.*)$/s);
+  const fracMatch = text.match(/^(\d+)\/(\d+)\s+(.*)$/);
   if (fracMatch) {
     const num = parseInt(fracMatch[1], 10);
     const den = parseInt(fracMatch[2], 10);
@@ -80,7 +80,7 @@ function extractQuantity(text: string): { quantity: number; rest: string } | nul
     }
   }
 
-  const decMatch = text.match(/^(\d+(?:\.\d+)?)\s+(.*)$/s);
+  const decMatch = text.match(/^(\d+(?:\.\d+)?)\s+(.*)$/);
   if (decMatch) {
     return { quantity: parseFloat(decMatch[1]), rest: decMatch[2] };
   }
