@@ -29,6 +29,7 @@ interface SchemaRecipe {
   recipeCuisine?: string | string[];
   keywords?: string | string[];
   suitableForDiet?: string | string[];
+  recipeYield?: string | string[];  // ← ADD THIS
   [key: string]: unknown;
 }
 
@@ -541,6 +542,17 @@ function parseDuration(duration?: string | null): number | null {
   if (minMatch) totalMinutes += parseInt(minMatch[1], 10);
 
   return totalMinutes > 0 ? totalMinutes : null;
+}
+
+/**
+ * Parse recipeYield (e.g., "4 servings", "12 cookies", "6") to integer.
+ */
+export function parseServings(value?: string | string[] | null): number | null {
+  if (!value) return null;
+  const str = Array.isArray(value) ? value[0] : value;
+  if (!str) return null;
+  const match = str.match(/(\d+)/);
+  return match ? parseInt(match[1], 10) : null;
 }
 
 function matchTags(sources: string[], validTags: string[]): string[] {
