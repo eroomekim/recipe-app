@@ -23,6 +23,7 @@ export async function GET(
     include: {
       ingredients: { orderBy: { order: "asc" } },
       instructions: { orderBy: { order: "asc" } },
+      substitutions: { orderBy: { order: "asc" } },
       tags: { include: { tag: true } },
     },
   });
@@ -31,6 +32,11 @@ export async function GET(
     return NextResponse.json({ error: "Not found" }, { status: 404 });
   }
 
+  await prisma.recipe.update({
+    where: { id },
+    data: { lastViewedAt: new Date() },
+  });
+
   const result: RecipeDetail = {
     id: recipe.id,
     title: recipe.title,
@@ -38,15 +44,33 @@ export async function GET(
     cookTime: recipe.cookTime,
     images: recipe.images,
     createdAt: recipe.createdAt.toISOString(),
+    servings: recipe.servings,
+    storageTips: recipe.storageTips,
+    makeAheadNotes: recipe.makeAheadNotes,
+    servingSuggestions: recipe.servingSuggestions,
+    techniqueNotes: recipe.techniqueNotes,
+    personalNotes: recipe.personalNotes,
+    personalAdaptations: recipe.personalAdaptations,
+    isFavorite: recipe.isFavorite,
     ingredients: recipe.ingredients.map((i) => ({
       id: i.id,
       text: i.text,
       order: i.order,
+      quantity: i.quantity,
+      unit: i.unit,
+      name: i.name,
     })),
     instructions: recipe.instructions.map((i) => ({
       id: i.id,
       text: i.text,
       order: i.order,
+    })),
+    substitutions: recipe.substitutions.map((s) => ({
+      id: s.id,
+      ingredient: s.ingredient,
+      substitute: s.substitute,
+      notes: s.notes,
+      order: s.order,
     })),
     tags: recipe.tags.map((rt) => ({
       name: rt.tag.name,
@@ -55,6 +79,51 @@ export async function GET(
   };
 
   return NextResponse.json(result);
+}
+
+export async function PUT(
+  request: Request,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  const { id } = await params;
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  const recipe = await prisma.recipe.findUnique({
+    where: { id },
+    select: { userId: true },
+  });
+
+  if (!recipe || recipe.userId !== user.id) {
+    return NextResponse.json({ error: "Not found" }, { status: 404 });
+  }
+
+  const body = await request.json();
+
+  const updateData: Record<string, unknown> = {};
+  if (body.personalNotes !== undefined) updateData.personalNotes = body.personalNotes;
+  if (body.personalAdaptations !== undefined) updateData.personalAdaptations = body.personalAdaptations;
+  if (body.isFavorite !== undefined) updateData.isFavorite = body.isFavorite;
+  if (body.title !== undefined) updateData.title = body.title;
+  if (body.cookTime !== undefined) updateData.cookTime = body.cookTime;
+  if (body.servings !== undefined) updateData.servings = body.servings;
+  if (body.storageTips !== undefined) updateData.storageTips = body.storageTips;
+  if (body.makeAheadNotes !== undefined) updateData.makeAheadNotes = body.makeAheadNotes;
+  if (body.servingSuggestions !== undefined) updateData.servingSuggestions = body.servingSuggestions;
+  if (body.techniqueNotes !== undefined) updateData.techniqueNotes = body.techniqueNotes;
+
+  const updated = await prisma.recipe.update({
+    where: { id },
+    data: updateData,
+  });
+
+  return NextResponse.json(updated);
 }
 
 export async function DELETE(

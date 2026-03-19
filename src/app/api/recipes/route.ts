@@ -5,6 +5,16 @@ import { ensureUser } from "@/lib/auth";
 import { uploadRecipeImages } from "@/lib/storage";
 import { createId } from "@paralleldrive/cuid2";
 import type { CreateRecipeRequest, RecipeCardData } from "@/types";
+import { parseIngredient } from "@/lib/ingredient-parser";
+
+function parseIngredientFields(text: string) {
+  const parsed = parseIngredient(text);
+  return {
+    quantity: parsed.quantity,
+    unit: parsed.unit,
+    name: parsed.name,
+  };
+}
 
 export async function GET() {
   const supabase = await createClient();
@@ -47,6 +57,7 @@ export async function GET() {
     ingredientCount: r._count.ingredients,
     instructionCount: r._count.instructions,
     firstInstruction: r.instructions[0]?.text ?? null,
+    isFavorite: r.isFavorite,
     tags: r.tags.map((rt) => ({
       name: rt.tag.name,
       type: rt.tag.type,
@@ -100,15 +111,29 @@ export async function POST(request: Request) {
       sourceUrl: body.sourceUrl,
       cookTime: body.cookTime,
       images: storedImages,
+      servings: body.servings ?? null,
+      storageTips: body.storageTips ?? null,
+      makeAheadNotes: body.makeAheadNotes ?? null,
+      servingSuggestions: body.servingSuggestions ?? null,
+      techniqueNotes: body.techniqueNotes ?? null,
       ingredients: {
         create: body.ingredients.map((text, i) => ({
           text,
           order: i,
+          ...parseIngredientFields(text),
         })),
       },
       instructions: {
         create: body.instructions.map((text, i) => ({
           text,
+          order: i,
+        })),
+      },
+      substitutions: {
+        create: (body.substitutions ?? []).map((sub, i) => ({
+          ingredient: sub.ingredient,
+          substitute: sub.substitute,
+          notes: sub.notes ?? null,
           order: i,
         })),
       },
