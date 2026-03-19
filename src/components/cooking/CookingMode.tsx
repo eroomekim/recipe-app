@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
 import CookingStep from "./CookingStep";
 import IngredientDrawer from "./IngredientDrawer";
+import VoiceControl from "./VoiceControl";
 import { useWakeLock } from "@/hooks/useWakeLock";
 import { scaleIngredient } from "@/lib/ingredient-scaler";
 import type { RecipeDetail, ScaledIngredient } from "@/types";
@@ -16,6 +17,7 @@ export default function CookingMode({ recipe, onExit }: CookingModeProps) {
   const [currentStep, setCurrentStep] = useState(0);
   const [scaleFactor, setScaleFactor] = useState(1);
   const [checkedIngredients, setCheckedIngredients] = useState<Set<number>>(new Set());
+  const [guidedMode, setGuidedMode] = useState(false);
   const wakeLock = useWakeLock();
 
   // Request wake lock on mount
@@ -69,6 +71,17 @@ export default function CookingMode({ recipe, onExit }: CookingModeProps) {
     });
   }, []);
 
+  const handleVoiceCommand = useCallback((command: "next" | "previous" | "repeat" | "ingredients") => {
+    if (command === "next") setCurrentStep((s) => Math.min(s + 1, recipe.instructions.length - 1));
+    else if (command === "previous") setCurrentStep((s) => Math.max(s - 1, 0));
+    else if (command === "repeat") {
+      if ("speechSynthesis" in window) {
+        const utterance = new SpeechSynthesisUtterance(recipe.instructions[currentStep].text);
+        window.speechSynthesis.speak(utterance);
+      }
+    }
+  }, [currentStep, recipe.instructions]);
+
   const goPrev = () => setCurrentStep((s) => Math.max(s - 1, 0));
   const goNext = () => setCurrentStep((s) => Math.min(s + 1, recipe.instructions.length - 1));
 
@@ -79,12 +92,25 @@ export default function CookingMode({ recipe, onExit }: CookingModeProps) {
         <h1 className="font-display text-base font-bold text-white truncate max-w-[60%]">
           {recipe.title}
         </h1>
-        <button
-          onClick={onExit}
-          className="font-sans text-xs font-semibold uppercase tracking-wider text-white/50 hover:text-white transition-colors"
-        >
-          Exit
-        </button>
+        <div className="flex items-center gap-4">
+          {guidedMode && (
+            <VoiceControl enabled={guidedMode} onCommand={handleVoiceCommand} />
+          )}
+          <button
+            onClick={() => setGuidedMode(!guidedMode)}
+            className={`font-sans text-xs font-semibold uppercase tracking-wider transition-colors ${
+              guidedMode ? "text-red" : "text-white/50 hover:text-white"
+            }`}
+          >
+            {guidedMode ? "Guided On" : "Guided"}
+          </button>
+          <button
+            onClick={onExit}
+            className="font-sans text-xs font-semibold uppercase tracking-wider text-white/50 hover:text-white transition-colors"
+          >
+            Exit
+          </button>
+        </div>
       </div>
 
       {/* Step content — large tap zones */}
