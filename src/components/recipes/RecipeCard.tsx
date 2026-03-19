@@ -1,5 +1,6 @@
 import Link from "next/link";
 import type { RecipeCardData } from "@/types";
+import FavoriteButton from "./FavoriteButton";
 
 export default function RecipeCard({ recipe }: { recipe: RecipeCardData }) {
   const mealType = recipe.tags.find((t) => t.type === "MEAL_TYPE");
@@ -14,11 +15,16 @@ export default function RecipeCard({ recipe }: { recipe: RecipeCardData }) {
     <Link href={`/recipes/${recipe.id}`}>
       <article className="group">
         {heroImage ? (
-          <div className="aspect-3/2 overflow-hidden bg-gray-50">
+          <div className="relative aspect-3/2 overflow-hidden bg-gray-50">
             <img
               src={heroImage}
               alt={recipe.title}
               className="w-full h-full object-cover group-hover:scale-[1.03] transition-transform duration-400"
+            />
+            <FavoriteButton
+              recipeId={recipe.id}
+              initialFavorite={recipe.isFavorite}
+              className="absolute top-2 right-2 z-10"
             />
           </div>
         ) : (
