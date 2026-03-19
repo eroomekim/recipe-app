@@ -1,0 +1,56 @@
+// src/components/recipes/AddToCollectionButton.tsx
+"use client";
+
+import { useState, useEffect } from "react";
+import type { CollectionData } from "@/types";
+
+interface Props {
+  recipeId: string;
+}
+
+export default function AddToCollectionButton({ recipeId }: Props) {
+  const [open, setOpen] = useState(false);
+  const [collections, setCollections] = useState<CollectionData[]>([]);
+
+  useEffect(() => {
+    if (open) {
+      fetch("/api/collections").then((r) => r.json()).then(setCollections);
+    }
+  }, [open]);
+
+  async function addToCollection(collectionId: string) {
+    await fetch(`/api/collections/${collectionId}/recipes`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ recipeId }),
+    });
+    setOpen(false);
+  }
+
+  return (
+    <div className="relative">
+      <button
+        onClick={(e) => { e.preventDefault(); e.stopPropagation(); setOpen(!open); }}
+        className="font-sans text-xs font-semibold text-gray-500 hover:text-black transition-colors"
+      >
+        + Collection
+      </button>
+      {open && (
+        <div className="absolute bottom-full mb-1 left-0 bg-white border border-gray-200 shadow-sm py-1 min-w-[160px] z-30">
+          {collections.map((c) => (
+            <button
+              key={c.id}
+              onClick={() => addToCollection(c.id)}
+              className="block w-full text-left px-3 py-1.5 font-sans text-xs text-gray-600 hover:bg-gray-50 hover:text-black transition-colors"
+            >
+              {c.name}
+            </button>
+          ))}
+          {collections.length === 0 && (
+            <p className="px-3 py-1.5 font-sans text-xs text-gray-400">No collections yet</p>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
