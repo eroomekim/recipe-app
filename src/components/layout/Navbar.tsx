@@ -59,7 +59,7 @@ export default function Navbar({ user }: NavbarProps) {
 
           {/* Desktop nav links */}
           {user && (
-            <div className="hidden md:flex items-center gap-6 ml-auto mr-auto">
+            <div className="hidden md:flex items-center gap-6">
               <Link
                 href="/recipes"
                 className="font-sans text-base font-bold uppercase tracking-normal text-gray-900 hover:text-black transition-colors"
