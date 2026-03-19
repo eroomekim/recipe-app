@@ -1,10 +1,13 @@
 import * as cheerio from "cheerio";
 import type { ExtractedRecipe } from "@/types";
+import { extractRecipeNotes } from "./scraper-notes";
+import type { RecipeNotes } from "./scraper-notes";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
 interface ScrapedPage {
   html: string;
+  rawHtml: string;  // full HTML before stripping
   jsonLd: SchemaRecipe | null;
   images: ImageCandidate[];
   url: string;
@@ -144,6 +147,8 @@ export async function scrapePage(url: string): Promise<ScrapedPage> {
   // ── Collect image candidates ──
   const images = collectImages($, url);
 
+  const rawHtml = html;  // preserve before stripping
+
   // ── Return cleaned body for fallback parsing ──
   $(
     "script, style, nav, footer, header, iframe, noscript, svg, [role='navigation'], [role='banner']"
@@ -154,7 +159,7 @@ export async function scrapePage(url: string): Promise<ScrapedPage> {
 
   const bodyHtml = $("body").html() || "";
 
-  return { html: bodyHtml, jsonLd, images, url };
+  return { html: bodyHtml, rawHtml, jsonLd, images, url };
 }
 
 // ─── JSON-LD Extraction ──────────────────────────────────────────────────────
@@ -280,12 +285,15 @@ function collectImages(
 // ─── Recipe Extractor (main entry point) ─────────────────────────────────────
 
 export function extractRecipeFromPage(page: ScrapedPage): ExtractedRecipe {
+  const $notes = cheerio.load(page.rawHtml);
+  const notes = extractRecipeNotes($notes);
+
   if (page.jsonLd) {
-    return extractFromJsonLd(page.jsonLd, page.images, page.url);
+    return extractFromJsonLd(page.jsonLd, page.images, page.url, notes);
   }
 
   // Fallback: parse from HTML structure
-  return extractFromHtml(page.html, page.images, page.url);
+  return extractFromHtml(page.html, page.images, page.url, notes);
 }
 
 // ─── JSON-LD → ExtractedRecipe ───────────────────────────────────────────────
@@ -293,7 +301,8 @@ export function extractRecipeFromPage(page: ScrapedPage): ExtractedRecipe {
 function extractFromJsonLd(
   recipe: SchemaRecipe,
   pageImages: ImageCandidate[],
-  baseUrl: string
+  baseUrl: string,
+  notes: RecipeNotes
 ): ExtractedRecipe {
   const title = (recipe.name || "Untitled Recipe").trim();
 
@@ -330,6 +339,8 @@ function extractFromJsonLd(
   ];
   const suggestedDietary = matchDietary(dietarySources);
 
+  const servings = parseServings(recipe.recipeYield);
+
   return {
     title,
     ingredients,
@@ -339,6 +350,12 @@ function extractFromJsonLd(
     suggestedCuisines,
     suggestedDietary,
     suggestedCookTimeMinutes: cookTimeMinutes,
+    servings,
+    substitutions: [],
+    storageTips: notes.storageTips,
+    makeAheadNotes: notes.makeAheadNotes,
+    servingSuggestions: notes.servingSuggestions,
+    techniqueNotes: notes.techniqueNotes,
   };
 }
 
@@ -347,7 +364,8 @@ function extractFromJsonLd(
 function extractFromHtml(
   html: string,
   pageImages: ImageCandidate[],
-  baseUrl: string
+  baseUrl: string,
+  notes: RecipeNotes
 ): ExtractedRecipe {
   const $ = cheerio.load(html);
 
@@ -424,6 +442,12 @@ function extractFromHtml(
     suggestedCuisines: [],
     suggestedDietary: [],
     suggestedCookTimeMinutes: cookTimeMinutes,
+    servings: null,
+    substitutions: [],
+    storageTips: notes.storageTips,
+    makeAheadNotes: notes.makeAheadNotes,
+    servingSuggestions: notes.servingSuggestions,
+    techniqueNotes: notes.techniqueNotes,
   };
 }
 
