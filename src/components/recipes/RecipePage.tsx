@@ -3,6 +3,7 @@
 import ImageCarousel from "./ImageCarousel";
 import PersonalNotes from "./PersonalNotes";
 import FavoriteButton from "./FavoriteButton";
+import AddToCollectionButton from "./AddToCollectionButton";
 import Divider from "@/components/ui/Divider";
 import type { RecipeDetail } from "@/types";
 
@@ -113,6 +114,7 @@ export default function RecipePage({
               View Original &rarr;
             </a>
           )}
+          <AddToCollectionButton recipeId={recipe.id} />
         </div>
 
         {/* Personal notes */}
