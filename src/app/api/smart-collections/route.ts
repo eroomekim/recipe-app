@@ -2,7 +2,6 @@ import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { prisma } from "@/lib/prisma";
 import { computeRuleBasedCollections } from "@/lib/smart-collections";
-import { getAiCuratedCollections } from "@/lib/ai-collections";
 
 export async function GET() {
   const supabase = await createClient();
@@ -26,14 +25,5 @@ export async function GET() {
 
   const ruleBased = computeRuleBasedCollections(recipes);
 
-  const aiRecipes = recipes.map((r) => ({
-    id: r.id,
-    title: r.title,
-    images: r.images,
-    tags: r.tags.map((rt) => rt.tag.name),
-    ingredients: r.ingredients.map((i) => i.text),
-  }));
-  const aiCurated = await getAiCuratedCollections(user.id, aiRecipes);
-
-  return NextResponse.json([...aiCurated, ...ruleBased]);
+  return NextResponse.json(ruleBased);
 }
