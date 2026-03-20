@@ -1,0 +1,137 @@
+<h2>Image-Forward Booklet Redesign</h2>
+<p class="subtitle">The hero image dominates — scroll reveals the recipe details below</p>
+
+<div class="cards" style="grid-template-columns: 1fr;">
+
+  <!-- Mockup: Full booklet card -->
+  <div class="card" style="cursor:default; max-width: 680px; margin: 0 auto;">
+    <div class="card-image" style="padding:0; background:#000;">
+
+      <!-- Hero section with image + overlay -->
+      <div style="position:relative; width:100%; height:420px; overflow:hidden;">
+        <img src="https://images.unsplash.com/photo-1547592166-23ac45744acd?w=800&q=80"
+             alt="Braised short ribs"
+             style="width:100%; height:100%; object-fit:cover;" />
+
+        <!-- Gradient overlay -->
+        <div style="position:absolute; bottom:0; left:0; right:0; height:60%; background: linear-gradient(to top, rgba(0,0,0,0.75) 0%, rgba(0,0,0,0.3) 50%, transparent 100%);">
+        </div>
+
+        <!-- Page indicator -->
+        <div style="position:absolute; top:16px; left:20px; color:rgba(255,255,255,0.7); font-family:Inter,sans-serif; font-size:12px; font-weight:600; letter-spacing:0.05em; text-transform:uppercase;">
+          3 / 24
+        </div>
+
+        <!-- Close button -->
+        <div style="position:absolute; top:14px; right:20px; color:rgba(255,255,255,0.7); font-size:20px; cursor:pointer;">
+          ✕
+        </div>
+
+        <!-- Carousel dots -->
+        <div style="position:absolute; bottom:100px; left:0; right:0; display:flex; justify-content:center; gap:6px;">
+          <div style="width:8px; height:8px; border-radius:50%; background:white;"></div>
+          <div style="width:8px; height:8px; border-radius:50%; background:rgba(255,255,255,0.4);"></div>
+          <div style="width:8px; height:8px; border-radius:50%; background:rgba(255,255,255,0.4);"></div>
+          <div style="width:8px; height:8px; border-radius:50%; background:rgba(255,255,255,0.4);"></div>
+        </div>
+
+        <!-- Text overlay on image -->
+        <div style="position:absolute; bottom:20px; left:24px; right:24px;">
+          <div style="color:rgba(255,255,255,0.7); font-family:Georgia,serif; font-size:12px; letter-spacing:0.02em; margin-bottom:8px;">
+            DINNER · ITALIAN
+          </div>
+          <div style="color:#fff; font-family:'Playfair Display',Georgia,serif; font-size:42px; font-weight:900; line-height:1.0; text-shadow: 0 1px 4px rgba(0,0,0,0.3);">
+            Braised Short Ribs
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card-body" style="padding:0;">
+
+      <!-- Tags row -->
+      <div style="padding:20px 24px 0; display:flex; gap:8px; flex-wrap:wrap; align-items:center;">
+        <span style="font-family:Inter,sans-serif; font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:0.05em; background:#f5f5f5; color:#5f5f5f; padding:4px 10px;">45 min</span>
+        <span style="font-family:Inter,sans-serif; font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:0.05em; background:#f5f5f5; color:#5f5f5f; padding:4px 10px;">Gluten-Free</span>
+        <span style="font-family:Inter,sans-serif; font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:0.05em; color:#DF3331; cursor:pointer; margin-left:auto;">View Original →</span>
+      </div>
+
+      <!-- Personal story / editor's note -->
+      <div style="margin:20px 24px; padding:16px 0 16px 20px; border-left:2px solid #e6e6e6;">
+        <p style="font-family:'Libre Baskerville',Georgia,serif; font-size:15px; font-style:italic; line-height:1.6; color:#5f5f5f; margin:0;">
+          This became our Christmas Eve tradition after Mom found it in 2019. We always double the wine and add a splash of balsamic — Dad's rule. The whole house smells incredible for hours.
+        </p>
+      </div>
+
+      <!-- Divider -->
+      <hr style="border:none; border-top:1px solid #e6e6e6; margin:0 24px;" />
+
+      <!-- Two column: Ingredients + Instructions -->
+      <div style="display:grid; grid-template-columns:1fr 1.4fr; gap:0; padding:20px 24px 24px;">
+
+        <!-- Ingredients -->
+        <div style="padding-right:20px; border-right:1px solid #e6e6e6;">
+          <div style="font-family:Inter,sans-serif; font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.05em; color:#949494; margin-bottom:12px;">Ingredients</div>
+          <div style="font-family:'Libre Baskerville',Georgia,serif; font-size:14px; line-height:1.8; color:#232323;">
+            3 lbs bone-in short ribs<br/>
+            2 tbsp olive oil<br/>
+            2 onions, diced<br/>
+            4 cloves garlic, minced<br/>
+            2 cups red wine<br/>
+            2 cups beef broth<br/>
+            3 tbsp tomato paste<br/>
+            2 sprigs rosemary<br/>
+            Salt & pepper
+          </div>
+        </div>
+
+        <!-- Instructions -->
+        <div style="padding-left:20px;">
+          <div style="font-family:Inter,sans-serif; font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.05em; color:#949494; margin-bottom:12px;">Instructions</div>
+          <div style="font-family:'Libre Baskerville',Georgia,serif; font-size:14px; line-height:1.8; color:#232323;">
+            <div style="margin-bottom:12px;">
+              <span style="font-family:'Playfair Display',Georgia,serif; font-size:18px; font-weight:900; color:#DF3331; opacity:0.4; margin-right:8px;">01</span>
+              Season ribs generously with salt and pepper. Sear in hot Dutch oven until deeply browned on all sides.
+            </div>
+            <div style="margin-bottom:12px;">
+              <span style="font-family:'Playfair Display',Georgia,serif; font-size:18px; font-weight:900; color:#DF3331; opacity:0.4; margin-right:8px;">02</span>
+              Remove ribs. Sauté onions and garlic until softened. Add tomato paste, cook 2 minutes.
+            </div>
+            <div style="margin-bottom:12px;">
+              <span style="font-family:'Playfair Display',Georgia,serif; font-size:18px; font-weight:900; color:#DF3331; opacity:0.4; margin-right:8px;">03</span>
+              Deglaze with wine, scraping up fond. Add broth, rosemary, and return ribs. Cover and braise at 325°F for 3 hours.
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Divider -->
+      <hr style="border:none; border-top:1px solid #e6e6e6; margin:0 24px;" />
+
+      <!-- Substitutions section -->
+      <div style="padding:20px 24px;">
+        <div style="font-family:Inter,sans-serif; font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.05em; color:#949494; margin-bottom:12px;">Substitutions</div>
+        <div style="font-family:'Libre Baskerville',Georgia,serif; font-size:13px; line-height:1.7; color:#5f5f5f;">
+          <div style="margin-bottom:6px;"><strong style="color:#232323;">Red wine →</strong> Beef broth + 1 tbsp red wine vinegar</div>
+          <div style="margin-bottom:6px;"><strong style="color:#232323;">Short ribs →</strong> Chuck roast, cut into 3" pieces</div>
+          <div><strong style="color:#232323;">Rosemary →</strong> Thyme or bay leaves</div>
+        </div>
+      </div>
+
+      <!-- Storage tips -->
+      <div style="padding:0 24px 24px;">
+        <div style="font-family:Inter,sans-serif; font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.05em; color:#949494; margin-bottom:12px;">Storage</div>
+        <div style="font-family:'Libre Baskerville',Georgia,serif; font-size:13px; line-height:1.7; color:#5f5f5f;">
+          Refrigerate up to 4 days. Flavors improve overnight. Freezes well for 3 months — reheat low and slow in a covered dish at 300°F.
+        </div>
+      </div>
+
+      <!-- Nav arrows hint -->
+      <div style="display:flex; justify-content:space-between; align-items:center; padding:16px 24px; border-top:1px solid #e6e6e6;">
+        <span style="font-family:Inter,sans-serif; font-size:12px; color:#949494; cursor:pointer;">← Previous</span>
+        <span style="font-family:Inter,sans-serif; font-size:12px; color:#949494; cursor:pointer;">Next →</span>
+      </div>
+
+    </div>
+  </div>
+</div>
