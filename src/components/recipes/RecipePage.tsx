@@ -7,7 +7,8 @@ import FavoriteButton from "./FavoriteButton";
 import AddToCollectionButton from "./AddToCollectionButton";
 import CookingMode from "@/components/cooking/CookingMode";
 import Divider from "@/components/ui/Divider";
-import { X, ExternalLink, ChefHat, Heart, Bookmark, FolderPlus } from "lucide-react";
+import ImageLightbox from "./ImageLightbox";
+import { X, ExternalLink, ChefHat } from "lucide-react";
 import type { RecipeDetail } from "@/types";
 
 interface RecipePageProps {
@@ -24,6 +25,7 @@ export default function RecipePage({
   onClose,
 }: RecipePageProps) {
   const [cooking, setCooking] = useState(false);
+  const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
 
   const mealTypes = recipe.tags
     .filter((t) => t.type === "MEAL_TYPE")
@@ -252,22 +254,36 @@ export default function RecipePage({
           </>
         )}
 
-        {/* Additional images */}
+        {/* Additional images — tap to open lightbox */}
         {additionalImages.length > 0 && (
           <>
             <Divider className="my-6" />
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
               {additionalImages.map((src, i) => (
-                <div key={i} className="aspect-square overflow-hidden bg-gray-50 rounded-lg">
+                <button
+                  key={i}
+                  onClick={() => setLightboxIndex(i)}
+                  className="aspect-square overflow-hidden bg-gray-50 rounded-lg cursor-pointer group"
+                >
                   <img
                     src={src}
                     alt={`${recipe.title} - image ${i + 5}`}
-                    className="w-full h-full object-cover"
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                   />
-                </div>
+                </button>
               ))}
             </div>
           </>
+        )}
+
+        {/* Image lightbox */}
+        {lightboxIndex !== null && (
+          <ImageLightbox
+            images={additionalImages}
+            initialIndex={lightboxIndex}
+            alt={recipe.title}
+            onClose={() => setLightboxIndex(null)}
+          />
         )}
       </div>
     </div>
