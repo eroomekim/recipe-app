@@ -117,6 +117,7 @@ export async function PUT(
   if (body.makeAheadNotes !== undefined) updateData.makeAheadNotes = body.makeAheadNotes;
   if (body.servingSuggestions !== undefined) updateData.servingSuggestions = body.servingSuggestions;
   if (body.techniqueNotes !== undefined) updateData.techniqueNotes = body.techniqueNotes;
+  if (body.images !== undefined) updateData.images = body.images;
 
   // Handle ingredients replacement
   if (body.ingredients !== undefined) {

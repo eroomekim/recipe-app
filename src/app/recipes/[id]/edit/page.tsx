@@ -33,6 +33,7 @@ export default async function EditRecipePage({
         recipeId={recipe.id}
         initialData={{
           title: recipe.title,
+          images: recipe.images,
           ingredients: recipe.ingredients.map((i) => i.text),
           instructions: recipe.instructions.map((i) => i.text),
           cookTime: recipe.cookTime,

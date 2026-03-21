@@ -54,6 +54,7 @@ interface EditRecipeFormProps {
   recipeId: string;
   initialData: {
     title: string;
+    images: string[];
     ingredients: string[];
     instructions: string[];
     cookTime: number | null;
@@ -72,6 +73,8 @@ export default function EditRecipeForm({ recipeId, initialData }: EditRecipeForm
   const router = useRouter();
 
   const [title, setTitle] = useState(initialData.title);
+  const [images, setImages] = useState<string[]>(initialData.images);
+  const [newImageUrl, setNewImageUrl] = useState("");
   const [ingredients, setIngredients] = useState(toHtmlList(initialData.ingredients));
   const [instructions, setInstructions] = useState(toHtmlOl(initialData.instructions));
   const [cookTime, setCookTime] = useState(initialData.cookTime?.toString() ?? "");
@@ -106,6 +109,7 @@ export default function EditRecipeForm({ recipeId, initialData }: EditRecipeForm
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           title,
+          images,
           ingredients: fromHtml(ingredients),
           instructions: fromHtml(instructions),
           cookTime: cookTime ? parseInt(cookTime, 10) : null,
@@ -145,6 +149,53 @@ export default function EditRecipeForm({ recipeId, initialData }: EditRecipeForm
           onChange={(e) => setTitle(e.target.value)}
           required
         />
+
+        {/* Images */}
+        <div>
+          <label className="block font-sans text-xs font-semibold uppercase tracking-wider text-gray-600 mb-2">
+            Images
+          </label>
+          {images.length > 0 && (
+            <div className="flex gap-2 overflow-x-auto pb-3 mb-3">
+              {images.map((src, i) => (
+                <div key={i} className="relative shrink-0">
+                  <img
+                    src={src}
+                    alt={`Recipe image ${i + 1}`}
+                    className="w-24 h-24 object-cover"
+                  />
+                  <button
+                    onClick={() => setImages(images.filter((_, j) => j !== i))}
+                    className="absolute -top-2 -right-2 w-6 h-6 bg-black text-white text-xs flex items-center justify-center"
+                    aria-label="Remove image"
+                  >
+                    &times;
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+          <div className="flex gap-2">
+            <input
+              type="url"
+              value={newImageUrl}
+              onChange={(e) => setNewImageUrl(e.target.value)}
+              placeholder="Paste image URL..."
+              className="flex-1 border border-gray-300 px-3 py-2 font-sans text-sm text-black placeholder:text-gray-500 focus:outline-none focus:border-black transition-colors"
+            />
+            <button
+              onClick={() => {
+                if (newImageUrl.trim()) {
+                  setImages([...images, newImageUrl.trim()]);
+                  setNewImageUrl("");
+                }
+              }}
+              className="font-sans text-xs font-semibold uppercase tracking-wider bg-gray-50 text-gray-600 px-4 py-2 hover:bg-gray-200 transition-colors"
+            >
+              Add
+            </button>
+          </div>
+        </div>
 
         <RichTextEditor
           label="Ingredients"
