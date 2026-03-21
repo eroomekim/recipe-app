@@ -2,7 +2,6 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import Button from "@/components/ui/Button";
 
 export default function DeleteRecipeButton({ recipeId }: { recipeId: string }) {
   const router = useRouter();
@@ -29,13 +28,12 @@ export default function DeleteRecipeButton({ recipeId }: { recipeId: string }) {
   }
 
   return (
-    <Button
-      variant="secondary"
+    <button
       onClick={handleDelete}
-      loading={deleting}
-      className="text-red border-red hover:bg-red/5"
+      disabled={deleting}
+      className="font-sans text-xs text-gray-500 hover:text-red transition-colors disabled:opacity-50"
     >
-      Delete Recipe
-    </Button>
+      {deleting ? "Deleting..." : "Delete Recipe"}
+    </button>
   );
 }

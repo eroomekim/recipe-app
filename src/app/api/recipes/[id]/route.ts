@@ -118,6 +118,30 @@ export async function PUT(
   if (body.servingSuggestions !== undefined) updateData.servingSuggestions = body.servingSuggestions;
   if (body.techniqueNotes !== undefined) updateData.techniqueNotes = body.techniqueNotes;
 
+  // Handle ingredients replacement
+  if (body.ingredients !== undefined) {
+    await prisma.ingredient.deleteMany({ where: { recipeId: id } });
+    await prisma.ingredient.createMany({
+      data: (body.ingredients as string[]).map((text: string, i: number) => ({
+        recipeId: id,
+        text,
+        order: i,
+      })),
+    });
+  }
+
+  // Handle instructions replacement
+  if (body.instructions !== undefined) {
+    await prisma.instruction.deleteMany({ where: { recipeId: id } });
+    await prisma.instruction.createMany({
+      data: (body.instructions as string[]).map((text: string, i: number) => ({
+        recipeId: id,
+        text,
+        order: i,
+      })),
+    });
+  }
+
   const updated = await prisma.recipe.update({
     where: { id },
     data: updateData,

@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { prisma } from "@/lib/prisma";
 import { redirect, notFound } from "next/navigation";
+import Link from "next/link";
 import RecipePage from "@/components/recipes/RecipePage";
 import DeleteRecipeButton from "@/components/recipes/DeleteRecipeButton";
 import Divider from "@/components/ui/Divider";
@@ -82,8 +83,14 @@ export default async function RecipeDetailPage({
     <main className="max-w-article mx-auto py-8">
       <RecipePage recipe={recipeDetail} />
       <Divider className="my-6" />
-      <div className="flex justify-end px-6">
+      <div className="flex items-center justify-between px-6">
         <DeleteRecipeButton recipeId={recipe.id} />
+        <Link
+          href={`/recipes/${recipe.id}/edit`}
+          className="bg-black text-white font-sans text-base font-semibold px-8 py-3 hover:bg-gray-900 transition-colors"
+        >
+          Edit Recipe
+        </Link>
       </div>
     </main>
   );
