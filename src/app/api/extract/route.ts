@@ -1,6 +1,9 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { scrapePage, extractRecipeFromPage } from "@/lib/scraper";
+import { detectPlatform, isSocialMedia } from "@/lib/extraction/platform-detector";
+import { jobManager } from "@/lib/extraction/job-manager";
+import { runExtractionPipeline } from "@/lib/extraction/pipeline";
 
 // Simple in-memory rate limiting
 const rateLimitMap = new Map<string, { count: number; date: string }>();
@@ -21,6 +24,14 @@ function checkRateLimit(userId: string): boolean {
 
   entry.count++;
   return true;
+}
+
+function decrementRateLimit(userId: string) {
+  const today = new Date().toISOString().split("T")[0];
+  const entry = rateLimitMap.get(userId);
+  if (entry && entry.date === today && entry.count > 0) {
+    entry.count--;
+  }
 }
 
 export async function POST(request: Request) {
@@ -47,44 +58,60 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "URL is required" }, { status: 400 });
   }
 
-  // Validate URL format
   try {
     new URL(url);
   } catch {
     return NextResponse.json({ error: "Invalid URL format" }, { status: 400 });
   }
 
-  // Attempt extraction with one retry
+  const platform = detectPlatform(url);
+
+  // Social media: async pipeline
+  if (isSocialMedia(platform)) {
+    const job = jobManager.create(user.id, url);
+
+    // Fire-and-forget — pipeline runs in background
+    runExtractionPipeline(job.id, url, platform).catch((err) => {
+      console.error("Pipeline error:", err);
+      jobManager.fail(job.id, "Extraction failed unexpectedly");
+      decrementRateLimit(user.id);
+    });
+
+    return NextResponse.json({
+      type: "async",
+      jobId: job.id,
+      status: "processing",
+    });
+  }
+
+  // Blog: synchronous Cheerio extraction (existing path)
   for (let attempt = 0; attempt < 2; attempt++) {
     try {
       const page = await scrapePage(url);
       const recipe = extractRecipeFromPage(page);
 
-      // Validate we got something useful
       if (!recipe.title || recipe.title === "Untitled Recipe") {
         if (recipe.ingredients.length === 0 && recipe.instructions.length === 0) {
           return NextResponse.json(
-            {
-              error:
-                "Could not extract a recipe from this page. The page may not contain structured recipe data. Try a different URL or use manual entry.",
-            },
+            { error: "Could not extract a recipe from this page. Try a different URL or use manual entry." },
             { status: 422 }
           );
         }
       }
 
       return NextResponse.json({
-        ...recipe,
+        type: "immediate",
+        recipe,
         sourceUrl: url,
         _meta: {
           method: page.jsonLd ? "json-ld" : "html-fallback",
+          platform: "blog",
         },
       });
     } catch (err) {
       if (attempt === 1) {
         console.error("Extraction failed after retry:", err);
-        const message =
-          err instanceof Error ? err.message : "Extraction failed";
+        const message = err instanceof Error ? err.message : "Extraction failed";
         return NextResponse.json(
           { error: `Failed to extract recipe: ${message}` },
           { status: 500 }
