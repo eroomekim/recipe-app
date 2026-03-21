@@ -126,3 +126,26 @@ export interface ScaledIngredient {
   name: string | null;
   checked: boolean;
 }
+
+export type ExtractResponse =
+  | {
+      type: "immediate";
+      recipe: ExtractedRecipe;
+      sourceUrl: string;
+      _meta: { method: string; platform: "blog" };
+    }
+  | {
+      type: "async";
+      jobId: string;
+      status: "processing";
+    };
+
+export interface JobPollResponse {
+  status: "pending" | "processing" | "completed" | "failed";
+  stage: string | null;
+  recipe: ExtractedRecipe | null;
+  sourceUrl: string | null;
+  _meta: { method: string; platform: string } | null;
+  error: string | null;
+  linkedBlogUrl: string | null;
+}
