@@ -45,8 +45,11 @@ export default function RecipePage({
 
   return (
     <div className="bg-white max-w-article mx-auto">
-      {/* Hero Image — full bleed, no text overlay */}
-      <div className="relative w-full aspect-3/2 md:aspect-auto md:h-[55vh]">
+      {/* Hero Image — full bleed, tap to open lightbox */}
+      <div
+        className="relative w-full aspect-3/2 md:aspect-auto md:h-[55vh] cursor-pointer"
+        onClick={() => setLightboxIndex(0)}
+      >
         <ImageCarousel
           images={heroImages}
           alt={recipe.title}
@@ -262,7 +265,7 @@ export default function RecipePage({
               {additionalImages.map((src, i) => (
                 <button
                   key={i}
-                  onClick={() => setLightboxIndex(i)}
+                  onClick={() => setLightboxIndex(i + heroImages.length)}
                   className="aspect-square overflow-hidden bg-gray-50 rounded-lg cursor-pointer group"
                 >
                   <img
@@ -276,10 +279,10 @@ export default function RecipePage({
           </>
         )}
 
-        {/* Image lightbox */}
+        {/* Image lightbox — all images, tapped index */}
         {lightboxIndex !== null && (
           <ImageLightbox
-            images={additionalImages}
+            images={recipe.images}
             initialIndex={lightboxIndex}
             alt={recipe.title}
             onClose={() => setLightboxIndex(null)}
