@@ -225,6 +225,34 @@ function isRecipeType(data: unknown): boolean {
 
 // ─── Image Collection ────────────────────────────────────────────────────────
 
+/**
+ * Parse a srcset attribute and return the URL of the largest image.
+ * srcset format: "url1 300w, url2 600w, url3 1200w"
+ */
+function getLargestFromSrcset(srcset: string, baseUrl: string): string | null {
+  const entries = srcset.split(",").map((s) => s.trim()).filter(Boolean);
+  let bestUrl = "";
+  let bestWidth = 0;
+
+  for (const entry of entries) {
+    const parts = entry.split(/\s+/);
+    if (parts.length < 2) continue;
+    const url = parts[0];
+    const descriptor = parts[1];
+    const width = parseInt(descriptor, 10);
+    if (width > bestWidth) {
+      bestWidth = width;
+      try {
+        bestUrl = new URL(url, baseUrl).href;
+      } catch {
+        continue;
+      }
+    }
+  }
+
+  return bestUrl || null;
+}
+
 function collectImages(
   $: cheerio.CheerioAPI,
   baseUrl: string
@@ -233,11 +261,21 @@ function collectImages(
   const images: ImageCandidate[] = [];
 
   $("img").each((_, el) => {
+    // Prefer the largest available source in this order:
+    // 1. srcset (largest descriptor)
+    // 2. data-pin-media (Pinterest full-size, used by food blogs)
+    // 3. data-src / data-lazy-src / data-original (lazy-loaded full-size)
+    // 4. src (often a smaller/responsive version)
+    const srcset = $(el).attr("srcset") || "";
+    const largestFromSrcset = srcset ? getLargestFromSrcset(srcset, baseUrl) : null;
+
     const src =
-      $(el).attr("src") ||
+      largestFromSrcset ||
+      $(el).attr("data-pin-media") ||
       $(el).attr("data-src") ||
       $(el).attr("data-lazy-src") ||
       $(el).attr("data-original") ||
+      $(el).attr("src") ||
       "";
 
     if (!src) return;
@@ -261,9 +299,14 @@ function collectImages(
       return;
     }
 
+    // Strip common resize suffixes to get the full-size URL
+    // e.g., "-300x200.jpg" → ".jpg", "?w=300&h=200" → remove params
+    absoluteSrc = absoluteSrc.replace(/-\d+x\d+\.(jpg|jpeg|png|webp)/i, ".$1");
+
     // Deduplicate
-    if (seen.has(absoluteSrc)) return;
-    seen.add(absoluteSrc);
+    const dedupeKey = absoluteSrc.split("?")[0]; // ignore query params for dedup
+    if (seen.has(dedupeKey)) return;
+    seen.add(dedupeKey);
 
     const width = parseInt($(el).attr("width") || "0", 10);
     const height = parseInt($(el).attr("height") || "0", 10);
@@ -508,8 +551,13 @@ function resolveImages(
     } catch {
       return;
     }
-    if (seen.has(absolute)) return;
-    seen.add(absolute);
+
+    // Strip common resize suffixes to get full-size URL
+    absolute = absolute.replace(/-\d+x\d+\.(jpg|jpeg|png|webp)/i, ".$1");
+
+    const dedupeKey = absolute.split("?")[0];
+    if (seen.has(dedupeKey)) return;
+    seen.add(dedupeKey);
     images.push(absolute);
   };
 
