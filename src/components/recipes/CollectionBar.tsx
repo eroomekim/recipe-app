@@ -2,6 +2,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { Plus } from "lucide-react";
 import CreateCollectionModal from "./CreateCollectionModal";
 import type { CollectionData, SmartCollectionData } from "@/types";
 
@@ -62,40 +63,49 @@ export default function CollectionBar({ onFilter, activeFilter }: CollectionBarP
 
   return (
     <div className="mb-8">
-      <div className="flex items-center gap-4 overflow-x-auto pb-2 scrollbar-hide">
-        {allCollections.map((col) => (
-          <button
-            key={col.id}
-            onClick={() => handleClick(col.id, col.recipeIds, col.name)}
-            className={`shrink-0 flex flex-col items-center gap-1.5 p-2 transition-colors ${
-              activeFilter === col.id ? "opacity-100" : "opacity-70 hover:opacity-100"
-            }`}
-          >
-            {/* Preview images */}
-            <div className="flex gap-0.5">
-              {col.previewImages.slice(0, 3).map((img, i) => (
-                <div key={i} className="w-10 h-10 overflow-hidden bg-gray-50">
-                  <img src={img} alt="" className="w-full h-full object-cover" />
-                </div>
-              ))}
-              {col.previewImages.length === 0 && (
-                <div className="w-10 h-10 bg-gray-100" />
+      <div className="flex items-center gap-3 overflow-x-auto pb-2 scrollbar-hide">
+        {allCollections.map((col) => {
+          const isActive = activeFilter === col.id;
+          const heroImage = col.previewImages[0];
+
+          return (
+            <button
+              key={col.id}
+              onClick={() => handleClick(col.id, col.recipeIds, col.name)}
+              className={`shrink-0 relative w-28 h-20 rounded-lg overflow-hidden transition-all ${
+                isActive
+                  ? "ring-2 ring-black"
+                  : "opacity-80 hover:opacity-100"
+              }`}
+            >
+              {/* Background image or placeholder */}
+              {heroImage ? (
+                <img
+                  src={heroImage}
+                  alt=""
+                  className="absolute inset-0 w-full h-full object-cover"
+                />
+              ) : (
+                <div className="absolute inset-0 bg-gray-200" />
               )}
-            </div>
-            <span className={`font-sans text-xs font-semibold uppercase tracking-wider ${
-              activeFilter === col.id ? "text-black" : "text-gray-500"
-            }`}>
-              {col.name}
-            </span>
-          </button>
-        ))}
+
+              {/* Dark overlay for text readability */}
+              <div className="absolute inset-0 bg-black/40" />
+
+              {/* Label */}
+              <span className="absolute inset-0 flex items-center justify-center font-sans text-xs font-bold uppercase tracking-wider text-white">
+                {col.name}
+              </span>
+            </button>
+          );
+        })}
+
+        {/* New collection button */}
         <button
           onClick={() => setShowCreate(true)}
-          className="shrink-0 flex flex-col items-center gap-1.5 p-2 opacity-50 hover:opacity-100 transition-opacity"
+          className="shrink-0 w-28 h-20 rounded-lg border-2 border-dashed border-gray-300 flex flex-col items-center justify-center gap-1 opacity-60 hover:opacity-100 hover:border-gray-500 transition-all"
         >
-          <div className="w-10 h-10 border border-dashed border-gray-300 flex items-center justify-center text-gray-400 text-lg">
-            +
-          </div>
+          <Plus className="w-5 h-5 text-gray-400" />
           <span className="font-sans text-xs font-semibold uppercase tracking-wider text-gray-400">
             New
           </span>
