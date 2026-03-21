@@ -6,6 +6,38 @@ import Button from "@/components/ui/Button";
 import Input from "@/components/ui/Input";
 import TagSelector from "@/components/ui/TagSelector";
 import Divider from "@/components/ui/Divider";
+import RichTextEditor from "@/components/ui/RichTextEditor";
+
+/** Convert array of strings to an HTML unordered list */
+function toHtmlList(items: string[]): string {
+  if (items.length === 0) return "";
+  return "<ul>" + items.map((item) => `<li>${item}</li>`).join("") + "</ul>";
+}
+
+/** Convert array of strings to an HTML ordered list */
+function toHtmlOl(items: string[]): string {
+  if (items.length === 0) return "";
+  return "<ol>" + items.map((item) => `<li>${item}</li>`).join("") + "</ol>";
+}
+
+/** Extract text items from HTML (strips tags, splits on <li> or newlines) */
+function fromHtml(html: string): string[] {
+  // Extract content from <li> tags if present
+  const liMatches = html.match(/<li[^>]*>([\s\S]*?)<\/li>/gi);
+  if (liMatches) {
+    return liMatches
+      .map((li) => li.replace(/<[^>]*>/g, "").trim())
+      .filter(Boolean);
+  }
+  // Fallback: split on <br>, <p>, or newlines, strip remaining tags
+  return html
+    .replace(/<br\s*\/?>/gi, "\n")
+    .replace(/<\/p>/gi, "\n")
+    .replace(/<[^>]*>/g, "")
+    .split("\n")
+    .map((s) => s.trim())
+    .filter(Boolean);
+}
 
 const MEAL_TYPES = ["Breakfast", "Lunch", "Dinner", "Snack", "Dessert", "Appetizer"];
 const CUISINES = [
@@ -40,8 +72,8 @@ export default function EditRecipeForm({ recipeId, initialData }: EditRecipeForm
   const router = useRouter();
 
   const [title, setTitle] = useState(initialData.title);
-  const [ingredients, setIngredients] = useState(initialData.ingredients.join("\n"));
-  const [instructions, setInstructions] = useState(initialData.instructions.join("\n"));
+  const [ingredients, setIngredients] = useState(toHtmlList(initialData.ingredients));
+  const [instructions, setInstructions] = useState(toHtmlOl(initialData.instructions));
   const [cookTime, setCookTime] = useState(initialData.cookTime?.toString() ?? "");
   const [servings, setServings] = useState(initialData.servings?.toString() ?? "");
   const [storageTips, setStorageTips] = useState(initialData.storageTips ?? "");
@@ -74,8 +106,8 @@ export default function EditRecipeForm({ recipeId, initialData }: EditRecipeForm
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           title,
-          ingredients: ingredients.split("\n").filter((l) => l.trim()),
-          instructions: instructions.split("\n").filter((l) => l.trim()),
+          ingredients: fromHtml(ingredients),
+          instructions: fromHtml(instructions),
           cookTime: cookTime ? parseInt(cookTime, 10) : null,
           servings: servings ? parseInt(servings, 10) : null,
           storageTips: storageTips || null,
@@ -114,29 +146,21 @@ export default function EditRecipeForm({ recipeId, initialData }: EditRecipeForm
           required
         />
 
-        <div>
-          <label className="block font-sans text-xs font-semibold uppercase tracking-wider text-gray-600 mb-1">
-            Ingredients (one per line)
-          </label>
-          <textarea
-            value={ingredients}
-            onChange={(e) => setIngredients(e.target.value)}
-            rows={8}
-            className="w-full border border-gray-300 px-4 py-3 font-serif text-base text-black placeholder:text-gray-500 focus:outline-none focus:border-black transition-colors resize-y"
-          />
-        </div>
+        <RichTextEditor
+          label="Ingredients"
+          value={ingredients}
+          onChange={setIngredients}
+          placeholder="Add ingredients..."
+          minHeight={200}
+        />
 
-        <div>
-          <label className="block font-sans text-xs font-semibold uppercase tracking-wider text-gray-600 mb-1">
-            Instructions (one step per line)
-          </label>
-          <textarea
-            value={instructions}
-            onChange={(e) => setInstructions(e.target.value)}
-            rows={8}
-            className="w-full border border-gray-300 px-4 py-3 font-serif text-base text-black placeholder:text-gray-500 focus:outline-none focus:border-black transition-colors resize-y"
-          />
-        </div>
+        <RichTextEditor
+          label="Instructions"
+          value={instructions}
+          onChange={setInstructions}
+          placeholder="Add instructions..."
+          minHeight={250}
+        />
 
         <div className="grid grid-cols-2 gap-4">
           <Input
@@ -185,54 +209,34 @@ export default function EditRecipeForm({ recipeId, initialData }: EditRecipeForm
             Additional Notes (storage, tips, serving)
           </summary>
           <div className="space-y-4 mt-4">
-            <div>
-              <label className="block font-sans text-xs font-semibold uppercase tracking-wider text-gray-600 mb-1">
-                Storage Tips
-              </label>
-              <textarea
-                value={storageTips}
-                onChange={(e) => setStorageTips(e.target.value)}
-                rows={2}
-                placeholder="How to store leftovers..."
-                className="w-full border border-gray-300 px-4 py-3 font-serif text-sm text-black placeholder:text-gray-500 focus:outline-none focus:border-black transition-colors resize-y"
-              />
-            </div>
-            <div>
-              <label className="block font-sans text-xs font-semibold uppercase tracking-wider text-gray-600 mb-1">
-                Make-Ahead Notes
-              </label>
-              <textarea
-                value={makeAheadNotes}
-                onChange={(e) => setMakeAheadNotes(e.target.value)}
-                rows={2}
-                placeholder="Prep-ahead instructions..."
-                className="w-full border border-gray-300 px-4 py-3 font-serif text-sm text-black placeholder:text-gray-500 focus:outline-none focus:border-black transition-colors resize-y"
-              />
-            </div>
-            <div>
-              <label className="block font-sans text-xs font-semibold uppercase tracking-wider text-gray-600 mb-1">
-                Serving Suggestions
-              </label>
-              <textarea
-                value={servingSuggestions}
-                onChange={(e) => setServingSuggestions(e.target.value)}
-                rows={2}
-                placeholder="What to serve with..."
-                className="w-full border border-gray-300 px-4 py-3 font-serif text-sm text-black placeholder:text-gray-500 focus:outline-none focus:border-black transition-colors resize-y"
-              />
-            </div>
-            <div>
-              <label className="block font-sans text-xs font-semibold uppercase tracking-wider text-gray-600 mb-1">
-                Technique Notes
-              </label>
-              <textarea
-                value={techniqueNotes}
-                onChange={(e) => setTechniqueNotes(e.target.value)}
-                rows={2}
-                placeholder="Tips and tricks..."
-                className="w-full border border-gray-300 px-4 py-3 font-serif text-sm text-black placeholder:text-gray-500 focus:outline-none focus:border-black transition-colors resize-y"
-              />
-            </div>
+            <RichTextEditor
+              label="Storage Tips"
+              value={storageTips}
+              onChange={setStorageTips}
+              placeholder="How to store leftovers..."
+              minHeight={100}
+            />
+            <RichTextEditor
+              label="Make-Ahead Notes"
+              value={makeAheadNotes}
+              onChange={setMakeAheadNotes}
+              placeholder="Prep-ahead instructions..."
+              minHeight={100}
+            />
+            <RichTextEditor
+              label="Serving Suggestions"
+              value={servingSuggestions}
+              onChange={setServingSuggestions}
+              placeholder="What to serve with..."
+              minHeight={100}
+            />
+            <RichTextEditor
+              label="Technique Notes"
+              value={techniqueNotes}
+              onChange={setTechniqueNotes}
+              placeholder="Tips and tricks..."
+              minHeight={100}
+            />
           </div>
         </details>
 

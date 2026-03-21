@@ -25,6 +25,8 @@
     "@supabase/ssr": "^0.9.0",
     "@supabase/supabase-js": "^2.99.2",
     "cheerio": "^1.2.0",
+    "jodit": "^4.11.15",
+    "jodit-react": "^5.3.21",
     "next": "^16.1.7",
     "playwright": "^1.58.2",
     "prisma": "^6.19.2",

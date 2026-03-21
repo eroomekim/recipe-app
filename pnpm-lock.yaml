@@ -26,6 +26,12 @@ importers:
       cheerio:
         specifier: ^1.2.0
         version: 1.2.0
+      jodit:
+        specifier: ^4.11.15
+        version: 4.11.15
+      jodit-react:
+        specifier: ^5.3.21
+        version: 5.3.21(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
       next:
         specifier: ^16.1.7
         version: 16.2.0(@babel/core@7.29.0)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
@@ -2137,6 +2143,15 @@ packages:
   jiti@2.6.1:
     resolution: {integrity: sha512-ekilCSN1jwRvIbgeg/57YFh8qQDNbwDb9xT/qu2DAHbFFZUicIl4ygVaAvzveMhMVr3LnpSKTNnwt8PoOfmKhQ==}
     hasBin: true
+
+  jodit-react@5.3.21:
+    resolution: {integrity: sha512-dSFVKkrDVbhVwKDjuFMJ3HhPdqeEz/Yz5MhJf9v9B3Gg29CnelKCZ00h6MxXzlhglF3qvtvUTc2HSKrSB15khw==}
+    peerDependencies:
+      react: ~0.14 || ^15 || ^16 || ^17 || ^18 || ^19
+      react-dom: ~0.14 || ^15 || ^16 || ^17 || ^18 || ^19
+
+  jodit@4.11.15:
+    resolution: {integrity: sha512-cT/dlFsK9mCmACb85TB9MmfHXyzsIyZYKY2VO2FLUdO+Xz7wIjBhu06wMCM7nkBdsxpWFGncHEP0KKd4mPx6Ng==}
 
   js-tokens@4.0.0:
     resolution: {integrity: sha512-RdJUflcE3cUzKiMqQgsCu06FPu9UdIJO0beYbPhHN4k6apgJtifcoCtT9bcxOpYBtpD2kCM6Sbzg4CausW/PKQ==}
@@ -5124,6 +5139,14 @@ snapshots:
       set-function-name: 2.0.2
 
   jiti@2.6.1: {}
+
+  jodit-react@5.3.21(react-dom@19.2.4(react@19.2.4))(react@19.2.4):
+    dependencies:
+      jodit: 4.11.15
+      react: 19.2.4
+      react-dom: 19.2.4(react@19.2.4)
+
+  jodit@4.11.15: {}
 
   js-tokens@4.0.0: {}
 
