@@ -5,6 +5,8 @@ import { jobManager } from "./job-manager";
 import { downloadVideo } from "./video-downloader";
 import { getTranscriber } from "./transcriber";
 import { getStructurer } from "./recipe-structurer";
+import { scrapePage, extractRecipeFromPage } from "../scraper";
+import { detectPlatform, isSocialMedia } from "./platform-detector";
 import { youtubeAdapter } from "./adapters/youtube";
 import { instagramAdapter } from "./adapters/instagram";
 import { twitterAdapter } from "./adapters/twitter";
@@ -21,6 +23,47 @@ const adapters: PlatformAdapter[] = [
 
 function getAdapter(platform: string): PlatformAdapter | null {
   return adapters.find((a) => a.name === platform) ?? null;
+}
+
+/**
+ * Extract blog URLs from social media text content.
+ * Returns the first URL that points to a non-social-media site (likely a recipe blog).
+ */
+function extractBlogUrl(text: string): string | null {
+  const urlPattern = /https?:\/\/[^\s"',)]+/g;
+  const urls = text.match(urlPattern);
+  if (!urls) return null;
+
+  for (const url of urls) {
+    try {
+      const platform = detectPlatform(url);
+      if (!isSocialMedia(platform)) {
+        return url;
+      }
+    } catch {
+      // Invalid URL, skip
+    }
+  }
+  return null;
+}
+
+/**
+ * Try to extract a recipe from a blog URL using the existing Cheerio scraper.
+ * Returns null if extraction fails or yields no useful content.
+ */
+async function tryBlogExtraction(blogUrl: string): Promise<ExtractedRecipe | null> {
+  try {
+    const page = await scrapePage(blogUrl);
+    const recipe = extractRecipeFromPage(page);
+
+    // Check if we got something useful
+    if (recipe.ingredients.length > 0 || recipe.instructions.length > 0) {
+      return recipe;
+    }
+  } catch {
+    // Blog extraction failed
+  }
+  return null;
 }
 
 /**
@@ -50,6 +93,22 @@ export async function runExtractionPipeline(
     if (!content.text && content.images.length === 0 && !content.videoUrl) {
       jobManager.fail(jobId, "No content found at this URL. The platform may have blocked access or the content may be unavailable.");
       return;
+    }
+
+    // Check for blog URL in content — if found, use Cheerio scraper for better extraction
+    const blogUrl = content.linkedBlogUrl || extractBlogUrl(content.text);
+    if (blogUrl) {
+      jobManager.updateStage(jobId, "processing", "extracting");
+      const blogRecipe = await tryBlogExtraction(blogUrl);
+      if (blogRecipe) {
+        // Merge: use blog recipe data but keep social media images if blog has none
+        if (blogRecipe.images.length === 0 && content.images.length > 0) {
+          blogRecipe.images = content.images;
+        }
+        jobManager.complete(jobId, blogRecipe, platform, blogUrl);
+        return;
+      }
+      // Blog extraction failed — fall through to AI structuring
     }
 
     // Stage: downloading video (if applicable)
