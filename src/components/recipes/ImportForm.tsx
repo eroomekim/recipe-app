@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Button from "@/components/ui/Button";
 import Input from "@/components/ui/Input";
@@ -49,6 +49,75 @@ export default function ImportForm() {
   const [servingSuggestions, setServingSuggestions] = useState("");
   const [techniqueNotes, setTechniqueNotes] = useState("");
 
+  // Polling state
+  const [polling, setPolling] = useState(false);
+  const [jobId, setJobId] = useState<string | null>(null);
+  const [extractionStage, setExtractionStage] = useState<string | null>(null);
+  const [platformBadge, setPlatformBadge] = useState<string | null>(null);
+
+  function populateRecipeFields(recipe: ExtractedRecipe) {
+    setExtracted(recipe);
+    setTitle(recipe.title);
+    setIngredients(recipe.ingredients.join("\n"));
+    setInstructions(recipe.instructions.join("\n"));
+    setCookTime(recipe.suggestedCookTimeMinutes?.toString() ?? "");
+    setImages(recipe.images);
+    setMealTypes(recipe.suggestedMealTypes);
+    setCuisines(recipe.suggestedCuisines);
+    setDietary(recipe.suggestedDietary);
+    setServings(recipe.servings?.toString() ?? "");
+    setSubstitutions(
+      recipe.substitutions?.map((s) => ({
+        ingredient: s.ingredient,
+        substitute: s.substitute,
+        notes: s.notes ?? "",
+      })) ?? []
+    );
+    setStorageTips(recipe.storageTips ?? "");
+    setMakeAheadNotes(recipe.makeAheadNotes ?? "");
+    setServingSuggestions(recipe.servingSuggestions ?? "");
+    setTechniqueNotes(recipe.techniqueNotes ?? "");
+  }
+
+  useEffect(() => {
+    if (!polling || !jobId) return;
+
+    const startTime = Date.now();
+    const POLL_INTERVAL = 2000;
+    const POLL_TIMEOUT = 5 * 60 * 1000;
+
+    const interval = setInterval(async () => {
+      if (Date.now() - startTime > POLL_TIMEOUT) {
+        clearInterval(interval);
+        setPolling(false);
+        setExtractError("Extraction timed out. Try a different URL or use manual entry.");
+        return;
+      }
+
+      try {
+        const res = await fetch(`/api/extract/${jobId}`);
+        const data = await res.json();
+
+        setExtractionStage(data.stage);
+
+        if (data.status === "completed" && data.recipe) {
+          clearInterval(interval);
+          setPolling(false);
+          setPlatformBadge(data._meta?.platform ?? null);
+          populateRecipeFields(data.recipe);
+        } else if (data.status === "failed") {
+          clearInterval(interval);
+          setPolling(false);
+          setExtractError(data.error || "Extraction failed");
+        }
+      } catch {
+        // Network error — keep polling
+      }
+    }, POLL_INTERVAL);
+
+    return () => clearInterval(interval);
+  }, [polling, jobId]);
+
   async function handleExtract(e: React.FormEvent) {
     e.preventDefault();
     setExtractError(null);
@@ -68,28 +137,18 @@ export default function ImportForm() {
         return;
       }
 
-      const recipe = data as ExtractedRecipe;
-      setExtracted(recipe);
-      setTitle(recipe.title);
-      setIngredients(recipe.ingredients.join("\n"));
-      setInstructions(recipe.instructions.join("\n"));
-      setCookTime(recipe.suggestedCookTimeMinutes?.toString() ?? "");
-      setImages(recipe.images);
-      setMealTypes(recipe.suggestedMealTypes);
-      setCuisines(recipe.suggestedCuisines);
-      setDietary(recipe.suggestedDietary);
-      setServings(recipe.servings?.toString() ?? "");
-      setSubstitutions(
-        recipe.substitutions?.map((s) => ({
-          ingredient: s.ingredient,
-          substitute: s.substitute,
-          notes: s.notes ?? "",
-        })) ?? []
-      );
-      setStorageTips(recipe.storageTips ?? "");
-      setMakeAheadNotes(recipe.makeAheadNotes ?? "");
-      setServingSuggestions(recipe.servingSuggestions ?? "");
-      setTechniqueNotes(recipe.techniqueNotes ?? "");
+      // Check if async (social media) or immediate (blog)
+      if (data.type === "async") {
+        setJobId(data.jobId);
+        setExtracting(false);
+        setPolling(true);
+        return;
+      }
+
+      // Immediate result (blog)
+      const recipe = data.type === "immediate" ? data.recipe : data as ExtractedRecipe;
+      setPlatformBadge(data._meta?.platform ?? null);
+      populateRecipeFields(recipe);
     } catch {
       setExtractError("Failed to connect to server");
     } finally {
@@ -188,6 +247,25 @@ export default function ImportForm() {
               <span>This may take a moment...</span>
             </div>
           )}
+
+          {polling && (
+            <div className="space-y-4 text-center">
+              <Spinner />
+              <p className="font-serif text-lg text-gray-600">
+                {extractionStage === "fetching" && "Fetching page..."}
+                {extractionStage === "downloading" && "Downloading video..."}
+                {extractionStage === "transcribing" && "Transcribing video... (this may take a moment)"}
+                {extractionStage === "extracting" && "Extracting recipe from content..."}
+                {(!extractionStage || extractionStage === "detecting") && "Starting extraction..."}
+              </p>
+              <button
+                onClick={() => { setPolling(false); setJobId(null); }}
+                className="font-sans text-xs text-gray-500 hover:text-black transition-colors"
+              >
+                Cancel
+              </button>
+            </div>
+          )}
         </form>
       </div>
     );
@@ -199,6 +277,12 @@ export default function ImportForm() {
       <h1 className="font-display text-3xl md:text-4xl font-bold leading-none text-center mb-8">
         Review Recipe
       </h1>
+
+      {platformBadge && platformBadge !== "blog" && (
+        <p className="font-sans text-xs font-semibold uppercase tracking-wider text-gray-500 text-center mb-4">
+          Extracted from {platformBadge}
+        </p>
+      )}
 
       {/* Image thumbnails */}
       {images.length > 0 && (
