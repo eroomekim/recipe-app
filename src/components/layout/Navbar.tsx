@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
+import { Menu } from "lucide-react";
 import MobileMenu from "./MobileMenu";
 
 interface NavbarProps {
@@ -34,18 +35,7 @@ export default function Navbar({ user }: NavbarProps) {
               onClick={() => setMobileOpen(true)}
               aria-label="Open menu"
             >
-              <svg
-                width="24"
-                height="24"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-              >
-                <line x1="3" y1="6" x2="21" y2="6" />
-                <line x1="3" y1="12" x2="21" y2="12" />
-                <line x1="3" y1="18" x2="21" y2="18" />
-              </svg>
+              <Menu className="w-6 h-6" />
             </button>
           )}
 

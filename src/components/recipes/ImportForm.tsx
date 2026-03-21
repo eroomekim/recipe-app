@@ -7,6 +7,7 @@ import Input from "@/components/ui/Input";
 import TagSelector from "@/components/ui/TagSelector";
 import Spinner from "@/components/ui/Spinner";
 import Divider from "@/components/ui/Divider";
+import { X } from "lucide-react";
 import type { ExtractedRecipe } from "@/types";
 
 const MEAL_TYPES = ["Breakfast", "Lunch", "Dinner", "Snack", "Dessert", "Appetizer"];
@@ -296,10 +297,10 @@ export default function ImportForm() {
               />
               <button
                 onClick={() => removeImage(i)}
-                className="absolute -top-2 -right-2 w-6 h-6 bg-black text-white text-xs flex items-center justify-center"
+                className="absolute -top-2 -right-2 w-6 h-6 bg-black text-white flex items-center justify-center"
                 aria-label="Remove image"
               >
-                &times;
+                <X className="w-3 h-3" />
               </button>
             </div>
           ))}
@@ -388,10 +389,10 @@ export default function ImportForm() {
               />
               <button
                 onClick={() => setSubstitutions(substitutions.filter((_, j) => j !== i))}
-                className="text-gray-500 hover:text-black px-2 py-2 text-sm"
+                className="text-gray-500 hover:text-black px-2 py-2"
                 aria-label="Remove substitution"
               >
-                &times;
+                <X className="w-4 h-4" />
               </button>
             </div>
           ))}

@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { X } from "lucide-react";
 
 interface MobileMenuProps {
   open: boolean;
@@ -30,17 +31,7 @@ export default function MobileMenu({
           className="self-end font-sans text-base text-gray-600"
           aria-label="Close menu"
         >
-          <svg
-            width="24"
-            height="24"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-          >
-            <line x1="18" y1="6" x2="6" y2="18" />
-            <line x1="6" y1="6" x2="18" y2="18" />
-          </svg>
+          <X className="w-6 h-6" />
         </button>
 
         <nav className="flex flex-col gap-4">

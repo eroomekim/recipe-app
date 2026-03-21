@@ -27,6 +27,7 @@
     "cheerio": "^1.2.0",
     "jodit": "^4.11.15",
     "jodit-react": "^5.3.21",
+    "lucide-react": "^0.577.0",
     "next": "^16.1.7",
     "playwright": "^1.58.2",
     "prisma": "^6.19.2",

@@ -7,6 +7,7 @@ import Input from "@/components/ui/Input";
 import TagSelector from "@/components/ui/TagSelector";
 import Divider from "@/components/ui/Divider";
 import RichTextEditor from "@/components/ui/RichTextEditor";
+import { X } from "lucide-react";
 
 /** Convert array of strings to an HTML unordered list */
 function toHtmlList(items: string[]): string {
@@ -166,10 +167,10 @@ export default function EditRecipeForm({ recipeId, initialData }: EditRecipeForm
                   />
                   <button
                     onClick={() => setImages(images.filter((_, j) => j !== i))}
-                    className="absolute -top-2 -right-2 w-6 h-6 bg-black text-white text-xs flex items-center justify-center"
+                    className="absolute -top-2 -right-2 w-6 h-6 bg-black text-white flex items-center justify-center"
                     aria-label="Remove image"
                   >
-                    &times;
+                    <X className="w-3 h-3" />
                   </button>
                 </div>
               ))}

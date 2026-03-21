@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import RecipePage from "./RecipePage";
 import type { RecipeDetail } from "@/types";
 
@@ -93,7 +94,7 @@ export default function RecipeBooklet({
           className="absolute left-4 top-1/2 -translate-y-1/2 z-20 w-10 h-10 flex items-center justify-center bg-white/80 hover:bg-white text-black transition-colors rounded-full"
           aria-label="Previous recipe"
         >
-          &larr;
+          <ChevronLeft className="w-5 h-5" />
         </button>
       )}
       {currentIndex < recipeIds.length - 1 && (
@@ -102,7 +103,7 @@ export default function RecipeBooklet({
           className="absolute right-4 top-1/2 -translate-y-1/2 z-20 w-10 h-10 flex items-center justify-center bg-white/80 hover:bg-white text-black transition-colors rounded-full"
           aria-label="Next recipe"
         >
-          &rarr;
+          <ChevronRight className="w-5 h-5" />
         </button>
       )}
     </div>

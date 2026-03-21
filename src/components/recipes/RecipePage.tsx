@@ -7,6 +7,7 @@ import FavoriteButton from "./FavoriteButton";
 import AddToCollectionButton from "./AddToCollectionButton";
 import CookingMode from "@/components/cooking/CookingMode";
 import Divider from "@/components/ui/Divider";
+import { X, ExternalLink } from "lucide-react";
 import type { RecipeDetail } from "@/types";
 
 interface RecipePageProps {
@@ -61,10 +62,10 @@ export default function RecipePage({
         {onClose && (
           <button
             onClick={onClose}
-            className="absolute top-4 right-5 text-white/70 hover:text-white text-xl transition-colors"
+            className="absolute top-4 right-5 text-white/70 hover:text-white transition-colors"
             aria-label="Close"
           >
-            &times;
+            <X className="w-5 h-5" />
           </button>
         )}
 
@@ -119,7 +120,7 @@ export default function RecipePage({
               rel="noopener noreferrer"
               className="font-sans text-xs font-semibold text-red hover:text-red-dark transition-colors ml-auto"
             >
-              View Original &rarr;
+              View Original <ExternalLink className="w-3 h-3 inline ml-1" />
             </a>
           )}
           <AddToCollectionButton recipeId={recipe.id} />
