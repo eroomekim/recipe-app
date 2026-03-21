@@ -73,7 +73,7 @@ export default function EditRecipeForm({ recipeId, initialData }: EditRecipeForm
   const router = useRouter();
 
   const [title, setTitle] = useState(initialData.title);
-  const [images, setImages] = useState<string[]>(initialData.images);
+  const [images, setImages] = useState<string[]>(initialData.images ?? []);
   const [newImageUrl, setNewImageUrl] = useState("");
   const [ingredients, setIngredients] = useState(toHtmlList(initialData.ingredients));
   const [instructions, setInstructions] = useState(toHtmlOl(initialData.instructions));
