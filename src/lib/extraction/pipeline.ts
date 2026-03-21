@@ -34,8 +34,13 @@ function extractBlogUrl(text: string): string | null {
   const urls = text.match(urlPattern);
   if (!urls) return null;
 
-  for (const url of urls) {
+  for (let url of urls) {
+    // Clean trailing ellipsis and unicode junk (Twitter truncates URLs)
+    url = url.replace(/[…\u2026]+$/, "").replace(/\.{2,}$/, "");
+
     try {
+      // Validate it's a real URL
+      new URL(url);
       const platform = detectPlatform(url);
       if (!isSocialMedia(platform)) {
         return url;
