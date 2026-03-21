@@ -52,7 +52,7 @@ export default function FavoriteButton({
       aria-label={isFavorite ? "Remove from favorites" : "Add to favorites"}
     >
       <Heart
-        className={`w-5 h-5 ${isFavorite ? "text-red fill-current" : "text-white hover:text-white"}`}
+        className={`w-5 h-5 ${isFavorite ? "text-red fill-current" : "text-current"}`}
         strokeWidth={isFavorite ? 0 : 1.5}
       />
     </button>

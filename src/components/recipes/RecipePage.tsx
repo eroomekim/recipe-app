@@ -7,7 +7,7 @@ import FavoriteButton from "./FavoriteButton";
 import AddToCollectionButton from "./AddToCollectionButton";
 import CookingMode from "@/components/cooking/CookingMode";
 import Divider from "@/components/ui/Divider";
-import { X, ExternalLink } from "lucide-react";
+import { X, ExternalLink, ChefHat, Heart, Bookmark, FolderPlus } from "lucide-react";
 import type { RecipeDetail } from "@/types";
 
 interface RecipePageProps {
@@ -35,6 +35,7 @@ export default function RecipePage({
   const additionalImages = recipe.images.slice(4);
 
   const rubricParts = [...mealTypes, ...cuisines].filter(Boolean);
+  const dietaryTags = recipe.tags.filter((t) => t.type === "DIETARY");
 
   if (cooking) {
     return <CookingMode recipe={recipe} onExit={() => setCooking(false)} />;
@@ -42,18 +43,17 @@ export default function RecipePage({
 
   return (
     <div className="bg-white max-w-article mx-auto">
-      {/* Hero Image */}
-      <div className="relative w-full h-[50vh] md:h-[65vh]">
+      {/* Hero Image — full bleed, no text overlay */}
+      <div className="relative w-full aspect-3/2 md:aspect-auto md:h-[55vh]">
         <ImageCarousel
           images={heroImages}
           alt={recipe.title}
           className="w-full h-full"
-          overlay
         />
 
         {/* Page indicator */}
         {pageIndex !== undefined && totalPages !== undefined && (
-          <div className="absolute top-4 left-5 font-sans text-xs font-semibold tracking-wider text-white/70 uppercase">
+          <div className="absolute top-4 left-5 bg-black/40 backdrop-blur-sm text-white font-sans text-xs font-semibold tracking-wider uppercase px-2.5 py-1 rounded-full">
             {pageIndex + 1} / {totalPages}
           </div>
         )}
@@ -62,74 +62,92 @@ export default function RecipePage({
         {onClose && (
           <button
             onClick={onClose}
-            className="absolute top-4 right-5 text-white/70 hover:text-white transition-colors"
+            className="absolute top-4 right-5 w-8 h-8 bg-black/40 backdrop-blur-sm text-white rounded-full flex items-center justify-center hover:bg-black/60 transition-colors"
             aria-label="Close"
           >
-            <X className="w-5 h-5" />
+            <X className="w-4 h-4" />
           </button>
         )}
-
-        {/* Favorite */}
-        <FavoriteButton
-          recipeId={recipe.id}
-          initialFavorite={recipe.isFavorite}
-          className="absolute top-4 right-14 text-white"
-        />
-
-        {/* Title overlay */}
-        <div className="absolute bottom-5 left-6 right-6">
-          {rubricParts.length > 0 && (
-            <div className="font-display text-sm font-normal text-white/70 tracking-normal mb-2">
-              {rubricParts.join(" · ").toUpperCase()}
-            </div>
-          )}
-          <h1 className="font-display text-2xl md:text-5xl font-black leading-none text-white drop-shadow-[0_1px_4px_rgba(0,0,0,0.3)]">
-            {recipe.title}
-          </h1>
-        </div>
       </div>
 
-      {/* Content below hero */}
-      <div className="px-6 py-5">
-        {/* Tags row */}
-        <div className="flex gap-2 flex-wrap items-center">
-          {recipe.cookTime && (
-            <span className="font-sans text-xs font-semibold uppercase tracking-wider bg-gray-50 text-gray-600 px-2.5 py-1">
-              {recipe.cookTime} min
-            </span>
-          )}
-          {recipe.servings && (
-            <span className="font-sans text-xs font-semibold uppercase tracking-wider bg-gray-50 text-gray-600 px-2.5 py-1">
-              {recipe.servings} servings
-            </span>
-          )}
-          {recipe.tags
-            .filter((t) => t.type === "DIETARY")
-            .map((t) => (
-              <span
-                key={t.name}
-                className="font-sans text-xs font-semibold uppercase tracking-wider bg-gray-50 text-gray-600 px-2.5 py-1"
-              >
-                {t.name}
-              </span>
-            ))}
-          {recipe.sourceUrl && (
-            <a
-              href={recipe.sourceUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="font-sans text-xs font-semibold text-red hover:text-red-dark transition-colors ml-auto"
-            >
-              View Original <ExternalLink className="w-3 h-3 inline ml-1" />
-            </a>
-          )}
-          <AddToCollectionButton recipeId={recipe.id} />
+      {/* Content below image */}
+      <div className="px-5 py-6">
+        {/* Rubric */}
+        {rubricParts.length > 0 && (
+          <div className="font-display text-sm font-normal text-red tracking-normal mb-1">
+            {rubricParts.join(" · ")}
+          </div>
+        )}
+
+        {/* Title */}
+        <h1 className="font-display text-2xl sm:text-3xl md:text-4xl font-black leading-none tracking-tighter text-black mb-2">
+          {recipe.title}
+        </h1>
+
+        {/* Source attribution */}
+        {recipe.sourceUrl && (
+          <a
+            href={recipe.sourceUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="font-sans text-xs text-gray-500 hover:text-black transition-colors inline-flex items-center gap-1 mb-4"
+          >
+            View Original <ExternalLink className="w-3 h-3" />
+          </a>
+        )}
+
+        {/* Stats row */}
+        {(recipe.cookTime || recipe.servings) && (
+          <div className="flex items-start gap-0 mt-4 mb-5">
+            {recipe.cookTime && (
+              <div className="pr-5">
+                <div className="font-sans text-xs text-gray-500 uppercase tracking-wider">Cook Time</div>
+                <div className="font-sans text-lg font-bold text-black mt-0.5">{recipe.cookTime} mins</div>
+              </div>
+            )}
+            {recipe.cookTime && recipe.servings && (
+              <div className="w-px h-10 bg-gray-300 self-center" />
+            )}
+            {recipe.servings && (
+              <div className="px-5">
+                <div className="font-sans text-xs text-gray-500 uppercase tracking-wider">Yield</div>
+                <div className="font-sans text-lg font-bold text-black mt-0.5">{recipe.servings}</div>
+              </div>
+            )}
+            {(recipe.cookTime || recipe.servings) && dietaryTags.length > 0 && (
+              <div className="w-px h-10 bg-gray-300 self-center" />
+            )}
+            {dietaryTags.length > 0 && (
+              <div className="px-5">
+                <div className="font-sans text-xs text-gray-500 uppercase tracking-wider">Dietary</div>
+                <div className="font-sans text-sm font-bold text-black mt-1">
+                  {dietaryTags.map((t) => t.name).join(", ")}
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Action buttons row */}
+        <div className="flex gap-3 mb-6">
           <button
             onClick={() => setCooking(true)}
-            className="bg-black text-white font-sans text-xs font-semibold uppercase tracking-wider px-4 py-1.5 hover:bg-gray-900 transition-colors"
+            className="flex-1 flex flex-col items-center gap-1.5 py-3 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors"
           >
-            Start Cooking
+            <ChefHat className="w-5 h-5 text-gray-600" />
+            <span className="font-sans text-xs font-semibold text-gray-600">Cook</span>
           </button>
+          <div className="flex-1 flex flex-col items-center gap-1.5 py-3 bg-gray-50 rounded-xl">
+            <FavoriteButton
+              recipeId={recipe.id}
+              initialFavorite={recipe.isFavorite}
+              className="text-gray-600"
+            />
+            <span className="font-sans text-xs font-semibold text-gray-600">Favorite</span>
+          </div>
+          <div className="flex-1 flex flex-col items-center gap-1.5 py-3 bg-gray-50 rounded-xl">
+            <AddToCollectionButton recipeId={recipe.id} />
+          </div>
         </div>
 
         {/* Personal notes */}
@@ -139,57 +157,57 @@ export default function RecipePage({
           initialAdaptations={recipe.personalAdaptations}
         />
 
-        <Divider className="my-5" />
+        <Divider className="my-6" />
 
-        {/* Ingredients & Instructions */}
-        <div className="md:grid md:grid-cols-[1fr_1.4fr] md:gap-0">
-          {/* Ingredients */}
-          <div className="md:pr-5 md:border-r md:border-gray-200 mb-6 md:mb-0">
-            <h2 className="font-sans text-xs font-bold uppercase tracking-wider text-gray-500 mb-3">
-              Ingredients
-            </h2>
-            <ul className="space-y-1.5">
-              {recipe.ingredients.map((ing) => (
-                <li
-                  key={ing.id}
-                  className="font-serif text-sm leading-relaxed text-black"
-                >
-                  {ing.text}
-                </li>
-              ))}
-            </ul>
-          </div>
+        {/* Ingredients */}
+        <div className="mb-8">
+          <h2 className="font-sans text-xs font-bold uppercase tracking-wider text-gray-500 mb-4">
+            Ingredients
+          </h2>
+          <ul className="space-y-2">
+            {recipe.ingredients.map((ing) => (
+              <li
+                key={ing.id}
+                className="font-serif text-base leading-relaxed text-black flex gap-2"
+              >
+                <span className="text-gray-500 select-none">&bull;</span>
+                {ing.text}
+              </li>
+            ))}
+          </ul>
+        </div>
 
-          {/* Instructions */}
-          <div className="md:pl-5">
-            <h2 className="font-sans text-xs font-bold uppercase tracking-wider text-gray-500 mb-3">
-              Instructions
-            </h2>
-            <ol className="space-y-3">
-              {recipe.instructions.map((inst, i) => (
-                <li key={inst.id} className="flex gap-3">
-                  <span className="font-display text-xl font-black text-red/40 select-none shrink-0 w-7">
-                    {String(i + 1).padStart(2, "0")}
-                  </span>
-                  <p className="font-serif text-sm leading-relaxed text-black">
-                    {inst.text}
-                  </p>
-                </li>
-              ))}
-            </ol>
-          </div>
+        <Divider className="my-6" />
+
+        {/* Instructions */}
+        <div className="mb-4">
+          <h2 className="font-sans text-xs font-bold uppercase tracking-wider text-gray-500 mb-4">
+            Instructions
+          </h2>
+          <ol className="space-y-5">
+            {recipe.instructions.map((inst, i) => (
+              <li key={inst.id} className="flex gap-4">
+                <span className="font-display text-xl font-black text-red/40 select-none shrink-0 w-7 mt-0.5">
+                  {String(i + 1).padStart(2, "0")}
+                </span>
+                <p className="font-serif text-base leading-relaxed text-black">
+                  {inst.text}
+                </p>
+              </li>
+            ))}
+          </ol>
         </div>
 
         {/* Substitutions */}
         {recipe.substitutions.length > 0 && (
           <>
-            <Divider className="my-5" />
+            <Divider className="my-6" />
             <h2 className="font-sans text-xs font-bold uppercase tracking-wider text-gray-500 mb-3">
               Substitutions
             </h2>
-            <div className="space-y-1.5">
+            <div className="space-y-2">
               {recipe.substitutions.map((sub) => (
-                <div key={sub.id} className="font-serif text-sm leading-relaxed text-gray-600">
+                <div key={sub.id} className="font-serif text-base leading-relaxed text-gray-600">
                   <strong className="text-black">{sub.ingredient} →</strong>{" "}
                   {sub.substitute}
                   {sub.notes && (
@@ -204,30 +222,30 @@ export default function RecipePage({
         {/* Supplementary notes */}
         {(recipe.storageTips || recipe.makeAheadNotes || recipe.servingSuggestions || recipe.techniqueNotes) && (
           <>
-            <Divider className="my-5" />
-            <div className="space-y-4">
+            <Divider className="my-6" />
+            <div className="space-y-5">
               {recipe.storageTips && (
                 <div>
-                  <h3 className="font-sans text-xs font-bold uppercase tracking-wider text-gray-500 mb-1">Storage</h3>
-                  <div className="font-serif text-sm leading-relaxed text-gray-600 prose-content" dangerouslySetInnerHTML={{ __html: recipe.storageTips }} />
+                  <h3 className="font-sans text-xs font-bold uppercase tracking-wider text-gray-500 mb-2">Storage</h3>
+                  <div className="font-serif text-base leading-relaxed text-gray-600 prose-content" dangerouslySetInnerHTML={{ __html: recipe.storageTips }} />
                 </div>
               )}
               {recipe.makeAheadNotes && (
                 <div>
-                  <h3 className="font-sans text-xs font-bold uppercase tracking-wider text-gray-500 mb-1">Make Ahead</h3>
-                  <div className="font-serif text-sm leading-relaxed text-gray-600 prose-content" dangerouslySetInnerHTML={{ __html: recipe.makeAheadNotes }} />
+                  <h3 className="font-sans text-xs font-bold uppercase tracking-wider text-gray-500 mb-2">Make Ahead</h3>
+                  <div className="font-serif text-base leading-relaxed text-gray-600 prose-content" dangerouslySetInnerHTML={{ __html: recipe.makeAheadNotes }} />
                 </div>
               )}
               {recipe.servingSuggestions && (
                 <div>
-                  <h3 className="font-sans text-xs font-bold uppercase tracking-wider text-gray-500 mb-1">Serving Suggestions</h3>
-                  <div className="font-serif text-sm leading-relaxed text-gray-600 prose-content" dangerouslySetInnerHTML={{ __html: recipe.servingSuggestions }} />
+                  <h3 className="font-sans text-xs font-bold uppercase tracking-wider text-gray-500 mb-2">Serving Suggestions</h3>
+                  <div className="font-serif text-base leading-relaxed text-gray-600 prose-content" dangerouslySetInnerHTML={{ __html: recipe.servingSuggestions }} />
                 </div>
               )}
               {recipe.techniqueNotes && (
                 <div>
-                  <h3 className="font-sans text-xs font-bold uppercase tracking-wider text-gray-500 mb-1">Tips</h3>
-                  <div className="font-serif text-sm leading-relaxed text-gray-600 prose-content" dangerouslySetInnerHTML={{ __html: recipe.techniqueNotes }} />
+                  <h3 className="font-sans text-xs font-bold uppercase tracking-wider text-gray-500 mb-2">Tips</h3>
+                  <div className="font-serif text-base leading-relaxed text-gray-600 prose-content" dangerouslySetInnerHTML={{ __html: recipe.techniqueNotes }} />
                 </div>
               )}
             </div>
@@ -237,10 +255,10 @@ export default function RecipePage({
         {/* Additional images */}
         {additionalImages.length > 0 && (
           <>
-            <Divider className="my-5" />
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+            <Divider className="my-6" />
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
               {additionalImages.map((src, i) => (
-                <div key={i} className="aspect-square overflow-hidden bg-gray-50">
+                <div key={i} className="aspect-square overflow-hidden bg-gray-50 rounded-lg">
                   <img
                     src={src}
                     alt={`${recipe.title} - image ${i + 5}`}
