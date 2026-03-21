@@ -4,6 +4,7 @@ import { redirect, notFound } from "next/navigation";
 import Link from "next/link";
 import RecipePage from "@/components/recipes/RecipePage";
 import DeleteRecipeButton from "@/components/recipes/DeleteRecipeButton";
+import PrintRecipeButton from "@/components/recipes/PrintRecipeButton";
 import Divider from "@/components/ui/Divider";
 import type { RecipeDetail } from "@/types";
 
@@ -85,12 +86,15 @@ export default async function RecipeDetailPage({
       <Divider className="my-6" />
       <div className="flex items-center justify-between px-6">
         <DeleteRecipeButton recipeId={recipe.id} />
-        <Link
-          href={`/recipes/${recipe.id}/edit`}
-          className="bg-black text-white font-sans text-base font-semibold px-8 py-3 hover:bg-gray-900 transition-colors"
-        >
-          Edit Recipe
-        </Link>
+        <div className="flex gap-3">
+          <PrintRecipeButton recipe={recipeDetail} />
+          <Link
+            href={`/recipes/${recipe.id}/edit`}
+            className="bg-black text-white font-sans text-base font-semibold px-8 py-3 hover:bg-gray-900 transition-colors"
+          >
+            Edit Recipe
+          </Link>
+        </div>
       </div>
     </main>
   );
