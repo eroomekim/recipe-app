@@ -40,7 +40,7 @@ export default function RecipePage({
   }
 
   return (
-    <div className="bg-white max-w-article mx-auto overflow-y-auto max-h-[90vh]">
+    <div className="bg-white max-w-article mx-auto">
       {/* Hero Image */}
       <div className="relative w-full h-[50vh] md:h-[65vh]">
         <ImageCarousel

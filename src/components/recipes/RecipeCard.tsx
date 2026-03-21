@@ -4,10 +4,8 @@ import FavoriteButton from "./FavoriteButton";
 
 export default function RecipeCard({
   recipe,
-  onClick,
 }: {
   recipe: RecipeCardData;
-  onClick?: () => void;
 }) {
   const mealType = recipe.tags.find((t) => t.type === "MEAL_TYPE");
   const heroImage = recipe.images[0];
@@ -18,15 +16,7 @@ export default function RecipeCard({
     : null;
 
   return (
-    <Link
-      href={`/recipes/${recipe.id}`}
-      onClick={(e) => {
-        if (onClick) {
-          e.preventDefault();
-          onClick();
-        }
-      }}
-    >
+    <Link href={`/recipes/${recipe.id}`}>
       <article className="group">
         {heroImage ? (
           <div className="relative aspect-3/2 overflow-hidden bg-gray-50">
