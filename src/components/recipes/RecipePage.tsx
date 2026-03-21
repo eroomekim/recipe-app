@@ -208,25 +208,25 @@ export default function RecipePage({
               {recipe.storageTips && (
                 <div>
                   <h3 className="font-sans text-xs font-bold uppercase tracking-wider text-gray-500 mb-1">Storage</h3>
-                  <p className="font-serif text-sm leading-relaxed text-gray-600">{recipe.storageTips}</p>
+                  <div className="font-serif text-sm leading-relaxed text-gray-600 prose-sm" dangerouslySetInnerHTML={{ __html: recipe.storageTips }} />
                 </div>
               )}
               {recipe.makeAheadNotes && (
                 <div>
                   <h3 className="font-sans text-xs font-bold uppercase tracking-wider text-gray-500 mb-1">Make Ahead</h3>
-                  <p className="font-serif text-sm leading-relaxed text-gray-600">{recipe.makeAheadNotes}</p>
+                  <div className="font-serif text-sm leading-relaxed text-gray-600 prose-sm" dangerouslySetInnerHTML={{ __html: recipe.makeAheadNotes }} />
                 </div>
               )}
               {recipe.servingSuggestions && (
                 <div>
                   <h3 className="font-sans text-xs font-bold uppercase tracking-wider text-gray-500 mb-1">Serving Suggestions</h3>
-                  <p className="font-serif text-sm leading-relaxed text-gray-600">{recipe.servingSuggestions}</p>
+                  <div className="font-serif text-sm leading-relaxed text-gray-600 prose-sm" dangerouslySetInnerHTML={{ __html: recipe.servingSuggestions }} />
                 </div>
               )}
               {recipe.techniqueNotes && (
                 <div>
                   <h3 className="font-sans text-xs font-bold uppercase tracking-wider text-gray-500 mb-1">Tips</h3>
-                  <p className="font-serif text-sm leading-relaxed text-gray-600">{recipe.techniqueNotes}</p>
+                  <div className="font-serif text-sm leading-relaxed text-gray-600 prose-sm" dangerouslySetInnerHTML={{ __html: recipe.techniqueNotes }} />
                 </div>
               )}
             </div>
