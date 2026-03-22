@@ -33,8 +33,8 @@ export default function RecipePage({
   const cuisines = recipe.tags
     .filter((t) => t.type === "CUISINE")
     .map((t) => t.name);
-  const heroImages = recipe.images.slice(0, 4);
-  const additionalImages = recipe.images.slice(4);
+  const heroImage = recipe.images[0];
+  const additionalImages = recipe.images.slice(1);
 
   const rubricParts = [...mealTypes, ...cuisines].filter(Boolean);
   const dietaryTags = recipe.tags.filter((t) => t.type === "DIETARY");
@@ -47,14 +47,16 @@ export default function RecipePage({
     <div className="bg-white max-w-article mx-auto">
       {/* Hero Image — full bleed, tap to open lightbox */}
       <div
-        className="relative w-full aspect-3/2 md:aspect-auto md:h-[55vh] cursor-pointer"
+        className="relative w-full aspect-3/2 md:aspect-auto md:h-[55vh] cursor-pointer bg-gray-50"
         onClick={() => setLightboxIndex(0)}
       >
-        <ImageCarousel
-          images={heroImages}
-          alt={recipe.title}
-          className="w-full h-full"
-        />
+        {heroImage && (
+          <img
+            src={heroImage}
+            alt={recipe.title}
+            className="w-full h-full object-cover"
+          />
+        )}
 
         {/* Page indicator */}
         {pageIndex !== undefined && totalPages !== undefined && (
@@ -265,7 +267,7 @@ export default function RecipePage({
               {additionalImages.map((src, i) => (
                 <button
                   key={i}
-                  onClick={() => setLightboxIndex(i + heroImages.length)}
+                  onClick={() => setLightboxIndex(i + 1)}
                   className="aspect-square overflow-hidden bg-gray-50 rounded-lg cursor-pointer group"
                 >
                   <img
