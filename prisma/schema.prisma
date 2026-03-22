@@ -71,10 +71,11 @@ model Ingredient {
 }
 
 model Instruction {
-  id       String @id @default(cuid())
+  id       String  @id @default(cuid())
   recipeId String
   text     String
   order    Int
+  imageUrl String?
   recipe   Recipe @relation(fields: [recipeId], references: [id], onDelete: Cascade)
 
   @@index([recipeId])
