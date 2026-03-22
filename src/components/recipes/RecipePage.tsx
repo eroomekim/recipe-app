@@ -338,6 +338,7 @@ export default function RecipePage({
                     <img
                       src={inst.imageUrl}
                       alt={`Step ${i + 1}`}
+                      loading="lazy"
                       className="w-full aspect-video object-cover cursor-pointer hover:opacity-95 transition-opacity"
                       onClick={() => {
                         const idx = allImages.indexOf(inst.imageUrl!);
