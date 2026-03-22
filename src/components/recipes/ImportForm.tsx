@@ -16,9 +16,12 @@ function toHtmlList(items: string[]): string {
   return "<ul>" + items.map((item) => `<li>${item}</li>`).join("") + "</ul>";
 }
 
-function toHtmlOl(items: string[]): string {
+function toHtmlOl(items: Array<string | { text: string; imageUrl?: string }>): string {
   if (items.length === 0) return "";
-  return "<ol>" + items.map((item) => `<li>${item}</li>`).join("") + "</ol>";
+  return "<ol>" + items.map((item) => {
+    const text = typeof item === "string" ? item : item.text;
+    return `<li>${text}</li>`;
+  }).join("") + "</ol>";
 }
 
 function fromHtml(html: string): string[] {
@@ -66,6 +69,7 @@ export default function ImportForm() {
   const [mealTypes, setMealTypes] = useState<string[]>([]);
   const [cuisines, setCuisines] = useState<string[]>([]);
   const [dietary, setDietary] = useState<string[]>([]);
+  const [instructionImages, setInstructionImages] = useState<Map<number, string>>(new Map());
   const [saving, setSaving] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
   const [servings, setServings] = useState("");
@@ -105,6 +109,13 @@ export default function ImportForm() {
     setMakeAheadNotes(recipe.makeAheadNotes ?? "");
     setServingSuggestions(recipe.servingSuggestions ?? "");
     setTechniqueNotes(recipe.techniqueNotes ?? "");
+    const imgMap = new Map<number, string>();
+    recipe.instructions.forEach((inst, i) => {
+      if (typeof inst !== "string" && inst.imageUrl) {
+        imgMap.set(i, inst.imageUrl);
+      }
+    });
+    setInstructionImages(imgMap);
   }
 
   useEffect(() => {
@@ -217,7 +228,13 @@ export default function ImportForm() {
           cookTime: cookTime ? parseInt(cookTime, 10) : undefined,
           images,
           ingredients: fromHtml(ingredients),
-          instructions: fromHtml(instructions),
+          instructions: (() => {
+            const instructionTexts = fromHtml(instructions);
+            return instructionTexts.map((text, i) => {
+              const imageUrl = instructionImages.get(i);
+              return imageUrl ? { text, imageUrl } : text;
+            });
+          })(),
           mealTypes,
           cuisines,
           dietary,
