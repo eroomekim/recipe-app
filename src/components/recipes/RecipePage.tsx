@@ -264,12 +264,18 @@ export default function RecipePage({
                   )}
                 </button>
               )}
-              {selectedIngredients.size === 0 && !groceryAdded && (
+              {!groceryAdded && (
                 <button
-                  onClick={() => setSelectedIngredients(new Set(scaledIngredients.map((_, i) => i)))}
+                  onClick={() => {
+                    if (selectedIngredients.size === scaledIngredients.length) {
+                      setSelectedIngredients(new Set());
+                    } else {
+                      setSelectedIngredients(new Set(scaledIngredients.map((_, i) => i)));
+                    }
+                  }}
                   className="font-sans text-xs text-gray-400 hover:text-black transition-colors"
                 >
-                  Select all
+                  {selectedIngredients.size === scaledIngredients.length ? "Deselect all" : "Select all"}
                 </button>
               )}
             </div>
