@@ -83,12 +83,29 @@ export async function POST(request: Request) {
   const body: CreateRecipeRequest = await request.json();
   const recipeId = createId();
 
-  // Download and upload images to Supabase Storage
+  // Download and upload main recipe images to Supabase Storage
   const storedImages = await uploadRecipeImages(
     body.images,
     user.id,
     recipeId
   );
+
+  // Upload instruction step images in parallel
+  const stepImageUrls = body.instructions.map((inst) =>
+    typeof inst !== "string" && inst.imageUrl ? inst.imageUrl : null
+  );
+  const stepImagesToUpload = stepImageUrls.filter(Boolean) as string[];
+  const uploadedStepImages = stepImagesToUpload.length > 0
+    ? await uploadRecipeImages(stepImagesToUpload, user.id, recipeId)
+    : [];
+
+  // Build a map from original URL to uploaded URL
+  const stepImageMap = new Map<string, string>();
+  stepImagesToUpload.forEach((origUrl, i) => {
+    if (uploadedStepImages[i]) {
+      stepImageMap.set(origUrl, uploadedStepImages[i]);
+    }
+  });
 
   // Resolve tag names to IDs
   const tagNames = [
@@ -133,10 +150,16 @@ export async function POST(request: Request) {
         })),
       },
       instructions: {
-        create: body.instructions.map((text, i) => ({
-          text,
-          order: i,
-        })),
+        create: body.instructions.map((inst, i) => {
+          const text = typeof inst === "string" ? inst : inst.text;
+          const origImageUrl = typeof inst === "string" ? null : (inst.imageUrl ?? null);
+          const imageUrl = origImageUrl ? (stepImageMap.get(origImageUrl) ?? null) : null;
+          return {
+            text,
+            order: i,
+            imageUrl,
+          };
+        }),
       },
       substitutions: {
         create: (body.substitutions ?? []).map((sub, i) => ({

@@ -76,6 +76,7 @@ export async function GET(
       id: i.id,
       text: i.text,
       order: i.order,
+      imageUrl: i.imageUrl,
     })),
     substitutions: recipe.substitutions.map((s) => ({
       id: s.id,
@@ -145,13 +146,35 @@ export async function PUT(
 
   // Handle instructions replacement
   if (body.instructions !== undefined) {
+    // Read existing instructions to preserve imageUrl when incoming data is plain strings.
+    // Match by text content (not order index) to handle reordering/insertion gracefully.
+    const existingInstructions = await prisma.instruction.findMany({
+      where: { recipeId: id },
+      select: { text: true, imageUrl: true },
+    });
+    const existingImageByText = new Map(
+      existingInstructions
+        .filter((inst) => inst.imageUrl)
+        .map((inst) => [inst.text, inst.imageUrl])
+    );
+
     await prisma.instruction.deleteMany({ where: { recipeId: id } });
     await prisma.instruction.createMany({
-      data: (body.instructions as string[]).map((text: string, i: number) => ({
-        recipeId: id,
-        text,
-        order: i,
-      })),
+      data: (body.instructions as Array<string | { text: string; imageUrl?: string }>).map(
+        (inst, i) => {
+          const text = typeof inst === "string" ? inst : inst.text;
+          // If the instruction is a plain string, preserve existing imageUrl matched by text
+          const imageUrl = typeof inst === "string"
+            ? (existingImageByText.get(text) ?? null)
+            : (inst.imageUrl ?? null);
+          return {
+            recipeId: id,
+            text,
+            order: i,
+            imageUrl,
+          };
+        }
+      ),
     });
   }
 
