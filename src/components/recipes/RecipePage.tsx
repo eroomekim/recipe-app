@@ -308,7 +308,7 @@ export default function RecipePage({
   );
 
   return (
-    <div className="bg-white mx-auto md:max-w-[1200px]">
+    <div className="bg-white mx-auto max-w-article">
       {/* ── Desktop/Tablet Landscape: Hero left + Details right ── */}
       <div className="md:grid md:grid-cols-2 md:gap-8">
         {/* Hero Image */}

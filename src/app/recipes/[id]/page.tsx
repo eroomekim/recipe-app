@@ -94,7 +94,7 @@ export default async function RecipeDetailPage({
   };
 
   return (
-    <main className="max-w-[1200px] mx-auto pb-8">
+    <main className="max-w-article mx-auto pb-8">
       <RecipePage recipe={recipeDetail} />
       <Divider className="my-6" />
       <div className="flex items-center justify-between px-6">
