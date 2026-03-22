@@ -1,3 +1,5 @@
+import { parseIngredient } from "./ingredient-parser";
+
 interface IngredientInput {
   text: string;
   quantity: number | null;
@@ -74,25 +76,34 @@ export function scaleIngredient(
   ingredient: IngredientInput,
   factor: number
 ): ScaledResult {
+  // If structured fields are missing, try to parse on-the-fly
+  let { quantity, unit, name } = ingredient;
+  if (quantity === null && ingredient.text) {
+    const parsed = parseIngredient(ingredient.text);
+    quantity = parsed.quantity;
+    unit = parsed.unit;
+    name = parsed.name;
+  }
+
   const base: ScaledResult = {
     text: ingredient.text,
     scaledText: ingredient.text,
-    quantity: ingredient.quantity,
-    scaledQuantity: ingredient.quantity,
-    unit: ingredient.unit,
-    name: ingredient.name,
+    quantity,
+    scaledQuantity: quantity,
+    unit,
+    name,
   };
 
-  if (ingredient.quantity === null || factor === 1) {
+  if (quantity === null || factor === 1) {
     return base;
   }
 
-  const scaled = ingredient.quantity * factor;
+  const scaled = quantity * factor;
   const formatted = formatQuantity(scaled);
 
   const parts = [formatted];
-  if (ingredient.unit) parts.push(ingredient.unit);
-  if (ingredient.name) parts.push(ingredient.name);
+  if (unit) parts.push(unit);
+  if (name) parts.push(name);
 
   return {
     ...base,
