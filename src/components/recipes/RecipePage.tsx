@@ -10,7 +10,7 @@ import CookingMode from "@/components/cooking/CookingMode";
 import Divider from "@/components/ui/Divider";
 import ImageLightbox from "./ImageLightbox";
 import NutritionCard from "./NutritionCard";
-import { X, ExternalLink, ChefHat, Minus, Plus } from "lucide-react";
+import { X, ExternalLink, ChefHat, Minus, Plus, Square, CheckSquare, ShoppingCart, Check } from "lucide-react";
 import { scaleIngredient } from "@/lib/ingredient-scaler";
 import type { RecipeDetail } from "@/types";
 
@@ -30,6 +30,8 @@ export default function RecipePage({
   const [cooking, setCooking] = useState(false);
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
   const [scaleFactor, setScaleFactor] = useState(1);
+  const [selectedIngredients, setSelectedIngredients] = useState<Set<number>>(new Set());
+  const [groceryAdded, setGroceryAdded] = useState(false);
 
   const currentServings = recipe.servings
     ? Math.round(recipe.servings * scaleFactor)
@@ -216,26 +218,85 @@ export default function RecipePage({
 
         {/* Ingredients */}
         <div className="mb-8">
-          <div className="flex items-baseline justify-between mb-4">
+          <div className="flex items-center justify-between mb-4">
             <h2 className="font-sans text-xs font-bold uppercase tracking-wider text-gray-500">
               Ingredients
             </h2>
-            {scaleFactor !== 1 && (
-              <span className="font-sans text-xs text-gray-400">
-                scaled to {currentServings} servings
-              </span>
-            )}
+            <div className="flex items-center gap-3">
+              {scaleFactor !== 1 && (
+                <span className="font-sans text-xs text-gray-400">
+                  scaled to {currentServings} servings
+                </span>
+              )}
+              {selectedIngredients.size > 0 && (
+                <button
+                  onClick={async () => {
+                    const items = Array.from(selectedIngredients).map((i) => ({
+                      text: scaledIngredients[i].scaledText,
+                      recipeId: recipe.id,
+                      recipeTitle: recipe.title,
+                    }));
+                    const res = await fetch("/api/grocery", {
+                      method: "POST",
+                      headers: { "Content-Type": "application/json" },
+                      body: JSON.stringify({ items }),
+                    });
+                    if (res.ok) {
+                      setGroceryAdded(true);
+                      setSelectedIngredients(new Set());
+                      setTimeout(() => setGroceryAdded(false), 3000);
+                    }
+                  }}
+                  className="flex items-center gap-1 font-sans text-xs font-semibold text-black hover:text-gray-600 transition-colors"
+                >
+                  {groceryAdded ? (
+                    <>
+                      <Check className="w-3.5 h-3.5 text-green-600" />
+                      <span className="text-green-600">Added!</span>
+                    </>
+                  ) : (
+                    <>
+                      <ShoppingCart className="w-3.5 h-3.5" />
+                      Add {selectedIngredients.size} to grocery
+                    </>
+                  )}
+                </button>
+              )}
+              {selectedIngredients.size === 0 && !groceryAdded && (
+                <button
+                  onClick={() => setSelectedIngredients(new Set(scaledIngredients.map((_, i) => i)))}
+                  className="font-sans text-xs text-gray-400 hover:text-black transition-colors"
+                >
+                  Select all
+                </button>
+              )}
+            </div>
           </div>
-          <ul className="space-y-2">
-            {scaledIngredients.map((ing, i) => (
-              <li
-                key={recipe.ingredients[i].id}
-                className="font-serif text-base leading-relaxed text-black flex gap-2"
-              >
-                <span className="text-gray-500 select-none">&bull;</span>
-                {ing.scaledText}
-              </li>
-            ))}
+          <ul className="space-y-1">
+            {scaledIngredients.map((ing, i) => {
+              const isSelected = selectedIngredients.has(i);
+              return (
+                <li
+                  key={recipe.ingredients[i].id}
+                  onClick={() => {
+                    const next = new Set(selectedIngredients);
+                    if (isSelected) next.delete(i);
+                    else next.add(i);
+                    setSelectedIngredients(next);
+                  }}
+                  className={`font-serif text-base leading-relaxed flex items-start gap-2.5 py-1.5 px-2 -mx-2 rounded-lg cursor-pointer transition-colors ${
+                    isSelected ? "bg-gray-50 text-black" : "text-black hover:bg-gray-50"
+                  }`}
+                >
+                  {isSelected ? (
+                    <CheckSquare className="w-4.5 h-4.5 text-black shrink-0 mt-1" />
+                  ) : (
+                    <Square className="w-4.5 h-4.5 text-gray-300 shrink-0 mt-1" />
+                  )}
+                  {ing.scaledText}
+                </li>
+              );
+            })}
           </ul>
         </div>
 
