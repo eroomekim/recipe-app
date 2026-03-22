@@ -49,6 +49,13 @@ export default function MobileMenu({
           >
             Import
           </Link>
+          <Link
+            href="/grocery"
+            onClick={onClose}
+            className="font-sans text-base font-bold uppercase tracking-normal text-gray-900"
+          >
+            Grocery List
+          </Link>
         </nav>
 
         <hr className="border-t border-gray-300" />

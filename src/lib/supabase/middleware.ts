@@ -33,7 +33,7 @@ export async function updateSession(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser();
 
-  const protectedRoutes = ["/recipes", "/import", "/settings"];
+  const protectedRoutes = ["/recipes", "/import", "/settings", "/grocery"];
   const authRoutes = ["/login", "/signup"];
   const pathname = request.nextUrl.pathname;
 

@@ -62,6 +62,12 @@ export default function Navbar({ user }: NavbarProps) {
               >
                 Import
               </Link>
+              <Link
+                href="/grocery"
+                className="font-sans text-base font-bold uppercase tracking-normal text-gray-900 hover:text-black transition-colors"
+              >
+                Grocery
+              </Link>
             </div>
           )}
 

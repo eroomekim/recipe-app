@@ -14,7 +14,8 @@ model User {
   createdAt   DateTime     @default(now())
   updatedAt   DateTime     @updatedAt
   recipes     Recipe[]
-  collections Collection[]
+  collections   Collection[]
+  groceryItems  GroceryItem[]
 }
 
 model Recipe {
@@ -50,6 +51,7 @@ model Recipe {
   tags          RecipeTag[]
   substitutions Substitution[]
   collections   RecipeCollection[]
+  groceryItems  GroceryItem[]
 
   @@index([userId])
   @@index([createdAt])
@@ -141,6 +143,21 @@ model SmartCollectionCache {
   generatedAt DateTime @default(now())
 
   @@unique([userId, type])
+  @@index([userId])
+}
+
+model GroceryItem {
+  id         String   @id @default(cuid())
+  userId     String
+  text       String
+  recipeId   String?
+  recipeTitle String?
+  checked    Boolean  @default(false)
+  createdAt  DateTime @default(now())
+
+  user   User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  recipe Recipe? @relation(fields: [recipeId], references: [id], onDelete: SetNull)
+
   @@index([userId])
 }
 
