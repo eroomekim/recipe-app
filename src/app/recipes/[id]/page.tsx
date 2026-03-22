@@ -78,6 +78,7 @@ export default async function RecipeDetailPage({
       id: i.id,
       text: i.text,
       order: i.order,
+      imageUrl: i.imageUrl,
     })),
     substitutions: recipe.substitutions.map((s) => ({
       id: s.id,

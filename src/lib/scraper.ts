@@ -435,7 +435,7 @@ function extractInstructionsWithImages(
     ".recipe-method",
   ];
 
-  let container: cheerio.Cheerio<cheerio.Element> | null = null;
+  let container: ReturnType<cheerio.CheerioAPI> | null = null;
   for (const selector of instructionSelectors) {
     const found = $(selector).first();
     if (found.length > 0) {
