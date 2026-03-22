@@ -81,4 +81,28 @@ describe("parseIngredient", () => {
       name: "cloves garlic, minced",
     });
   });
+
+  it("parses range quantities (uses higher value)", () => {
+    expect(parseIngredient("4-5 garlic cloves, minced")).toEqual({
+      quantity: 5,
+      unit: null,
+      name: "garlic cloves, minced",
+    });
+  });
+
+  it("parses fraction ranges", () => {
+    expect(parseIngredient("1/3 - 1/2 teaspoon red pepper flakes")).toEqual({
+      quantity: 0.5,
+      unit: "teaspoon",
+      name: "red pepper flakes",
+    });
+  });
+
+  it("parses integer ranges with units", () => {
+    expect(parseIngredient("1-2 tablespoons olive oil")).toEqual({
+      quantity: 2,
+      unit: "tablespoons",
+      name: "olive oil",
+    });
+  });
 });

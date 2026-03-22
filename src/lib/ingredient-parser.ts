@@ -54,36 +54,60 @@ export function parseIngredient(text: string): ParsedIngredient {
   return { quantity, unit: null, name: remaining };
 }
 
-function extractQuantity(text: string): { quantity: number; rest: string } | null {
-  for (const [char, value] of Object.entries(UNICODE_FRACTIONS)) {
+/**
+ * Parse a single numeric value (fraction, mixed number, decimal, or integer).
+ * Returns the value and the number of characters consumed.
+ */
+function parseSingleQuantity(text: string): { value: number; length: number } | null {
+  // Unicode fractions
+  for (const [char, val] of Object.entries(UNICODE_FRACTIONS)) {
     if (text.startsWith(char)) {
-      return { quantity: value, rest: text.slice(char.length) };
+      return { value: val, length: char.length };
     }
   }
 
-  const match = text.match(/^(\d+)\s+(\d+)\/(\d+)\s+(.*)$/);
-  if (match) {
-    const whole = parseInt(match[1], 10);
-    const num = parseInt(match[2], 10);
-    const den = parseInt(match[3], 10);
-    if (den !== 0) {
-      return { quantity: whole + num / den, rest: match[4] };
-    }
+  // Mixed number: "1 1/2"
+  const mixedMatch = text.match(/^(\d+)\s+(\d+)\/(\d+)/);
+  if (mixedMatch && parseInt(mixedMatch[3], 10) !== 0) {
+    const val = parseInt(mixedMatch[1], 10) + parseInt(mixedMatch[2], 10) / parseInt(mixedMatch[3], 10);
+    return { value: val, length: mixedMatch[0].length };
   }
 
-  const fracMatch = text.match(/^(\d+)\/(\d+)\s+(.*)$/);
-  if (fracMatch) {
-    const num = parseInt(fracMatch[1], 10);
-    const den = parseInt(fracMatch[2], 10);
-    if (den !== 0) {
-      return { quantity: num / den, rest: fracMatch[3] };
-    }
+  // Fraction: "1/2"
+  const fracMatch = text.match(/^(\d+)\/(\d+)/);
+  if (fracMatch && parseInt(fracMatch[2], 10) !== 0) {
+    const val = parseInt(fracMatch[1], 10) / parseInt(fracMatch[2], 10);
+    return { value: val, length: fracMatch[0].length };
   }
 
-  const decMatch = text.match(/^(\d+(?:\.\d+)?)\s+(.*)$/);
+  // Decimal or integer: "1.5" or "4"
+  const decMatch = text.match(/^(\d+(?:\.\d+)?)/);
   if (decMatch) {
-    return { quantity: parseFloat(decMatch[1]), rest: decMatch[2] };
+    return { value: parseFloat(decMatch[1]), length: decMatch[0].length };
   }
 
   return null;
+}
+
+function extractQuantity(text: string): { quantity: number; rest: string } | null {
+  const first = parseSingleQuantity(text);
+  if (!first) return null;
+
+  let rest = text.slice(first.length).trimStart();
+
+  // Check for range pattern: "4-5", "4 - 5", "1/3 - 1/2", "1-2"
+  const rangeMatch = rest.match(/^[-–—]\s*/);
+  if (rangeMatch) {
+    const afterDash = rest.slice(rangeMatch[0].length);
+    const second = parseSingleQuantity(afterDash);
+    if (second) {
+      // Use the higher value for scaling (better too much than too little)
+      rest = afterDash.slice(second.length).trimStart();
+      return { quantity: Math.max(first.value, second.value), rest };
+    }
+  }
+
+  // No range — just return the single value
+  if (!rest) return null; // number with nothing after it isn't a quantity pattern
+  return { quantity: first.value, rest };
 }
