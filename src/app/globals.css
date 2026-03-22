@@ -61,6 +61,7 @@
 
   /* Aspect ratios */
   --aspect-3/2: 3 / 2;
+  --aspect-9/16: 9 / 16;
 
   /* Animations */
   --animate-slideUp: slideUp 350ms cubic-bezier(0.16, 1, 0.3, 1);

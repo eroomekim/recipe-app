@@ -313,7 +313,7 @@ export default function RecipePage({
       <div className="md:grid md:grid-cols-2 md:gap-8">
         {/* Hero Image */}
         <div
-          className="relative w-full aspect-3/2 md:aspect-auto md:sticky md:top-14 md:h-[calc(100vh-3.5rem)] cursor-pointer bg-gray-50"
+          className="relative w-full aspect-3/2 md:aspect-9/16 md:sticky md:top-14 md:max-h-[calc(100vh-3.5rem)] cursor-pointer bg-gray-50 overflow-hidden"
           onClick={() => setLightboxIndex(0)}
         >
           {heroImage && (
