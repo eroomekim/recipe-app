@@ -125,7 +125,7 @@ export default function RecipePage({
             {dietaryTags.length > 0 && (
               <div className="px-5">
                 <div className="font-sans text-xs text-gray-500 uppercase tracking-wider">Dietary</div>
-                <div className="font-sans text-sm font-bold text-black mt-1">
+                <div className="font-sans text-lg font-bold text-black mt-0.5">
                   {dietaryTags.map((t) => t.name).join(", ")}
                 </div>
               </div>
