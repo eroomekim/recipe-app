@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useRef } from "react";
+import { useMemo, useRef, useState, useEffect } from "react";
 import dynamic from "next/dynamic";
 
 const JoditEditor = dynamic(() => import("jodit-react"), { ssr: false });
@@ -21,6 +21,17 @@ export default function RichTextEditor({
   minHeight = 200,
 }: RichTextEditorProps) {
   const editor = useRef(null);
+  // Track the initial value to force re-mount when populated externally
+  const [editorKey, setEditorKey] = useState(0);
+  const lastExternalValue = useRef(value);
+
+  useEffect(() => {
+    // If value changed externally (not from onBlur), re-mount the editor
+    if (value !== lastExternalValue.current) {
+      lastExternalValue.current = value;
+      setEditorKey((k) => k + 1);
+    }
+  }, [value]);
 
   const config = useMemo(
     () => ({
@@ -96,9 +107,13 @@ export default function RichTextEditor({
       )}
       <JoditEditor
         ref={editor}
+        key={editorKey}
         value={value}
         config={config}
-        onBlur={(newContent: string) => onChange(newContent)}
+        onBlur={(newContent: string) => {
+          lastExternalValue.current = newContent;
+          onChange(newContent);
+        }}
       />
     </div>
   );
