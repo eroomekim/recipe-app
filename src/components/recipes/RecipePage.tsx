@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import ImageCarousel from "./ImageCarousel";
 import PersonalNotes from "./PersonalNotes";
 import FavoriteButton from "./FavoriteButton";
@@ -9,7 +9,8 @@ import CookingMode from "@/components/cooking/CookingMode";
 import Divider from "@/components/ui/Divider";
 import ImageLightbox from "./ImageLightbox";
 import NutritionCard from "./NutritionCard";
-import { X, ExternalLink, ChefHat } from "lucide-react";
+import { X, ExternalLink, ChefHat, Minus, Plus } from "lucide-react";
+import { scaleIngredient } from "@/lib/ingredient-scaler";
 import type { RecipeDetail } from "@/types";
 
 interface RecipePageProps {
@@ -27,6 +28,20 @@ export default function RecipePage({
 }: RecipePageProps) {
   const [cooking, setCooking] = useState(false);
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
+  const [scaleFactor, setScaleFactor] = useState(1);
+
+  const currentServings = recipe.servings
+    ? Math.round(recipe.servings * scaleFactor)
+    : null;
+
+  const scaledIngredients = useMemo(() => {
+    return recipe.ingredients.map((ing) =>
+      scaleIngredient(
+        { text: ing.text, quantity: ing.quantity, unit: ing.unit, name: ing.name },
+        scaleFactor
+      )
+    );
+  }, [recipe.ingredients, scaleFactor]);
 
   const mealTypes = recipe.tags
     .filter((t) => t.type === "MEAL_TYPE")
@@ -119,7 +134,33 @@ export default function RecipePage({
             {recipe.servings && (
               <div className="px-5">
                 <div className="font-sans text-xs text-gray-500 uppercase tracking-wider">Yield</div>
-                <div className="font-sans text-lg font-bold text-black mt-0.5">{recipe.servings}</div>
+                <div className="flex items-center gap-2 mt-0.5">
+                  <button
+                    onClick={() => setScaleFactor((s) => Math.max(0.25, s - 0.25))}
+                    className="w-6 h-6 flex items-center justify-center rounded-full bg-gray-100 hover:bg-gray-200 transition-colors"
+                    aria-label="Decrease servings"
+                  >
+                    <Minus className="w-3 h-3 text-gray-600" />
+                  </button>
+                  <span className="font-sans text-lg font-bold text-black min-w-[1.5rem] text-center">
+                    {currentServings}
+                  </span>
+                  <button
+                    onClick={() => setScaleFactor((s) => s + 0.25)}
+                    className="w-6 h-6 flex items-center justify-center rounded-full bg-gray-100 hover:bg-gray-200 transition-colors"
+                    aria-label="Increase servings"
+                  >
+                    <Plus className="w-3 h-3 text-gray-600" />
+                  </button>
+                  {scaleFactor !== 1 && (
+                    <button
+                      onClick={() => setScaleFactor(1)}
+                      className="font-sans text-xs text-gray-400 hover:text-black transition-colors ml-1"
+                    >
+                      reset
+                    </button>
+                  )}
+                </div>
               </div>
             )}
             {(recipe.cookTime || recipe.servings) && dietaryTags.length > 0 && (
@@ -169,17 +210,24 @@ export default function RecipePage({
 
         {/* Ingredients */}
         <div className="mb-8">
-          <h2 className="font-sans text-xs font-bold uppercase tracking-wider text-gray-500 mb-4">
-            Ingredients
-          </h2>
+          <div className="flex items-baseline justify-between mb-4">
+            <h2 className="font-sans text-xs font-bold uppercase tracking-wider text-gray-500">
+              Ingredients
+            </h2>
+            {scaleFactor !== 1 && (
+              <span className="font-sans text-xs text-gray-400">
+                scaled to {currentServings} servings
+              </span>
+            )}
+          </div>
           <ul className="space-y-2">
-            {recipe.ingredients.map((ing) => (
+            {scaledIngredients.map((ing, i) => (
               <li
-                key={ing.id}
+                key={recipe.ingredients[i].id}
                 className="font-serif text-base leading-relaxed text-black flex gap-2"
               >
                 <span className="text-gray-500 select-none">&bull;</span>
-                {ing.text}
+                {ing.scaledText}
               </li>
             ))}
           </ul>
