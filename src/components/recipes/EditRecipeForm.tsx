@@ -1,13 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import Button from "@/components/ui/Button";
 import Input from "@/components/ui/Input";
 import TagSelector from "@/components/ui/TagSelector";
 import Divider from "@/components/ui/Divider";
 import RichTextEditor from "@/components/ui/RichTextEditor";
-import { X } from "lucide-react";
+import { X, GripVertical } from "lucide-react";
 
 /** Convert array of strings to an HTML unordered list */
 function toHtmlList(items: string[]): string {
@@ -89,6 +89,30 @@ export default function EditRecipeForm({ recipeId, initialData }: EditRecipeForm
   const [dietary, setDietary] = useState<string[]>(initialData.dietary);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const dragItem = useRef<number | null>(null);
+  const dragOverItem = useRef<number | null>(null);
+
+  function handleDragStart(index: number) {
+    dragItem.current = index;
+  }
+
+  function handleDragOver(e: React.DragEvent, index: number) {
+    e.preventDefault();
+    dragOverItem.current = index;
+  }
+
+  function handleDrop() {
+    if (dragItem.current === null || dragOverItem.current === null) return;
+    if (dragItem.current === dragOverItem.current) return;
+
+    const reordered = [...images];
+    const [dragged] = reordered.splice(dragItem.current, 1);
+    reordered.splice(dragOverItem.current, 0, dragged);
+    setImages(reordered);
+
+    dragItem.current = null;
+    dragOverItem.current = null;
+  }
 
   function handleToggle(
     list: string[],
@@ -157,21 +181,37 @@ export default function EditRecipeForm({ recipeId, initialData }: EditRecipeForm
             Images
           </label>
           {images.length > 0 && (
-            <div className="flex gap-2 overflow-x-auto pb-3 mb-3">
+            <div className="flex gap-3 overflow-x-auto pb-3 mb-3">
               {images.map((src, i) => (
-                <div key={i} className="relative shrink-0">
+                <div
+                  key={`${src}-${i}`}
+                  draggable
+                  onDragStart={() => handleDragStart(i)}
+                  onDragOver={(e) => handleDragOver(e, i)}
+                  onDrop={handleDrop}
+                  className="relative shrink-0 group cursor-grab active:cursor-grabbing"
+                >
+                  {/* Drag handle */}
+                  <div className="absolute top-1 left-1 z-10 bg-black/50 text-white rounded p-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <GripVertical className="w-3 h-3" />
+                  </div>
                   <img
                     src={src}
                     alt={`Recipe image ${i + 1}`}
-                    className="w-24 h-24 object-cover"
+                    className="h-32 w-auto rounded-lg object-contain bg-gray-50"
+                    draggable={false}
                   />
                   <button
                     onClick={() => setImages(images.filter((_, j) => j !== i))}
-                    className="absolute -top-2 -right-2 w-6 h-6 bg-black text-white flex items-center justify-center"
+                    className="absolute -top-2 -right-2 w-6 h-6 bg-black text-white flex items-center justify-center rounded-full z-10"
                     aria-label="Remove image"
                   >
                     <X className="w-3 h-3" />
                   </button>
+                  {/* Position indicator */}
+                  <span className="absolute bottom-1 right-1 bg-black/50 text-white font-sans text-xs px-1.5 py-0.5 rounded opacity-0 group-hover:opacity-100 transition-opacity">
+                    {i + 1}
+                  </span>
                 </div>
               ))}
             </div>
