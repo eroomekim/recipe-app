@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback, useMemo } from "react";
+import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import CookingStep from "./CookingStep";
 import IngredientDrawer from "./IngredientDrawer";
 import VoiceControl from "./VoiceControl";
@@ -18,6 +18,7 @@ export default function CookingMode({ recipe, onExit }: CookingModeProps) {
   const [scaleFactor, setScaleFactor] = useState(1);
   const [checkedIngredients, setCheckedIngredients] = useState<Set<number>>(new Set());
   const [guidedMode, setGuidedMode] = useState(false);
+  const [autoReadAloud, setAutoReadAloud] = useState(false);
   const wakeLock = useWakeLock();
 
   // Request wake lock on mount
@@ -47,6 +48,15 @@ export default function CookingMode({ recipe, onExit }: CookingModeProps) {
     window.addEventListener("keydown", handleKey);
     return () => window.removeEventListener("keydown", handleKey);
   }, [recipe.instructions.length, onExit]);
+
+  // Auto read-aloud on step change (guided mode)
+  useEffect(() => {
+    if (autoReadAloud && guidedMode && "speechSynthesis" in window) {
+      window.speechSynthesis.cancel();
+      const utterance = new SpeechSynthesisUtterance(recipe.instructions[currentStep].text);
+      window.speechSynthesis.speak(utterance);
+    }
+  }, [currentStep, autoReadAloud, guidedMode, recipe.instructions]);
 
   // Scaled ingredients
   const scaledIngredients: ScaledIngredient[] = useMemo(() => {
@@ -85,6 +95,33 @@ export default function CookingMode({ recipe, onExit }: CookingModeProps) {
   const goPrev = () => setCurrentStep((s) => Math.max(s - 1, 0));
   const goNext = () => setCurrentStep((s) => Math.min(s + 1, recipe.instructions.length - 1));
 
+  // Touch swipe support
+  const touchStartX = useRef<number | null>(null);
+  const touchStartY = useRef<number | null>(null);
+
+  const handleTouchStart = useCallback((e: React.TouchEvent) => {
+    touchStartX.current = e.touches[0].clientX;
+    touchStartY.current = e.touches[0].clientY;
+  }, []);
+
+  const handleTouchEnd = useCallback((e: React.TouchEvent) => {
+    if (touchStartX.current === null || touchStartY.current === null) return;
+    const deltaX = e.changedTouches[0].clientX - touchStartX.current;
+    const deltaY = e.changedTouches[0].clientY - touchStartY.current;
+    touchStartX.current = null;
+    touchStartY.current = null;
+
+    // Only trigger if horizontal swipe is dominant and > 50px
+    if (Math.abs(deltaX) > Math.abs(deltaY) && Math.abs(deltaX) > 50) {
+      if (deltaX < 0) goNext();  // swipe left = next
+      else goPrev();             // swipe right = prev
+    }
+    // Swipe down to exit (> 100px)
+    if (deltaY > 100 && Math.abs(deltaY) > Math.abs(deltaX)) {
+      onExit();
+    }
+  }, [goNext, goPrev, onExit]);
+
   return (
     <div className="fixed inset-0 z-50 bg-black text-white flex flex-col">
       {/* Top bar */}
@@ -94,7 +131,17 @@ export default function CookingMode({ recipe, onExit }: CookingModeProps) {
         </h1>
         <div className="flex items-center gap-4">
           {guidedMode && (
-            <VoiceControl enabled={guidedMode} onCommand={handleVoiceCommand} />
+            <>
+              <VoiceControl enabled={guidedMode} onCommand={handleVoiceCommand} />
+              <button
+                onClick={() => setAutoReadAloud(!autoReadAloud)}
+                className={`font-sans text-xs font-semibold uppercase tracking-wider transition-colors ${
+                  autoReadAloud ? "text-white" : "text-white/30 hover:text-white/60"
+                }`}
+              >
+                {autoReadAloud ? "Read ●" : "Read"}
+              </button>
+            </>
           )}
           <button
             onClick={() => setGuidedMode(!guidedMode)}
@@ -113,8 +160,12 @@ export default function CookingMode({ recipe, onExit }: CookingModeProps) {
         </div>
       </div>
 
-      {/* Step content — large tap zones */}
-      <div className="flex-1 relative">
+      {/* Step content — large tap zones + swipe */}
+      <div
+        className="flex-1 relative"
+        onTouchStart={handleTouchStart}
+        onTouchEnd={handleTouchEnd}
+      >
         <CookingStep
           stepNumber={currentStep + 1}
           totalSteps={recipe.instructions.length}

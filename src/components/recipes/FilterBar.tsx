@@ -27,6 +27,7 @@ export default function FilterBar({ recipes, onFilter }: FilterBarProps) {
   const [selectedCuisines, setSelectedCuisines] = useState<Set<string>>(new Set());
   const [selectedDietary, setSelectedDietary] = useState<Set<string>>(new Set());
   const [showFavorites, setShowFavorites] = useState(false);
+  const [cookTimeRange, setCookTimeRange] = useState<string | null>(null);
 
   // Determine which tags actually exist in the user's recipes
   const availableTags = useMemo(() => {
@@ -48,7 +49,7 @@ export default function FilterBar({ recipes, onFilter }: FilterBarProps) {
   }, [recipes]);
 
   const hasActiveFilters =
-    search || selectedMealTypes.size > 0 || selectedCuisines.size > 0 || selectedDietary.size > 0 || showFavorites;
+    search || selectedMealTypes.size > 0 || selectedCuisines.size > 0 || selectedDietary.size > 0 || showFavorites || cookTimeRange;
 
   function toggle(set: Set<string>, setFn: (s: Set<string>) => void, value: string) {
     const next = new Set(set);
@@ -69,11 +70,13 @@ export default function FilterBar({ recipes, onFilter }: FilterBarProps) {
     changedValue?: string,
     originalSet?: Set<string>,
     setFn?: (s: Set<string>) => void,
+    cookTime?: string | null,
   ) {
     // Determine effective sets (the toggled one needs the updated version)
     const effectiveMealTypes = setFn === setSelectedMealTypes && changedSet ? changedSet : mealTypes;
     const effectiveCuisines = setFn === setSelectedCuisines && changedSet ? changedSet : cuisines;
     const effectiveDietary = setFn === setSelectedDietary && changedSet ? changedSet : dietary;
+    const effectiveCookTime = cookTime !== undefined ? cookTime : cookTimeRange;
 
     const filtered = recipes.filter((r) => {
       // Search
@@ -105,6 +108,16 @@ export default function FilterBar({ recipes, onFilter }: FilterBarProps) {
         if (!hasMatch) return false;
       }
 
+      // Cook time range filter
+      if (effectiveCookTime) {
+        const ct = r.cookTime;
+        if (ct === null) return false;
+        if (effectiveCookTime === "under30" && ct > 30) return false;
+        if (effectiveCookTime === "30to60" && (ct < 30 || ct > 60)) return false;
+        if (effectiveCookTime === "60to120" && (ct < 60 || ct > 120)) return false;
+        if (effectiveCookTime === "over120" && ct < 120) return false;
+      }
+
       return true;
     });
 
@@ -117,7 +130,14 @@ export default function FilterBar({ recipes, onFilter }: FilterBarProps) {
     setSelectedCuisines(new Set());
     setSelectedDietary(new Set());
     setShowFavorites(false);
+    setCookTimeRange(null);
     onFilter(recipes);
+  }
+
+  function handleCookTime(range: string) {
+    const next = cookTimeRange === range ? null : range;
+    setCookTimeRange(next);
+    applyFilters(search, selectedMealTypes, selectedCuisines, selectedDietary, showFavorites, undefined, undefined, undefined, undefined, next);
   }
 
   function handleSearch(value: string) {
@@ -194,6 +214,23 @@ export default function FilterBar({ recipes, onFilter }: FilterBarProps) {
             ))}
           </div>
         )}
+
+        {/* Cook time ranges */}
+        <div className="flex gap-2 flex-wrap">
+          {[
+            { key: "under30", label: "Under 30 min" },
+            { key: "30to60", label: "30–60 min" },
+            { key: "60to120", label: "1–2 hours" },
+            { key: "over120", label: "2+ hours" },
+          ].map((range) => (
+            <Tag
+              key={range.key}
+              label={range.label}
+              active={cookTimeRange === range.key}
+              onClick={() => handleCookTime(range.key)}
+            />
+          ))}
+        </div>
       </div>
 
       {/* Clear filters */}
