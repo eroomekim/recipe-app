@@ -46,6 +46,13 @@ export default function RecipePage({
     );
   }, [recipe.ingredients, scaleFactor]);
 
+  const allImages = useMemo(() => {
+    const stepImages = recipe.instructions
+      .filter((inst) => inst.imageUrl)
+      .map((inst) => inst.imageUrl!);
+    return [...recipe.images, ...stepImages];
+  }, [recipe.images, recipe.instructions]);
+
   const mealTypes = recipe.tags
     .filter((t) => t.type === "MEAL_TYPE")
     .map((t) => t.name);
@@ -317,13 +324,28 @@ export default function RecipePage({
           </h2>
           <ol className="space-y-5">
             {recipe.instructions.map((inst, i) => (
-              <li key={inst.id} className="flex gap-4">
-                <span className="font-display text-xl font-black text-red/40 select-none shrink-0 w-7 mt-0.5">
-                  {String(i + 1).padStart(2, "0")}
-                </span>
-                <p className="font-serif text-base leading-relaxed text-black">
-                  {inst.text}
-                </p>
+              <li key={inst.id} className="flex flex-col">
+                <div className="flex gap-4">
+                  <span className="font-display text-xl font-black text-red/40 select-none shrink-0 w-7 mt-0.5">
+                    {String(i + 1).padStart(2, "0")}
+                  </span>
+                  <p className="font-serif text-base leading-relaxed text-black">
+                    {inst.text}
+                  </p>
+                </div>
+                {inst.imageUrl && (
+                  <div className="ml-11 mt-3">
+                    <img
+                      src={inst.imageUrl}
+                      alt={`Step ${i + 1}`}
+                      className="w-full aspect-video object-cover cursor-pointer hover:opacity-95 transition-opacity"
+                      onClick={() => {
+                        const idx = allImages.indexOf(inst.imageUrl!);
+                        setLightboxIndex(idx >= 0 ? idx : 0);
+                      }}
+                    />
+                  </div>
+                )}
               </li>
             ))}
           </ol>
@@ -416,7 +438,7 @@ export default function RecipePage({
         {/* Image lightbox — all images, tapped index */}
         {lightboxIndex !== null && (
           <ImageLightbox
-            images={recipe.images}
+            images={allImages}
             initialIndex={lightboxIndex}
             alt={recipe.title}
             onClose={() => setLightboxIndex(null)}
