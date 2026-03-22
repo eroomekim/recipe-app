@@ -32,7 +32,17 @@ interface SchemaRecipe {
   recipeCuisine?: string | string[];
   keywords?: string | string[];
   suitableForDiet?: string | string[];
-  recipeYield?: string | string[];  // ← ADD THIS
+  recipeYield?: string | string[];
+  nutrition?: {
+    calories?: string;
+    fatContent?: string;
+    proteinContent?: string;
+    carbohydrateContent?: string;
+    fiberContent?: string;
+    sugarContent?: string;
+    sodiumContent?: string;
+    [key: string]: unknown;
+  };
   [key: string]: unknown;
 }
 
@@ -383,6 +393,7 @@ function extractFromJsonLd(
   const suggestedDietary = matchDietary(dietarySources);
 
   const servings = parseServings(recipe.recipeYield);
+  const nutrition = parseNutrition(recipe.nutrition);
 
   return {
     title,
@@ -399,6 +410,7 @@ function extractFromJsonLd(
     makeAheadNotes: notes.makeAheadNotes,
     servingSuggestions: notes.servingSuggestions,
     techniqueNotes: notes.techniqueNotes,
+    nutrition,
   };
 }
 
@@ -491,6 +503,7 @@ function extractFromHtml(
     makeAheadNotes: notes.makeAheadNotes,
     servingSuggestions: notes.servingSuggestions,
     techniqueNotes: notes.techniqueNotes,
+    nutrition: null,
   };
 }
 
@@ -625,6 +638,37 @@ export function parseServings(value?: string | string[] | null): number | null {
   if (!str) return null;
   const match = str.match(/(\d+)/);
   return match ? parseInt(match[1], 10) : null;
+}
+
+/**
+ * Parse numeric value from nutrition strings like "250 calories", "12 g", "12g", "12".
+ */
+function parseNutritionValue(value?: string | null): number | null {
+  if (!value) return null;
+  const match = value.match(/(\d+(?:\.\d+)?)/);
+  return match ? Math.round(parseFloat(match[1])) : null;
+}
+
+/**
+ * Extract nutrition data from schema.org NutritionInformation.
+ */
+export function parseNutrition(nutrition?: SchemaRecipe["nutrition"]): import("@/types").NutritionData | null {
+  if (!nutrition) return null;
+
+  const calories = parseNutritionValue(nutrition.calories);
+  const fat = parseNutritionValue(nutrition.fatContent);
+  const protein = parseNutritionValue(nutrition.proteinContent);
+  const carbs = parseNutritionValue(nutrition.carbohydrateContent);
+  const fiber = parseNutritionValue(nutrition.fiberContent);
+  const sugar = parseNutritionValue(nutrition.sugarContent);
+  const sodium = parseNutritionValue(nutrition.sodiumContent);
+
+  // Only return if we got at least one value
+  if (calories === null && fat === null && protein === null && carbs === null) {
+    return null;
+  }
+
+  return { calories, fat, protein, carbs, fiber, sugar, sodium, estimated: false };
 }
 
 function matchTags(sources: string[], validTags: string[]): string[] {

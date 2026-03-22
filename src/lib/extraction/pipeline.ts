@@ -187,6 +187,7 @@ export async function runExtractionPipeline(
             makeAheadNotes: "",
             servingSuggestions: "",
             techniqueNotes: "",
+            nutrition: null,
           };
         }
       } else {
@@ -205,6 +206,7 @@ export async function runExtractionPipeline(
           makeAheadNotes: "",
           servingSuggestions: "",
           techniqueNotes: "",
+          nutrition: null,
         };
       }
     }

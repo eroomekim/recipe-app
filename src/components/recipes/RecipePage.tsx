@@ -8,6 +8,7 @@ import AddToCollectionButton from "./AddToCollectionButton";
 import CookingMode from "@/components/cooking/CookingMode";
 import Divider from "@/components/ui/Divider";
 import ImageLightbox from "./ImageLightbox";
+import NutritionCard from "./NutritionCard";
 import { X, ExternalLink, ChefHat } from "lucide-react";
 import type { RecipeDetail } from "@/types";
 
@@ -204,6 +205,14 @@ export default function RecipePage({
             ))}
           </ol>
         </div>
+
+        {/* Nutrition */}
+        {recipe.nutrition && (
+          <>
+            <Divider className="my-6" />
+            <NutritionCard nutrition={recipe.nutrition} />
+          </>
+        )}
 
         {/* Substitutions */}
         {recipe.substitutions.length > 0 && (

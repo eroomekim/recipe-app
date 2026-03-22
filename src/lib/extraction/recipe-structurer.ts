@@ -76,6 +76,7 @@ ${content.text}`,
       makeAheadNotes: parsed.makeAheadNotes || "",
       servingSuggestions: parsed.servingSuggestions || "",
       techniqueNotes: parsed.techniqueNotes || "",
+      nutrition: null,
     };
   }
 }

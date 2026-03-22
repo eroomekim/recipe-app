@@ -6,6 +6,7 @@ import { uploadRecipeImages } from "@/lib/storage";
 import { createId } from "@paralleldrive/cuid2";
 import type { CreateRecipeRequest, RecipeCardData } from "@/types";
 import { parseIngredient } from "@/lib/ingredient-parser";
+import { estimateNutrition } from "@/lib/nutrition-estimator";
 
 function parseIngredientFields(text: string) {
   const parsed = parseIngredient(text);
@@ -116,6 +117,14 @@ export async function POST(request: Request) {
       makeAheadNotes: body.makeAheadNotes ?? null,
       servingSuggestions: body.servingSuggestions ?? null,
       techniqueNotes: body.techniqueNotes ?? null,
+      nutritionCalories: body.nutrition?.calories ?? null,
+      nutritionFat: body.nutrition?.fat ?? null,
+      nutritionProtein: body.nutrition?.protein ?? null,
+      nutritionCarbs: body.nutrition?.carbs ?? null,
+      nutritionFiber: body.nutrition?.fiber ?? null,
+      nutritionSugar: body.nutrition?.sugar ?? null,
+      nutritionSodium: body.nutrition?.sodium ?? null,
+      nutritionEstimated: body.nutrition?.estimated ?? false,
       ingredients: {
         create: body.ingredients.map((text, i) => ({
           text,
@@ -144,6 +153,27 @@ export async function POST(request: Request) {
       },
     },
   });
+
+  // Estimate nutrition via AI if not provided by scraper
+  if (!body.nutrition) {
+    estimateNutrition(body.ingredients, body.servings ?? null).then(async (nutrition) => {
+      if (nutrition) {
+        await prisma.recipe.update({
+          where: { id: recipeId },
+          data: {
+            nutritionCalories: nutrition.calories,
+            nutritionFat: nutrition.fat,
+            nutritionProtein: nutrition.protein,
+            nutritionCarbs: nutrition.carbs,
+            nutritionFiber: nutrition.fiber,
+            nutritionSugar: nutrition.sugar,
+            nutritionSodium: nutrition.sodium,
+            nutritionEstimated: true,
+          },
+        });
+      }
+    }).catch(console.error);
+  }
 
   return NextResponse.json(recipe, { status: 201 });
 }

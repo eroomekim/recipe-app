@@ -22,6 +22,7 @@ export interface ExtractedRecipe {
   makeAheadNotes: string;
   servingSuggestions: string;
   techniqueNotes: string;
+  nutrition: NutritionData | null;
 }
 
 export interface CreateRecipeRequest {
@@ -41,6 +42,7 @@ export interface CreateRecipeRequest {
   makeAheadNotes?: string;
   servingSuggestions?: string;
   techniqueNotes?: string;
+  nutrition?: NutritionData | null;
 }
 
 export interface RecipeCardData {
@@ -74,6 +76,7 @@ export interface RecipeDetail {
   personalNotes: string | null;
   personalAdaptations: string | null;
   isFavorite: boolean;
+  nutrition: NutritionData | null;
   ingredients: {
     id: string;
     text: string;
@@ -98,6 +101,17 @@ export interface RecipeDetail {
     name: string;
     type: "MEAL_TYPE" | "CUISINE" | "DIETARY";
   }[];
+}
+
+export interface NutritionData {
+  calories: number | null;
+  fat: number | null;
+  protein: number | null;
+  carbs: number | null;
+  fiber: number | null;
+  sugar: number | null;
+  sodium: number | null;
+  estimated: boolean;
 }
 
 export interface CollectionData {

@@ -35,6 +35,14 @@ model Recipe {
   personalAdaptations String?
   isFavorite          Boolean   @default(false)
   lastViewedAt        DateTime?
+  nutritionCalories   Int?
+  nutritionFat        Int?      // grams
+  nutritionProtein    Int?      // grams
+  nutritionCarbs      Int?      // grams
+  nutritionFiber      Int?      // grams
+  nutritionSugar      Int?      // grams
+  nutritionSodium     Int?      // milligrams
+  nutritionEstimated  Boolean   @default(false)
 
   user          User               @relation(fields: [userId], references: [id], onDelete: Cascade)
   ingredients   Ingredient[]

@@ -52,6 +52,18 @@ export async function GET(
     personalNotes: recipe.personalNotes,
     personalAdaptations: recipe.personalAdaptations,
     isFavorite: recipe.isFavorite,
+    nutrition: recipe.nutritionCalories !== null || recipe.nutritionFat !== null
+      ? {
+          calories: recipe.nutritionCalories,
+          fat: recipe.nutritionFat,
+          protein: recipe.nutritionProtein,
+          carbs: recipe.nutritionCarbs,
+          fiber: recipe.nutritionFiber,
+          sugar: recipe.nutritionSugar,
+          sodium: recipe.nutritionSodium,
+          estimated: recipe.nutritionEstimated,
+        }
+      : null,
     ingredients: recipe.ingredients.map((i) => ({
       id: i.id,
       text: i.text,

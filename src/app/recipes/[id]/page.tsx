@@ -54,6 +54,18 @@ export default async function RecipeDetailPage({
     personalNotes: recipe.personalNotes,
     personalAdaptations: recipe.personalAdaptations,
     isFavorite: recipe.isFavorite,
+    nutrition: recipe.nutritionCalories !== null || recipe.nutritionFat !== null
+      ? {
+          calories: recipe.nutritionCalories,
+          fat: recipe.nutritionFat,
+          protein: recipe.nutritionProtein,
+          carbs: recipe.nutritionCarbs,
+          fiber: recipe.nutritionFiber,
+          sugar: recipe.nutritionSugar,
+          sodium: recipe.nutritionSodium,
+          estimated: recipe.nutritionEstimated,
+        }
+      : null,
     ingredients: recipe.ingredients.map((i) => ({
       id: i.id,
       text: i.text,
@@ -81,7 +93,7 @@ export default async function RecipeDetailPage({
   };
 
   return (
-    <main className="max-w-article mx-auto py-8">
+    <main className="max-w-article mx-auto pb-8">
       <RecipePage recipe={recipeDetail} />
       <Divider className="my-6" />
       <div className="flex items-center justify-between px-6">
