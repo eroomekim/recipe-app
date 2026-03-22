@@ -416,6 +416,99 @@ function extractFromJsonLd(
 
 // ─── HTML Fallback Extraction ────────────────────────────────────────────────
 
+function extractInstructionsWithImages(
+  $: cheerio.CheerioAPI,
+  pageImages: ImageCandidate[],
+  baseUrl: string
+): { instructions: Array<{ text: string; imageUrl?: string }>; usedImageUrls: Set<string> } {
+  const instructions: Array<{ text: string; imageUrl?: string }> = [];
+  const usedImageUrls = new Set<string>();
+
+  const instructionSelectors = [
+    ".wprm-recipe-instructions",
+    ".tasty-recipe-instructions",
+    '[class*="instruction"]',
+    '[itemprop="recipeInstructions"]',
+    ".recipe-instructions",
+    ".directions",
+    ".steps",
+    ".recipe-method",
+  ];
+
+  let container: cheerio.Cheerio<cheerio.Element> | null = null;
+  for (const selector of instructionSelectors) {
+    const found = $(selector).first();
+    if (found.length > 0) {
+      container = found;
+      break;
+    }
+  }
+
+  if (!container) {
+    return { instructions: [], usedImageUrls };
+  }
+
+  const stepElements = container.find("li");
+
+  if (stepElements.length === 0) {
+    return { instructions: [], usedImageUrls };
+  }
+
+  stepElements.each((_, el) => {
+    const stepEl = $(el);
+    const text = stepEl.text().trim();
+    if (!text) return;
+
+    const step: { text: string; imageUrl?: string } = { text };
+
+    // Look for an <img> inside this <li> or immediately after it
+    let img = stepEl.find("img").first();
+
+    if (img.length === 0) {
+      const next = stepEl.next();
+      if (next.length > 0) {
+        if (next.is("img")) {
+          img = next;
+        } else if (next.find("img").length > 0 && next.find("li").length === 0) {
+          img = next.find("img").first();
+        }
+      }
+    }
+
+    if (img.length > 0) {
+      const src =
+        img.attr("data-pin-media") ||
+        img.attr("data-src") ||
+        img.attr("data-lazy-src") ||
+        img.attr("data-original") ||
+        img.attr("src") ||
+        "";
+
+      if (src) {
+        try {
+          let absoluteSrc = new URL(src, baseUrl).href;
+          absoluteSrc = absoluteSrc.replace(/-\d+x\d+\.(jpg|jpeg|png|webp)/i, ".$1");
+          const dedupeKey = absoluteSrc.split("?")[0];
+
+          const srcLower = absoluteSrc.toLowerCase();
+          const isSkippable = IMAGE_SKIP_PATTERNS.some((p) => srcLower.includes(p));
+
+          if (!isSkippable) {
+            step.imageUrl = absoluteSrc;
+            usedImageUrls.add(dedupeKey);
+          }
+        } catch {
+          // Invalid URL, skip
+        }
+      }
+    }
+
+    instructions.push(step);
+  });
+
+  return { instructions, usedImageUrls };
+}
+
 function extractFromHtml(
   html: string,
   pageImages: ImageCandidate[],
@@ -424,16 +517,13 @@ function extractFromHtml(
 ): ExtractedRecipe {
   const $ = cheerio.load(html);
 
-  // ── Title: look for common recipe title selectors ──
-  const title =
-    $(
-      'h1, h2.wprm-recipe-name, .recipe-title, [class*="recipe-name"], [class*="recipe-title"]'
-    )
-      .first()
-      .text()
-      .trim() || "Untitled Recipe";
+  const title = $(
+    'h1, h2.wprm-recipe-name, .recipe-title, [class*="recipe-name"], [class*="recipe-title"]'
+  )
+    .first()
+    .text()
+    .trim() || "Untitled Recipe";
 
-  // ── Ingredients: look for common recipe card patterns ──
   const ingredients: string[] = [];
   const ingredientSelectors = [
     ".wprm-recipe-ingredient",
@@ -444,7 +534,6 @@ function extractFromHtml(
     ".ingredients li",
     ".ingredient-list li",
   ];
-
   for (const selector of ingredientSelectors) {
     $(selector).each((_, el) => {
       const text = $(el).text().trim();
@@ -453,31 +542,45 @@ function extractFromHtml(
     if (ingredients.length > 0) break;
   }
 
-  // ── Instructions: look for common recipe card patterns ──
-  const instructions: string[] = [];
-  const instructionSelectors = [
-    ".wprm-recipe-instruction",
-    ".tasty-recipe-instructions li",
-    '[class*="instruction"] li',
-    '[itemprop="recipeInstructions"] li',
-    ".recipe-instructions li",
-    ".directions li",
-    ".steps li",
-    ".recipe-method li",
-  ];
+  // Instructions — try image-aware extraction first
+  const { instructions: instructionsWithImages, usedImageUrls } =
+    extractInstructionsWithImages($, pageImages, baseUrl);
 
-  for (const selector of instructionSelectors) {
-    $(selector).each((_, el) => {
-      const text = $(el).text().trim();
-      if (text) instructions.push(text);
-    });
-    if (instructions.length > 0) break;
+  let instructions: Array<{ text: string; imageUrl?: string }>;
+
+  if (instructionsWithImages.length > 0) {
+    instructions = instructionsWithImages;
+  } else {
+    const plainInstructions: string[] = [];
+    const instructionSelectors = [
+      ".wprm-recipe-instruction",
+      ".tasty-recipe-instructions li",
+      '[class*="instruction"] li',
+      '[itemprop="recipeInstructions"] li',
+      ".recipe-instructions li",
+      ".directions li",
+      ".steps li",
+      ".recipe-method li",
+    ];
+    for (const selector of instructionSelectors) {
+      $(selector).each((_, el) => {
+        const text = $(el).text().trim();
+        if (text) plainInstructions.push(text);
+      });
+      if (plainInstructions.length > 0) break;
+    }
+    instructions = plainInstructions.map((text) => ({ text }));
   }
 
-  // ── Images: pick from page images ──
-  const images = pageImages.slice(0, 20).map((img) => img.src);
+  // Images — filter out any that were associated with steps
+  const images = pageImages
+    .filter((img) => {
+      const dedupeKey = img.src.split("?")[0];
+      return !usedImageUrls.has(dedupeKey);
+    })
+    .slice(0, 20)
+    .map((img) => img.src);
 
-  // ── Cook time from HTML ──
   let cookTimeMinutes: number | null = null;
   const timeEl = $(
     '[itemprop="totalTime"], [itemprop="cookTime"], .wprm-recipe-total-time-container, [class*="cook-time"], [class*="total-time"]'
@@ -511,39 +614,38 @@ function extractFromHtml(
 
 function parseInstructions(
   raw: SchemaRecipe["recipeInstructions"]
-): string[] {
+): Array<{ text: string; imageUrl?: string }> {
   if (!raw) return [];
 
-  // Plain string — split on newlines or numbered steps
   if (typeof raw === "string") {
     return stripHtml(raw)
       .split(/\n+/)
       .map((s) => s.replace(/^\d+[\.\)]\s*/, "").trim())
-      .filter(Boolean);
+      .filter(Boolean)
+      .map((text) => ({ text }));
   }
 
-  // Array of strings
   if (Array.isArray(raw) && raw.length > 0 && typeof raw[0] === "string") {
     return (raw as string[])
       .map((s) => stripHtml(s).trim())
-      .filter(Boolean);
+      .filter(Boolean)
+      .map((text) => ({ text }));
   }
 
-  // Array of HowToStep / HowToSection objects
   if (Array.isArray(raw)) {
-    const steps: string[] = [];
+    const steps: Array<{ text: string; imageUrl?: string }> = [];
     for (const item of raw as SchemaInstruction[]) {
       if (item["@type"] === "HowToSection" && item.itemListElement) {
         for (const sub of item.itemListElement) {
           const text = sub.text || sub.name || "";
-          if (text) steps.push(stripHtml(text).trim());
+          if (text) steps.push({ text: stripHtml(text).trim() });
         }
       } else {
         const text = item.text || item.name || "";
-        if (text) steps.push(stripHtml(text).trim());
+        if (text) steps.push({ text: stripHtml(text).trim() });
       }
     }
-    return steps.filter(Boolean);
+    return steps.filter((s) => s.text);
   }
 
   return [];
