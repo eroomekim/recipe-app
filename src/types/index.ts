@@ -9,7 +9,7 @@ export interface SubstitutionData {
 export interface ExtractedRecipe {
   title: string;
   ingredients: string[];
-  instructions: string[];
+  instructions: Array<{ text: string; imageUrl?: string }>;
   images: string[];
   suggestedMealTypes: string[];
   suggestedCuisines: string[];
@@ -31,7 +31,7 @@ export interface CreateRecipeRequest {
   cookTime?: number;
   images: string[];
   ingredients: string[];
-  instructions: string[];
+  instructions: Array<string | { text: string; imageUrl?: string }>;
   mealTypes: string[];
   cuisines: string[];
   dietary: string[];
@@ -89,6 +89,7 @@ export interface RecipeDetail {
     id: string;
     text: string;
     order: number;
+    imageUrl: string | null;
   }[];
   substitutions: {
     id: string;
