@@ -181,30 +181,30 @@ export default function RecipePage({
         )}
 
         {/* Action buttons row */}
-        <div className="grid grid-cols-4 gap-px mb-6 border border-gray-200">
+        <div className="flex gap-3 mb-6">
           <button
             onClick={() => setCooking(true)}
-            className="flex flex-col items-center gap-1.5 py-4 bg-white hover:bg-gray-50 transition-colors border-r border-gray-200"
+            className="flex items-center gap-2 px-4 py-2.5 border border-black text-black font-sans text-xs font-semibold uppercase tracking-wider hover:bg-black hover:text-white transition-colors"
           >
-            <CookingPot className="w-5 h-5 text-gray-900" strokeWidth={1.5} />
-            <span className="font-sans text-xs font-semibold uppercase tracking-wider text-gray-600">Cook</span>
+            <CookingPot className="w-4 h-4" strokeWidth={1.5} />
+            Cook
           </button>
-          <div className="flex flex-col items-center gap-1.5 py-4 bg-white hover:bg-gray-50 transition-colors border-r border-gray-200">
+          <div className="flex items-center gap-2 px-4 py-2.5 border border-gray-300 font-sans text-xs font-semibold uppercase tracking-wider hover:border-black transition-colors">
             <FavoriteButton
               recipeId={recipe.id}
               initialFavorite={recipe.isFavorite}
               className="text-gray-900"
             />
-            <span className="font-sans text-xs font-semibold uppercase tracking-wider text-gray-600">Favorite</span>
+            Favorite
           </div>
           <a
             href="/grocery"
-            className="flex flex-col items-center gap-1.5 py-4 bg-white hover:bg-gray-50 transition-colors border-r border-gray-200"
+            className="flex items-center gap-2 px-4 py-2.5 border border-gray-300 text-black font-sans text-xs font-semibold uppercase tracking-wider hover:border-black transition-colors"
           >
-            <ShoppingCart className="w-5 h-5 text-gray-900" strokeWidth={1.5} />
-            <span className="font-sans text-xs font-semibold uppercase tracking-wider text-gray-600">Groceries</span>
+            <ShoppingCart className="w-4 h-4" strokeWidth={1.5} />
+            Groceries
           </a>
-          <div className="flex flex-col items-center gap-1.5 py-4 bg-white hover:bg-gray-50 transition-colors">
+          <div className="flex items-center gap-2 px-4 py-2.5 border border-gray-300 font-sans text-xs font-semibold uppercase tracking-wider hover:border-black transition-colors">
             <AddToCollectionButton recipeId={recipe.id} />
           </div>
         </div>

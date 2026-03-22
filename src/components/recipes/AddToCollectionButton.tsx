@@ -31,10 +31,10 @@ export default function AddToCollectionButton({ recipeId }: Props) {
     <div className="relative">
       <button
         onClick={(e) => { e.preventDefault(); e.stopPropagation(); setOpen(!open); }}
-        className="flex flex-col items-center gap-1.5 w-full hover:bg-gray-50 transition-colors py-0.5"
+        className="flex items-center gap-2"
       >
-        <FolderPlus className="w-5 h-5 text-gray-900" strokeWidth={1.5} />
-        <span className="font-sans text-xs font-semibold uppercase tracking-wider text-gray-600">Save</span>
+        <FolderPlus className="w-4 h-4 text-gray-900" strokeWidth={1.5} />
+        <span className="text-black">Save</span>
       </button>
       {open && (
         <div className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 bg-white border border-gray-200 shadow-lg py-1 min-w-[160px] z-30 rounded-lg">
