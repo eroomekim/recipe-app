@@ -7,8 +7,35 @@ import Input from "@/components/ui/Input";
 import TagSelector from "@/components/ui/TagSelector";
 import Spinner from "@/components/ui/Spinner";
 import Divider from "@/components/ui/Divider";
+import RichTextEditor from "@/components/ui/RichTextEditor";
 import { X } from "lucide-react";
 import type { ExtractedRecipe } from "@/types";
+
+function toHtmlList(items: string[]): string {
+  if (items.length === 0) return "";
+  return "<ul>" + items.map((item) => `<li>${item}</li>`).join("") + "</ul>";
+}
+
+function toHtmlOl(items: string[]): string {
+  if (items.length === 0) return "";
+  return "<ol>" + items.map((item) => `<li>${item}</li>`).join("") + "</ol>";
+}
+
+function fromHtml(html: string): string[] {
+  const liMatches = html.match(/<li[^>]*>([\s\S]*?)<\/li>/gi);
+  if (liMatches) {
+    return liMatches
+      .map((li) => li.replace(/<[^>]*>/g, "").trim())
+      .filter(Boolean);
+  }
+  return html
+    .replace(/<br\s*\/?>/gi, "\n")
+    .replace(/<\/p>/gi, "\n")
+    .replace(/<[^>]*>/g, "")
+    .split("\n")
+    .map((s) => s.trim())
+    .filter(Boolean);
+}
 
 const MEAL_TYPES = ["Breakfast", "Lunch", "Dinner", "Snack", "Dessert", "Appetizer"];
 const CUISINES = [
@@ -59,8 +86,8 @@ export default function ImportForm() {
   function populateRecipeFields(recipe: ExtractedRecipe) {
     setExtracted(recipe);
     setTitle(recipe.title);
-    setIngredients(recipe.ingredients.join("\n"));
-    setInstructions(recipe.instructions.join("\n"));
+    setIngredients(toHtmlList(recipe.ingredients));
+    setInstructions(toHtmlOl(recipe.instructions));
     setCookTime(recipe.suggestedCookTimeMinutes?.toString() ?? "");
     setImages(recipe.images);
     setMealTypes(recipe.suggestedMealTypes);
@@ -189,8 +216,8 @@ export default function ImportForm() {
           sourceUrl: url,
           cookTime: cookTime ? parseInt(cookTime, 10) : undefined,
           images,
-          ingredients: ingredients.split("\n").filter((l) => l.trim()),
-          instructions: instructions.split("\n").filter((l) => l.trim()),
+          ingredients: fromHtml(ingredients),
+          instructions: fromHtml(instructions),
           mealTypes,
           cuisines,
           dietary,
@@ -317,29 +344,21 @@ export default function ImportForm() {
           required
         />
 
-        <div>
-          <label className="block font-sans text-xs font-semibold uppercase tracking-wider text-gray-600 mb-1">
-            Ingredients (one per line)
-          </label>
-          <textarea
-            value={ingredients}
-            onChange={(e) => setIngredients(e.target.value)}
-            rows={8}
-            className="w-full border border-gray-300 px-4 py-3 font-serif text-base text-black placeholder:text-gray-500 focus:outline-none focus:border-black transition-colors resize-y"
-          />
-        </div>
+        <RichTextEditor
+          label="Ingredients"
+          value={ingredients}
+          onChange={setIngredients}
+          placeholder="Add ingredients..."
+          minHeight={200}
+        />
 
-        <div>
-          <label className="block font-sans text-xs font-semibold uppercase tracking-wider text-gray-600 mb-1">
-            Instructions (one step per line)
-          </label>
-          <textarea
-            value={instructions}
-            onChange={(e) => setInstructions(e.target.value)}
-            rows={8}
-            className="w-full border border-gray-300 px-4 py-3 font-serif text-base text-black placeholder:text-gray-500 focus:outline-none focus:border-black transition-colors resize-y"
-          />
-        </div>
+        <RichTextEditor
+          label="Instructions"
+          value={instructions}
+          onChange={setInstructions}
+          placeholder="Add instructions..."
+          minHeight={250}
+        />
 
         <Input
           label="Cook Time (minutes)"
@@ -412,54 +431,34 @@ export default function ImportForm() {
             Additional Notes (storage, tips, serving)
           </summary>
           <div className="space-y-4 mt-4">
-            <div>
-              <label className="block font-sans text-xs font-semibold uppercase tracking-wider text-gray-600 mb-1">
-                Storage Tips
-              </label>
-              <textarea
-                value={storageTips}
-                onChange={(e) => setStorageTips(e.target.value)}
-                rows={2}
-                placeholder="How to store leftovers..."
-                className="w-full border border-gray-300 px-4 py-3 font-serif text-sm text-black placeholder:text-gray-500 focus:outline-none focus:border-black transition-colors resize-y"
-              />
-            </div>
-            <div>
-              <label className="block font-sans text-xs font-semibold uppercase tracking-wider text-gray-600 mb-1">
-                Make-Ahead Notes
-              </label>
-              <textarea
-                value={makeAheadNotes}
-                onChange={(e) => setMakeAheadNotes(e.target.value)}
-                rows={2}
-                placeholder="Prep-ahead instructions..."
-                className="w-full border border-gray-300 px-4 py-3 font-serif text-sm text-black placeholder:text-gray-500 focus:outline-none focus:border-black transition-colors resize-y"
-              />
-            </div>
-            <div>
-              <label className="block font-sans text-xs font-semibold uppercase tracking-wider text-gray-600 mb-1">
-                Serving Suggestions
-              </label>
-              <textarea
-                value={servingSuggestions}
-                onChange={(e) => setServingSuggestions(e.target.value)}
-                rows={2}
-                placeholder="What to serve with..."
-                className="w-full border border-gray-300 px-4 py-3 font-serif text-sm text-black placeholder:text-gray-500 focus:outline-none focus:border-black transition-colors resize-y"
-              />
-            </div>
-            <div>
-              <label className="block font-sans text-xs font-semibold uppercase tracking-wider text-gray-600 mb-1">
-                Technique Notes
-              </label>
-              <textarea
-                value={techniqueNotes}
-                onChange={(e) => setTechniqueNotes(e.target.value)}
-                rows={2}
-                placeholder="Tips and tricks..."
-                className="w-full border border-gray-300 px-4 py-3 font-serif text-sm text-black placeholder:text-gray-500 focus:outline-none focus:border-black transition-colors resize-y"
-              />
-            </div>
+            <RichTextEditor
+              label="Storage Tips"
+              value={storageTips}
+              onChange={setStorageTips}
+              placeholder="How to store leftovers..."
+              minHeight={100}
+            />
+            <RichTextEditor
+              label="Make-Ahead Notes"
+              value={makeAheadNotes}
+              onChange={setMakeAheadNotes}
+              placeholder="Prep-ahead instructions..."
+              minHeight={100}
+            />
+            <RichTextEditor
+              label="Serving Suggestions"
+              value={servingSuggestions}
+              onChange={setServingSuggestions}
+              placeholder="What to serve with..."
+              minHeight={100}
+            />
+            <RichTextEditor
+              label="Technique Notes"
+              value={techniqueNotes}
+              onChange={setTechniqueNotes}
+              placeholder="Tips and tricks..."
+              minHeight={100}
+            />
           </div>
         </details>
 
