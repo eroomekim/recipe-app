@@ -10,7 +10,7 @@ import CookingMode from "@/components/cooking/CookingMode";
 import Divider from "@/components/ui/Divider";
 import ImageLightbox from "./ImageLightbox";
 import NutritionCard from "./NutritionCard";
-import { X, ExternalLink, ChefHat, Minus, Plus, Square, CheckSquare, ShoppingCart, Check } from "lucide-react";
+import { X, ExternalLink, CookingPot, Minus, Plus, Square, CheckSquare, ShoppingCart, Check } from "lucide-react";
 import { scaleIngredient } from "@/lib/ingredient-scaler";
 import type { RecipeDetail } from "@/types";
 
@@ -186,7 +186,7 @@ export default function RecipePage({
             onClick={() => setCooking(true)}
             className="flex flex-col items-center gap-1.5 py-3 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors"
           >
-            <ChefHat className="w-5 h-5 text-gray-600" />
+            <CookingPot className="w-5 h-5 text-gray-600" />
             <span className="font-sans text-xs font-semibold text-gray-600">Cook</span>
           </button>
           <div className="flex flex-col items-center gap-1.5 py-3 bg-gray-50 rounded-xl">
@@ -197,11 +197,13 @@ export default function RecipePage({
             />
             <span className="font-sans text-xs font-semibold text-gray-600">Favorite</span>
           </div>
-          <AddToGroceryButton
-            recipeId={recipe.id}
-            recipeTitle={recipe.title}
-            ingredients={scaledIngredients}
-          />
+          <a
+            href="/grocery"
+            className="flex flex-col items-center gap-1.5 py-3 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors"
+          >
+            <ShoppingCart className="w-5 h-5 text-gray-600" />
+            <span className="font-sans text-xs font-semibold text-gray-600">Grocery</span>
+          </a>
           <div className="flex flex-col items-center gap-1.5 py-3 bg-gray-50 rounded-xl">
             <AddToCollectionButton recipeId={recipe.id} />
           </div>
