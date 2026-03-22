@@ -463,7 +463,7 @@ function extractFromHtml(
   }
 
   // ── Images: pick from page images ──
-  const images = pageImages.slice(0, 8).map((img) => img.src);
+  const images = pageImages.slice(0, 20).map((img) => img.src);
 
   // ── Cook time from HTML ──
   let cookTimeMinutes: number | null = null;
@@ -578,11 +578,11 @@ function resolveImages(
 
   // Supplement from page images until we have 2–8
   for (const img of pageImages) {
-    if (images.length >= 8) break;
+    if (images.length >= 20) break;
     addImage(img.src);
   }
 
-  return images.slice(0, 8);
+  return images.slice(0, 20);
 }
 
 /**
