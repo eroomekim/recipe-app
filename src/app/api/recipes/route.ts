@@ -80,6 +80,7 @@ export async function POST(request: Request) {
 
   await ensureUser(user);
 
+  try {
   const body: CreateRecipeRequest = await request.json();
   const recipeId = createId();
 
@@ -199,4 +200,8 @@ export async function POST(request: Request) {
   }
 
   return NextResponse.json(recipe, { status: 201 });
+  } catch (err) {
+    console.error("POST /api/recipes error:", err);
+    return NextResponse.json({ error: String(err) }, { status: 500 });
+  }
 }

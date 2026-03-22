@@ -28,7 +28,7 @@ export default async function EditRecipePage({
   if (!recipe || recipe.userId !== user.id) notFound();
 
   return (
-    <main className="max-w-article mx-auto px-4 py-8">
+    <main className="max-w-article mx-auto px-4 pb-8">
       <EditRecipeForm
         recipeId={recipe.id}
         initialData={{
