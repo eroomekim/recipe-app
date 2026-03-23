@@ -145,13 +145,31 @@ export async function POST(request: Request) {
   // Process files
   try {
     const prepared: PreparedFile[] = [];
+    const rotated: PreparedFile[] = [];
     for (const file of files) {
       const buffer = Buffer.from(await file.arrayBuffer());
       const preparedFile = await prepareFile(buffer, file.type);
       prepared.push(preparedFile);
+
+      // Prepare a 90-degree rotated version for retry if the image is sideways
+      if (preparedFile.mediaType.startsWith("image/")) {
+        try {
+          const rotatedBuf = await sharp(
+            Buffer.from(preparedFile.base64, "base64")
+          )
+            .rotate(270)
+            .toBuffer();
+          rotated.push({
+            base64: rotatedBuf.toString("base64"),
+            mediaType: preparedFile.mediaType,
+          });
+        } catch {
+          // If rotation fails, skip — retry won't have a rotated version
+        }
+      }
     }
 
-    const recipe = await extractRecipeFromImages(prepared);
+    const recipe = await extractRecipeFromImages(prepared, rotated);
 
     await logImageExtraction(user.id, "success");
 

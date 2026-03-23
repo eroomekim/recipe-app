@@ -94,6 +94,7 @@ Return ONLY valid JSON matching this exact shape:
 }
 
 Rules:
+- The image may be rotated or sideways. Examine it in all orientations to read the text correctly.
 - If multiple images are provided, combine them into a single complete recipe.
 - Only extract what is explicitly written. Do NOT invent ingredients or steps.
 - Use null for suggestedCookTimeMinutes and servings if not stated.
@@ -111,14 +112,14 @@ export interface PreparedFile {
   mediaType: string; // "image/jpeg", "image/png", "image/webp", "application/pdf"
 }
 
-export async function extractRecipeFromImages(
+function buildContentBlocks(
   files: PreparedFile[]
-): Promise<ExtractedRecipe> {
-  const contentBlocks: Anthropic.Messages.ContentBlockParam[] = [];
+): Anthropic.Messages.ContentBlockParam[] {
+  const blocks: Anthropic.Messages.ContentBlockParam[] = [];
 
   for (const file of files) {
     if (file.mediaType === "application/pdf") {
-      contentBlocks.push({
+      blocks.push({
         type: "document",
         source: {
           type: "base64",
@@ -127,7 +128,7 @@ export async function extractRecipeFromImages(
         },
       });
     } else {
-      contentBlocks.push({
+      blocks.push({
         type: "image",
         source: {
           type: "base64",
@@ -138,14 +139,37 @@ export async function extractRecipeFromImages(
     }
   }
 
-  contentBlocks.push({ type: "text", text: VISION_PROMPT });
+  blocks.push({ type: "text", text: VISION_PROMPT });
+  return blocks;
+}
 
+async function callVision(
+  contentBlocks: Anthropic.Messages.ContentBlockParam[]
+): Promise<string> {
   const message = await getClient().messages.create({
     model: "claude-sonnet-4-20250514",
     max_tokens: 4096,
     messages: [{ role: "user", content: contentBlocks }],
   });
+  return message.content[0].type === "text" ? message.content[0].text : "";
+}
 
-  const text = message.content[0].type === "text" ? message.content[0].text : "";
-  return parseVisionResponse(text);
+export async function extractRecipeFromImages(
+  files: PreparedFile[],
+  rotatedFiles?: PreparedFile[]
+): Promise<ExtractedRecipe> {
+  const contentBlocks = buildContentBlocks(files);
+  const text = await callVision(contentBlocks);
+
+  try {
+    return parseVisionResponse(text);
+  } catch {
+    // If extraction failed and we have rotated versions, retry with those
+    if (rotatedFiles && rotatedFiles.length > 0) {
+      const rotatedBlocks = buildContentBlocks(rotatedFiles);
+      const rotatedText = await callVision(rotatedBlocks);
+      return parseVisionResponse(rotatedText);
+    }
+    throw new Error("No recipe found in the uploaded images");
+  }
 }
