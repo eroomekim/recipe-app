@@ -7,7 +7,8 @@ import Input from "@/components/ui/Input";
 import TagSelector from "@/components/ui/TagSelector";
 import Divider from "@/components/ui/Divider";
 import RichTextEditor from "@/components/ui/RichTextEditor";
-import { X, GripVertical } from "lucide-react";
+import { X, GripVertical, Upload } from "lucide-react";
+import Spinner from "@/components/ui/Spinner";
 
 /** Convert array of strings to an HTML unordered list */
 function toHtmlList(items: string[]): string {
@@ -76,6 +77,7 @@ export default function EditRecipeForm({ recipeId, initialData }: EditRecipeForm
   const [title, setTitle] = useState(initialData.title);
   const [images, setImages] = useState<string[]>(initialData.images ?? []);
   const [newImageUrl, setNewImageUrl] = useState("");
+  const [uploading, setUploading] = useState(false);
   const [ingredients, setIngredients] = useState(toHtmlList(initialData.ingredients));
   const [instructions, setInstructions] = useState(toHtmlOl(initialData.instructions));
   const [cookTime, setCookTime] = useState(initialData.cookTime?.toString() ?? "");
@@ -235,6 +237,43 @@ export default function EditRecipeForm({ recipeId, initialData }: EditRecipeForm
             >
               Add
             </button>
+            <button
+              type="button"
+              onClick={() => document.getElementById("edit-image-upload")?.click()}
+              disabled={uploading}
+              className="font-sans text-xs font-semibold uppercase tracking-wider bg-gray-50 text-gray-600 px-4 py-2 hover:bg-gray-200 transition-colors flex items-center gap-1.5"
+            >
+              {uploading ? <Spinner /> : <Upload className="w-3.5 h-3.5" />}
+              {uploading ? "Uploading..." : "Upload"}
+            </button>
+            <input
+              id="edit-image-upload"
+              type="file"
+              accept="image/jpeg,image/png,image/webp,image/heic,image/heif"
+              onChange={async (e) => {
+                const file = e.target.files?.[0];
+                if (!file) return;
+                setUploading(true);
+                try {
+                  const formData = new FormData();
+                  formData.append("file", file);
+                  const res = await fetch("/api/upload/image", {
+                    method: "POST",
+                    body: formData,
+                  });
+                  const data = await res.json();
+                  if (res.ok && data.url) {
+                    setImages([...images, data.url]);
+                  }
+                } catch {
+                  // silently fail — user can retry
+                } finally {
+                  setUploading(false);
+                  e.target.value = "";
+                }
+              }}
+              className="hidden"
+            />
           </div>
         </div>
 
