@@ -51,13 +51,17 @@ async function convertHeicToJpeg(buffer: Buffer): Promise<Buffer> {
   return Buffer.from(result);
 }
 
-// Auto-rotate image using EXIF orientation data (phone photos are often rotated)
+// Auto-rotate image only if EXIF orientation metadata is present
 async function autoRotate(buffer: Buffer): Promise<Buffer> {
   try {
-    return await sharp(buffer).rotate().toBuffer();
+    const metadata = await sharp(buffer).metadata();
+    if (metadata.orientation && metadata.orientation > 1) {
+      return await sharp(buffer).rotate().toBuffer();
+    }
   } catch {
-    return buffer;
+    // If metadata read fails, return original
   }
+  return buffer;
 }
 
 async function prepareFile(
