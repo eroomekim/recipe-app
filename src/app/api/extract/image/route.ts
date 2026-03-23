@@ -2,6 +2,8 @@ import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { prisma } from "@/lib/prisma";
 import sharp from "sharp";
+// @ts-expect-error — heic-convert has no type declarations
+import heicConvert from "heic-convert";
 import {
   validateImageFiles,
   extractRecipeFromImages,
@@ -39,22 +41,33 @@ async function logImageExtraction(
 
 const HEIC_TYPES = new Set(["image/heic", "image/heif"]);
 
+async function convertHeicToJpeg(buffer: Buffer): Promise<Buffer> {
+  const result = await heicConvert({
+    buffer,
+    format: "JPEG",
+    quality: 0.9,
+  });
+  // heic-convert returns Uint8Array, convert to Buffer
+  return Buffer.from(result);
+}
+
 async function prepareFile(
   buffer: Buffer,
   mimeType: string
 ): Promise<PreparedFile> {
-  // Convert HEIC/HEIF to JPEG
+  // Convert HEIC/HEIF to JPEG using heic-convert (sharp lacks HEVC codec)
   if (HEIC_TYPES.has(mimeType)) {
-    const converted = await sharp(buffer).jpeg({ quality: 90 }).toBuffer();
+    const converted = await convertHeicToJpeg(buffer);
     return { base64: converted.toString("base64"), mediaType: "image/jpeg" };
   }
 
-  // Detect actual format via sharp for images that may be misreported (iOS sometimes reports HEIC as image/jpeg)
+  // Detect actual format via sharp metadata for images that may be misreported
+  // (iOS sometimes reports HEIC as image/jpeg)
   if (mimeType.startsWith("image/")) {
     try {
       const metadata = await sharp(buffer).metadata();
       if (metadata.format === "heif") {
-        const converted = await sharp(buffer).jpeg({ quality: 90 }).toBuffer();
+        const converted = await convertHeicToJpeg(buffer);
         return {
           base64: converted.toString("base64"),
           mediaType: "image/jpeg",
