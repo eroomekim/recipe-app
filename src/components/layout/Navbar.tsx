@@ -110,16 +110,14 @@ export default function Navbar({ user }: NavbarProps) {
                     <Settings className="w-4 h-4 text-gray-500" />
                     Settings
                   </Link>
-                  <a
-                    href="https://github.com/anthropics/claude-code/issues"
-                    target="_blank"
-                    rel="noopener noreferrer"
+                  <Link
+                    href="/help"
                     onClick={() => setDropdownOpen(false)}
                     className="flex items-center gap-2.5 px-4 py-2.5 font-sans text-sm text-gray-900 hover:bg-gray-50 transition-colors"
                   >
                     <HelpCircle className="w-4 h-4 text-gray-500" />
                     Help
-                  </a>
+                  </Link>
                   <div className="border-t border-gray-200 my-1" />
                   <button
                     onClick={() => { setDropdownOpen(false); handleSignOut(); }}
