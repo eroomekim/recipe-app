@@ -220,16 +220,20 @@ export default function EditRecipeForm({ recipeId, initialData }: EditRecipeForm
           )}
           <div className="flex gap-2">
             <input
-              type="url"
+              type="text"
               value={newImageUrl}
               onChange={(e) => setNewImageUrl(e.target.value)}
-              placeholder="Paste image URL..."
+              placeholder="Paste image URLs (comma or newline separated)..."
               className="flex-1 border border-gray-300 px-3 py-2 font-sans text-sm text-black placeholder:text-gray-500 focus:outline-none focus:border-black transition-colors"
             />
             <button
               onClick={() => {
-                if (newImageUrl.trim()) {
-                  setImages([...images, newImageUrl.trim()]);
+                const urls = newImageUrl
+                  .split(/[,\n]+/)
+                  .map((u) => u.trim())
+                  .filter((u) => u.length > 0);
+                if (urls.length > 0) {
+                  setImages([...images, ...urls]);
                   setNewImageUrl("");
                 }
               }}
@@ -250,20 +254,27 @@ export default function EditRecipeForm({ recipeId, initialData }: EditRecipeForm
               id="edit-image-upload"
               type="file"
               accept="image/jpeg,image/png,image/webp,image/heic,image/heif"
+              multiple
               onChange={async (e) => {
-                const file = e.target.files?.[0];
-                if (!file) return;
+                const files = Array.from(e.target.files ?? []);
+                if (files.length === 0) return;
                 setUploading(true);
                 try {
-                  const formData = new FormData();
-                  formData.append("file", file);
-                  const res = await fetch("/api/upload/image", {
-                    method: "POST",
-                    body: formData,
-                  });
-                  const data = await res.json();
-                  if (res.ok && data.url) {
-                    setImages([...images, data.url]);
+                  const newUrls: string[] = [];
+                  for (const file of files) {
+                    const formData = new FormData();
+                    formData.append("file", file);
+                    const res = await fetch("/api/upload/image", {
+                      method: "POST",
+                      body: formData,
+                    });
+                    const data = await res.json();
+                    if (res.ok && data.url) {
+                      newUrls.push(data.url);
+                    }
+                  }
+                  if (newUrls.length > 0) {
+                    setImages((prev) => [...prev, ...newUrls]);
                   }
                 } catch {
                   // silently fail — user can retry
