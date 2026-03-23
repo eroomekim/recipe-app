@@ -142,6 +142,22 @@ export interface ScaledIngredient {
   checked: boolean;
 }
 
+export interface UserSettingsData {
+  measurementSystem: "imperial" | "metric";
+  maxDisplayImages: number;
+  defaultServings: number | null;
+  cookingAutoReadAloud: boolean;
+  cookingKeepAwake: boolean;
+}
+
+export const DEFAULT_SETTINGS: UserSettingsData = {
+  measurementSystem: "imperial",
+  maxDisplayImages: 8,
+  defaultServings: null,
+  cookingAutoReadAloud: false,
+  cookingKeepAwake: true,
+};
+
 export type ExtractResponse =
   | {
       type: "immediate";

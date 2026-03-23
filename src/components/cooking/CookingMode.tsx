@@ -11,19 +11,21 @@ import type { RecipeDetail, ScaledIngredient } from "@/types";
 interface CookingModeProps {
   recipe: RecipeDetail;
   onExit: () => void;
+  defaultAutoReadAloud?: boolean;
+  defaultKeepAwake?: boolean;
 }
 
-export default function CookingMode({ recipe, onExit }: CookingModeProps) {
+export default function CookingMode({ recipe, onExit, defaultAutoReadAloud = false, defaultKeepAwake = true }: CookingModeProps) {
   const [currentStep, setCurrentStep] = useState(0);
   const [scaleFactor, setScaleFactor] = useState(1);
   const [checkedIngredients, setCheckedIngredients] = useState<Set<number>>(new Set());
   const [guidedMode, setGuidedMode] = useState(false);
-  const [autoReadAloud, setAutoReadAloud] = useState(false);
+  const [autoReadAloud, setAutoReadAloud] = useState(defaultAutoReadAloud);
   const wakeLock = useWakeLock();
 
-  // Request wake lock on mount
+  // Request wake lock on mount (if enabled)
   useEffect(() => {
-    wakeLock.request();
+    if (defaultKeepAwake) wakeLock.request();
     return () => { wakeLock.release(); };
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 

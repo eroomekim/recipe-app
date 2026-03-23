@@ -16,6 +16,19 @@ model User {
   recipes     Recipe[]
   collections   Collection[]
   groceryItems  GroceryItem[]
+  settings      UserSettings?
+}
+
+model UserSettings {
+  id                  String  @id @default(cuid())
+  userId              String  @unique
+  measurementSystem   String  @default("imperial") // "imperial" | "metric"
+  maxDisplayImages    Int     @default(8)
+  defaultServings     Int?    // null = use recipe original
+  cookingAutoReadAloud Boolean @default(false)
+  cookingKeepAwake    Boolean @default(true)
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model Recipe {
@@ -160,6 +173,17 @@ model GroceryItem {
   recipe Recipe? @relation(fields: [recipeId], references: [id], onDelete: SetNull)
 
   @@index([userId])
+}
+
+model ExtractionLog {
+  id        String   @id @default(cuid())
+  userId    String
+  url       String
+  type      String   // "blog" | "social"
+  status    String   // "success" | "failed"
+  createdAt DateTime @default(now())
+
+  @@index([userId, createdAt])
 }
 
 enum TagType {

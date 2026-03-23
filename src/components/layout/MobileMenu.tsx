@@ -60,6 +60,14 @@ export default function MobileMenu({
 
         <hr className="border-t border-gray-300" />
 
+        <Link
+          href="/settings"
+          onClick={onClose}
+          className="font-sans text-xs font-semibold uppercase tracking-wider text-gray-600"
+        >
+          Settings
+        </Link>
+
         <button
           onClick={() => {
             onSignOut();

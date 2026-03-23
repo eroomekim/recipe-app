@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import PersonalNotes from "./PersonalNotes";
 import FavoriteButton from "./FavoriteButton";
 import PrintRecipeButton from "./PrintRecipeButton";
@@ -10,6 +10,8 @@ import ImageLightbox from "./ImageLightbox";
 import NutritionCard from "./NutritionCard";
 import { X, ExternalLink, CookingPot, Minus, Plus, Square, CheckSquare, ShoppingCart, Check } from "lucide-react";
 import { scaleIngredient } from "@/lib/ingredient-scaler";
+import { convertUnit } from "@/lib/unit-converter";
+import { useSettings } from "@/hooks/useSettings";
 import type { RecipeDetail } from "@/types";
 
 interface RecipePageProps {
@@ -25,24 +27,50 @@ export default function RecipePage({
   totalPages,
   onClose,
 }: RecipePageProps) {
+  const { settings } = useSettings();
   const [cooking, setCooking] = useState(false);
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
-  const [scaleFactor, setScaleFactor] = useState(1);
   const [selectedIngredients, setSelectedIngredients] = useState<Set<number>>(new Set());
   const [groceryAdded, setGroceryAdded] = useState(false);
+
+  // Apply default serving scale from settings
+  const defaultScale = useMemo(() => {
+    if (settings.defaultServings && recipe.servings && recipe.servings > 0) {
+      return settings.defaultServings / recipe.servings;
+    }
+    return 1;
+  }, [settings.defaultServings, recipe.servings]);
+
+  const [scaleFactor, setScaleFactor] = useState(defaultScale);
+
+  // Update scale factor when settings load
+  useEffect(() => {
+    if (defaultScale !== 1) setScaleFactor(defaultScale);
+  }, [defaultScale]);
 
   const currentServings = recipe.servings
     ? Math.round(recipe.servings * scaleFactor)
     : null;
 
   const scaledIngredients = useMemo(() => {
-    return recipe.ingredients.map((ing) =>
-      scaleIngredient(
+    return recipe.ingredients.map((ing) => {
+      const scaled = scaleIngredient(
         { text: ing.text, quantity: ing.quantity, unit: ing.unit, name: ing.name },
         scaleFactor
-      )
-    );
-  }, [recipe.ingredients, scaleFactor]);
+      );
+      // Apply unit conversion if user prefers a different system
+      if (scaled.scaledQuantity !== null && scaled.unit) {
+        const converted = convertUnit(scaled.scaledQuantity, scaled.unit, settings.measurementSystem);
+        if (converted.converted) {
+          const parts = [String(converted.quantity)];
+          parts.push(converted.unit);
+          if (scaled.name) parts.push(scaled.name);
+          return { ...scaled, scaledText: parts.join(" ") };
+        }
+      }
+      return scaled;
+    });
+  }, [recipe.ingredients, scaleFactor, settings.measurementSystem]);
 
   const allImages = useMemo(() => {
     const stepImages = recipe.instructions
@@ -58,13 +86,21 @@ export default function RecipePage({
     .filter((t) => t.type === "CUISINE")
     .map((t) => t.name);
   const heroImage = recipe.images[0];
-  const additionalImages = recipe.images.slice(1);
+  const maxImages = settings.maxDisplayImages;
+  const additionalImages = recipe.images.slice(1, maxImages);
 
   const rubricParts = [...mealTypes, ...cuisines].filter(Boolean);
   const dietaryTags = recipe.tags.filter((t) => t.type === "DIETARY");
 
   if (cooking) {
-    return <CookingMode recipe={recipe} onExit={() => setCooking(false)} />;
+    return (
+      <CookingMode
+        recipe={recipe}
+        onExit={() => setCooking(false)}
+        defaultAutoReadAloud={settings.cookingAutoReadAloud}
+        defaultKeepAwake={settings.cookingKeepAwake}
+      />
+    );
   }
 
   // ── Shared sub-components ──
