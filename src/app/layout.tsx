@@ -40,8 +40,9 @@ export default async function RootLayout({
   } = await supabase.auth.getUser();
 
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <body
+        suppressHydrationWarning
         className={`${playfair.variable} ${libreBaskerville.variable} ${inter.variable}`}
       >
         <Navbar user={user ? { email: user.email! } : null} />

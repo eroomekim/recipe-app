@@ -6,9 +6,10 @@ import type { ExtractionJob, JobStatus, JobStage } from "./types";
 const jobs = new Map<string, ExtractionJob>();
 
 const JOB_TIMEOUT_MS = 5 * 60 * 1000;  // 5 minutes
-const JOB_CLEANUP_MS = 30 * 60 * 1000; // 30 minutes
+const JOB_CLEANUP_MS = 10 * 60 * 1000;  // 10 minutes (was 30)
+const MAX_JOBS = 200;
 
-// Cleanup interval — runs every 5 minutes
+// Cleanup interval — runs every 2 minutes
 let cleanupInterval: ReturnType<typeof setInterval> | null = null;
 
 function ensureCleanup() {
@@ -21,18 +22,41 @@ function ensureCleanup() {
           job.status = "failed";
           job.error = "Extraction timed out.";
         }
-        // Remove old jobs
-        if (now - job.createdAt > JOB_CLEANUP_MS) {
+        // Remove old completed/failed jobs
+        if (
+          now - job.createdAt > JOB_CLEANUP_MS ||
+          (job.status !== "processing" && job.status !== "pending" && now - job.createdAt > JOB_CLEANUP_MS / 2)
+        ) {
           jobs.delete(id);
         }
       }
-    }, 5 * 60 * 1000);
+
+      // Stop the interval if no jobs remain
+      if (jobs.size === 0 && cleanupInterval) {
+        clearInterval(cleanupInterval);
+        cleanupInterval = null;
+      }
+    }, 2 * 60 * 1000);
   }
+}
+
+function evictOldest() {
+  if (jobs.size < MAX_JOBS) return;
+  let oldestId: string | null = null;
+  let oldestTime = Infinity;
+  for (const [id, job] of jobs) {
+    if (job.status !== "processing" && job.createdAt < oldestTime) {
+      oldestTime = job.createdAt;
+      oldestId = id;
+    }
+  }
+  if (oldestId) jobs.delete(oldestId);
 }
 
 export const jobManager = {
   create(userId: string, url: string): ExtractionJob {
     ensureCleanup();
+    evictOldest();
     const job: ExtractionJob = {
       id: createId(),
       userId,

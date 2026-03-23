@@ -13,10 +13,12 @@ export function useWakeLock() {
         setWakeLock(lock);
         setIsActive(true);
 
-        lock.addEventListener("release", () => {
+        const onRelease = () => {
           setIsActive(false);
           setWakeLock(null);
-        });
+          lock.removeEventListener("release", onRelease);
+        };
+        lock.addEventListener("release", onRelease);
       }
     } catch {
       // Wake lock request failed (e.g., low battery, tab not visible)

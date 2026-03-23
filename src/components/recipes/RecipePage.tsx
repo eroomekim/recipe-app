@@ -1,10 +1,9 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import ImageCarousel from "./ImageCarousel";
 import PersonalNotes from "./PersonalNotes";
 import FavoriteButton from "./FavoriteButton";
-import AddToCollectionButton from "./AddToCollectionButton";
+import PrintRecipeButton from "./PrintRecipeButton";
 import CookingMode from "@/components/cooking/CookingMode";
 import Divider from "@/components/ui/Divider";
 import ImageLightbox from "./ImageLightbox";
@@ -154,29 +153,16 @@ export default function RecipePage({
     <div className="flex flex-wrap gap-3 mb-6">
       <button
         onClick={() => setCooking(true)}
-        className="flex items-center gap-2 px-4 py-2.5 border border-black text-black font-sans text-xs font-semibold uppercase tracking-wider hover:bg-black hover:text-white transition-colors"
+        className="flex items-center gap-2 px-4 py-2 border border-black text-black font-sans text-xs font-semibold uppercase tracking-wider hover:bg-black hover:text-white transition-colors"
       >
         <CookingPot className="w-4 h-4" strokeWidth={1.5} />
         Cook
       </button>
-      <div className="flex items-center gap-2 px-4 py-2.5 border border-gray-300 font-sans text-xs font-semibold uppercase tracking-wider hover:border-black transition-colors">
-        <FavoriteButton
-          recipeId={recipe.id}
-          initialFavorite={recipe.isFavorite}
-          className="text-gray-900"
-        />
+      <div className="flex items-center gap-2 px-4 py-2 border border-black font-sans text-xs font-semibold uppercase tracking-wider  hover:bg-black hover:text-white transition-colors">
+        <FavoriteButton recipeId={recipe.id} initialFavorite={recipe.isFavorite} strokeWidth={1.5} />
         Favorite
       </div>
-      <a
-        href="/grocery"
-        className="flex items-center gap-2 px-4 py-2.5 border border-gray-300 text-black font-sans text-xs font-semibold uppercase tracking-wider hover:border-black transition-colors"
-      >
-        <ShoppingCart className="w-4 h-4" strokeWidth={1.5} />
-        Groceries
-      </a>
-      <div className="flex items-center gap-2 px-4 py-2.5 border border-gray-300 font-sans text-xs font-semibold uppercase tracking-wider hover:border-black transition-colors">
-        <AddToCollectionButton recipeId={recipe.id} />
-      </div>
+      <PrintRecipeButton recipe={recipe} />
     </div>
   );
 
@@ -313,7 +299,7 @@ export default function RecipePage({
       <div className="md:grid md:grid-cols-2 md:gap-8">
         {/* Hero Image */}
         <div
-          className="relative w-full aspect-3/2 md:aspect-9/16 md:sticky md:top-14 md:max-h-[calc(100vh-3.5rem)] cursor-pointer bg-gray-50 overflow-hidden"
+          className="relative w-full aspect-1/1 cursor-pointer bg-gray-50 overflow-hidden"
           onClick={() => setLightboxIndex(0)}
         >
           {heroImage && (
@@ -342,7 +328,7 @@ export default function RecipePage({
         </div>
 
         {/* Header details — right side on desktop, below hero on mobile */}
-        <div className="px-5 py-6 md:py-8">
+        <div className="flex flex-col justify-center px-5 py-6 md:py-8">
           {rubricBlock}
           {titleBlock}
           {sourceBlock}
@@ -437,7 +423,7 @@ export default function RecipePage({
         {additionalImages.length > 0 && (
           <>
             <Divider className="my-6" />
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+            <div className="grid grid-cols-3 sm:grid-cols-6 gap-2">
               {additionalImages.map((src, i) => (
                 <button
                   key={i}

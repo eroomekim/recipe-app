@@ -1,6 +1,7 @@
 "use client";
 
 import type { RecipeDetail } from "@/types";
+import { Printer } from "lucide-react";
 
 export default function PrintRecipeButton({ recipe }: { recipe: RecipeDetail }) {
   function handlePrint() {
@@ -198,8 +199,9 @@ export default function PrintRecipeButton({ recipe }: { recipe: RecipeDetail }) 
   return (
     <button
       onClick={handlePrint}
-      className="bg-white text-black font-sans text-base font-semibold px-8 py-3 border border-black hover:bg-gray-50 transition-colors"
+      className="flex items-center gap-2 px-4 py-2 border bg-white text-black font-sans text-base font-semibold border-black hover:bg-black hover:text-white transition-colors"
     >
+      <Printer className="w-4.5 h-4.5" strokeWidth={1.5} />
       Print
     </button>
   );

@@ -21,7 +21,7 @@ export default function CookingStep({ stepNumber, totalSteps, text }: CookingSte
   const timerSeconds = extractTimerSeconds(text);
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-[60vh] px-6 text-center">
+    <div className="flex flex-col items-center justify-center h-full px-6 text-center">
       <div className="font-sans text-xs font-semibold uppercase tracking-wider text-white/50 mb-8">
         Step {stepNumber} of {totalSteps}
       </div>

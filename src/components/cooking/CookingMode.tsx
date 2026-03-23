@@ -56,6 +56,9 @@ export default function CookingMode({ recipe, onExit }: CookingModeProps) {
       const utterance = new SpeechSynthesisUtterance(recipe.instructions[currentStep].text);
       window.speechSynthesis.speak(utterance);
     }
+    return () => {
+      if ("speechSynthesis" in window) window.speechSynthesis.cancel();
+    };
   }, [currentStep, autoReadAloud, guidedMode, recipe.instructions]);
 
   // Scaled ingredients

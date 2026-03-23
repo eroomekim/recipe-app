@@ -50,7 +50,7 @@ export default function RecipeCard({
         </h2>
 
         {subtitle && (
-          <p className="font-serif text-base italic text-gray-600 mt-1">
+          <p className="font-serif text-base text-gray-600 mt-2 tracking-tighter">
             {subtitle}
           </p>
         )}

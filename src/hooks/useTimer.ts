@@ -47,8 +47,9 @@ export function useTimer(totalSeconds: number) {
   // Play sound when done
   useEffect(() => {
     if (state.isDone) {
+      let ctx: AudioContext | null = null;
       try {
-        const ctx = new AudioContext();
+        ctx = new AudioContext();
         const osc = ctx.createOscillator();
         const gain = ctx.createGain();
         osc.connect(gain);
@@ -57,8 +58,10 @@ export function useTimer(totalSeconds: number) {
         gain.gain.value = 0.3;
         osc.start();
         osc.stop(ctx.currentTime + 0.5);
+        // Close AudioContext after sound finishes
+        osc.onended = () => ctx?.close();
       } catch {
-        // Audio not available
+        ctx?.close();
       }
     }
   }, [state.isDone]);

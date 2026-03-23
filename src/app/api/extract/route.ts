@@ -13,6 +13,13 @@ function checkRateLimit(userId: string): boolean {
   const today = new Date().toISOString().split("T")[0];
   const entry = rateLimitMap.get(userId);
 
+  // Purge stale entries from previous days
+  if (rateLimitMap.size > 100) {
+    for (const [key, val] of rateLimitMap) {
+      if (val.date !== today) rateLimitMap.delete(key);
+    }
+  }
+
   if (!entry || entry.date !== today) {
     rateLimitMap.set(userId, { count: 1, date: today });
     return true;
