@@ -200,12 +200,12 @@ export default function EditRecipeForm({ recipeId, initialData }: EditRecipeForm
                   <img
                     src={src}
                     alt={`Recipe image ${i + 1}`}
-                    className="h-32 w-auto rounded-lg object-contain bg-gray-50"
+                    className="w-32 h-32 rounded-lg object-cover"
                     draggable={false}
                   />
                   <button
                     onClick={() => setImages(images.filter((_, j) => j !== i))}
-                    className="absolute -top-2 -right-2 w-6 h-6 bg-black text-white flex items-center justify-center rounded-full z-10"
+                    className="absolute top-1 right-1 w-6 h-6 bg-black/70 hover:bg-black text-white flex items-center justify-center rounded-full z-10 transition-colors"
                     aria-label="Remove image"
                   >
                     <X className="w-3 h-3" />
