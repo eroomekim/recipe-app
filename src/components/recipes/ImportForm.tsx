@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import Button from "@/components/ui/Button";
 import Input from "@/components/ui/Input";
@@ -8,7 +8,7 @@ import TagSelector from "@/components/ui/TagSelector";
 import Spinner from "@/components/ui/Spinner";
 import Divider from "@/components/ui/Divider";
 import RichTextEditor from "@/components/ui/RichTextEditor";
-import { X } from "lucide-react";
+import { X, Upload } from "lucide-react";
 import type { ExtractedRecipe } from "@/types";
 
 function toHtmlList(items: string[]): string {
@@ -59,6 +59,13 @@ export default function ImportForm() {
   const [extracting, setExtracting] = useState(false);
   const [extractError, setExtractError] = useState<string | null>(null);
 
+  // Import mode
+  const [activeTab, setActiveTab] = useState<"url" | "image">("url");
+
+  // Image upload state
+  const [uploadedFiles, setUploadedFiles] = useState<File[]>([]);
+  const [uploadPhase, setUploadPhase] = useState<"idle" | "uploading" | "extracting">("idle");
+
   // Step 2 state
   const [extracted, setExtracted] = useState<ExtractedRecipe | null>(null);
   const [title, setTitle] = useState("");
@@ -86,6 +93,13 @@ export default function ImportForm() {
   const [jobId, setJobId] = useState<string | null>(null);
   const [extractionStage, setExtractionStage] = useState<string | null>(null);
   const [platformBadge, setPlatformBadge] = useState<string | null>(null);
+
+  // Memoize object URLs for file thumbnails — avoids creating new URLs on every render
+  const filePreviewUrls = useMemo(() => {
+    return uploadedFiles.map((file) =>
+      file.type === "application/pdf" ? null : URL.createObjectURL(file)
+    );
+  }, [uploadedFiles]);
 
   function populateRecipeFields(recipe: ExtractedRecipe) {
     setExtracted(recipe);
@@ -195,6 +209,38 @@ export default function ImportForm() {
     }
   }
 
+  async function handleImageExtract(e: React.FormEvent) {
+    e.preventDefault();
+    if (uploadedFiles.length === 0) return;
+
+    setExtractError(null);
+    setUploadPhase("uploading");
+
+    try {
+      const formData = new FormData();
+      uploadedFiles.forEach((file) => formData.append("files", file));
+
+      setUploadPhase("extracting");
+      const res = await fetch("/api/extract/image", {
+        method: "POST",
+        body: formData,
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        setExtractError(data.error || "Image extraction failed");
+        return;
+      }
+
+      populateRecipeFields(data.recipe);
+    } catch {
+      setExtractError("Failed to connect to server");
+    } finally {
+      setUploadPhase("idle");
+    }
+  }
+
   function handleToggle(
     list: string[],
     setList: (v: string[]) => void,
@@ -207,6 +253,28 @@ export default function ImportForm() {
 
   function removeImage(index: number) {
     setImages(images.filter((_, i) => i !== index));
+  }
+
+  function handleFileDrop(e: React.DragEvent) {
+    e.preventDefault();
+    const files = Array.from(e.dataTransfer.files);
+    addFiles(files);
+  }
+
+  function handleFileSelect(e: React.ChangeEvent<HTMLInputElement>) {
+    if (e.target.files) {
+      addFiles(Array.from(e.target.files));
+    }
+  }
+
+  function addFiles(newFiles: File[]) {
+    const combined = [...uploadedFiles, ...newFiles].slice(0, 5);
+    setUploadedFiles(combined);
+    setExtractError(null);
+  }
+
+  function removeUploadedFile(index: number) {
+    setUploadedFiles(uploadedFiles.filter((_, i) => i !== index));
   }
 
   function handleBack() {
@@ -224,7 +292,7 @@ export default function ImportForm() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           title,
-          sourceUrl: url,
+          sourceUrl: activeTab === "url" ? url : undefined,
           cookTime: cookTime ? parseInt(cookTime, 10) : undefined,
           images,
           ingredients: fromHtml(ingredients),
@@ -261,57 +329,170 @@ export default function ImportForm() {
     }
   }
 
-  // Step 1: URL Input
+  // Step 1: URL or Image Input
   if (!extracted) {
+    const isImageExtracting = uploadPhase !== "idle";
+
     return (
       <div>
         <h1 className="font-display text-3xl md:text-4xl font-bold leading-none text-center mb-8">
           Import a Recipe
         </h1>
 
-        <form onSubmit={handleExtract} className="space-y-4">
-          <Input
-            type="url"
-            value={url}
-            onChange={(e) => setUrl(e.target.value)}
-            placeholder="Paste a recipe URL..."
-            required
-          />
+        {/* Tab switcher */}
+        <div className="flex border-b border-gray-300 mb-6">
+          <button
+            onClick={() => setActiveTab("url")}
+            className={`flex-1 py-3 font-sans text-base font-bold uppercase tracking-normal transition-colors ${
+              activeTab === "url"
+                ? "text-black border-b-2 border-black"
+                : "text-gray-600 hover:text-black"
+            }`}
+          >
+            Paste URL
+          </button>
+          <button
+            onClick={() => setActiveTab("image")}
+            className={`flex-1 py-3 font-sans text-base font-bold uppercase tracking-normal transition-colors ${
+              activeTab === "image"
+                ? "text-black border-b-2 border-black"
+                : "text-gray-600 hover:text-black"
+            }`}
+          >
+            Upload Image
+          </button>
+        </div>
 
-          {extractError && (
-            <p className="font-sans text-sm text-red">{extractError}</p>
-          )}
+        {activeTab === "url" ? (
+          /* URL tab — existing form */
+          <form onSubmit={handleExtract} className="space-y-4">
+            <Input
+              type="url"
+              value={url}
+              onChange={(e) => setUrl(e.target.value)}
+              placeholder="Paste a recipe URL..."
+              required
+            />
 
-          <Button type="submit" loading={extracting} className="w-full">
-            {extracting ? "Extracting recipe..." : "Extract Recipe"}
-          </Button>
+            {extractError && (
+              <p className="font-sans text-sm text-red">{extractError}</p>
+            )}
 
-          {extracting && (
-            <div className="flex items-center justify-center gap-2 text-gray-600 font-sans text-sm">
-              <Spinner />
-              <span>This may take a moment...</span>
-            </div>
-          )}
+            <Button type="submit" loading={extracting} className="w-full">
+              {extracting ? "Extracting recipe..." : "Extract Recipe"}
+            </Button>
 
-          {polling && (
-            <div className="space-y-4 text-center">
-              <Spinner />
-              <p className="font-serif text-lg text-gray-600">
-                {extractionStage === "fetching" && "Fetching page..."}
-                {extractionStage === "downloading" && "Downloading video..."}
-                {extractionStage === "transcribing" && "Transcribing video... (this may take a moment)"}
-                {extractionStage === "extracting" && "Extracting recipe from content..."}
-                {(!extractionStage || extractionStage === "detecting") && "Starting extraction..."}
+            {extracting && (
+              <div className="flex items-center justify-center gap-2 text-gray-600 font-sans text-sm">
+                <Spinner />
+                <span>This may take a moment...</span>
+              </div>
+            )}
+
+            {polling && (
+              <div className="space-y-4 text-center">
+                <Spinner />
+                <p className="font-serif text-lg text-gray-600">
+                  {extractionStage === "fetching" && "Fetching page..."}
+                  {extractionStage === "downloading" && "Downloading video..."}
+                  {extractionStage === "transcribing" && "Transcribing video... (this may take a moment)"}
+                  {extractionStage === "extracting" && "Extracting recipe from content..."}
+                  {(!extractionStage || extractionStage === "detecting") && "Starting extraction..."}
+                </p>
+                <button
+                  onClick={() => { setPolling(false); setJobId(null); }}
+                  className="font-sans text-xs text-gray-500 hover:text-black transition-colors"
+                >
+                  Cancel
+                </button>
+              </div>
+            )}
+          </form>
+        ) : (
+          /* Image upload tab */
+          <form onSubmit={handleImageExtract} className="space-y-4">
+            {/* Dropzone */}
+            <div
+              onDragOver={(e) => e.preventDefault()}
+              onDrop={handleFileDrop}
+              className="border border-dashed border-gray-300 hover:border-black hover:bg-gray-50 transition-colors p-8 text-center cursor-pointer"
+              onClick={() => document.getElementById("image-file-input")?.click()}
+            >
+              <Upload className="w-8 h-8 mx-auto mb-3 text-gray-500" />
+              <p className="font-sans text-sm text-gray-600">
+                Drag images here or tap to browse
               </p>
-              <button
-                onClick={() => { setPolling(false); setJobId(null); }}
-                className="font-sans text-xs text-gray-500 hover:text-black transition-colors"
-              >
-                Cancel
-              </button>
+              <p className="font-sans text-xs text-gray-500 mt-1">
+                JPEG, PNG, WebP, HEIC, or PDF — up to 5 files, 20MB each
+              </p>
+              <input
+                id="image-file-input"
+                type="file"
+                accept="image/jpeg,image/png,image/webp,image/heic,image/heif,application/pdf"
+                multiple
+                onChange={handleFileSelect}
+                className="hidden"
+              />
             </div>
-          )}
-        </form>
+
+            {/* Thumbnail strip */}
+            {uploadedFiles.length > 0 && (
+              <div className="flex gap-2 overflow-x-auto pb-2">
+                {uploadedFiles.map((file, i) => (
+                  <div key={`${file.name}-${i}`} className="relative shrink-0">
+                    {file.type === "application/pdf" ? (
+                      <div className="w-20 h-20 bg-gray-50 flex items-center justify-center">
+                        <span className="font-sans text-xs text-gray-600 uppercase">PDF</span>
+                      </div>
+                    ) : (
+                      <img
+                        src={filePreviewUrls[i] ?? ""}
+                        alt={file.name}
+                        className="w-20 h-20 object-cover"
+                      />
+                    )}
+                    <button
+                      type="button"
+                      onClick={() => removeUploadedFile(i)}
+                      className="absolute -top-2 -right-2 w-5 h-5 bg-black text-white flex items-center justify-center"
+                      aria-label="Remove file"
+                    >
+                      <X className="w-3 h-3" />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {extractError && (
+              <p className="font-sans text-sm text-red">{extractError}</p>
+            )}
+
+            <Button
+              type="submit"
+              loading={isImageExtracting}
+              disabled={uploadedFiles.length === 0}
+              className="w-full"
+            >
+              {uploadPhase === "uploading"
+                ? "Uploading images..."
+                : uploadPhase === "extracting"
+                ? "Extracting recipe from image..."
+                : "Extract Recipe"}
+            </Button>
+
+            {isImageExtracting && (
+              <div className="flex items-center justify-center gap-2 text-gray-600 font-sans text-sm">
+                <Spinner />
+                <span>
+                  {uploadPhase === "uploading"
+                    ? "Uploading images..."
+                    : "Analyzing images with AI..."}
+                </span>
+              </div>
+            )}
+          </form>
+        )}
       </div>
     );
   }
