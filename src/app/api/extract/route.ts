@@ -1,44 +1,30 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { prisma } from "@/lib/prisma";
 import { scrapePage, extractRecipeFromPage } from "@/lib/scraper";
 import { detectPlatform, isSocialMedia } from "@/lib/extraction/platform-detector";
 import { jobManager } from "@/lib/extraction/job-manager";
 import { runExtractionPipeline } from "@/lib/extraction/pipeline";
 
-// Simple in-memory rate limiting
-const rateLimitMap = new Map<string, { count: number; date: string }>();
 const DAILY_LIMIT = parseInt(process.env.RATE_LIMIT_DAILY ?? "20", 10);
 
-function checkRateLimit(userId: string): boolean {
-  const today = new Date().toISOString().split("T")[0];
-  const entry = rateLimitMap.get(userId);
+async function getTodayCount(userId: string): Promise<number> {
+  const startOfDay = new Date();
+  startOfDay.setHours(0, 0, 0, 0);
 
-  // Purge stale entries from previous days
-  if (rateLimitMap.size > 100) {
-    for (const [key, val] of rateLimitMap) {
-      if (val.date !== today) rateLimitMap.delete(key);
-    }
-  }
-
-  if (!entry || entry.date !== today) {
-    rateLimitMap.set(userId, { count: 1, date: today });
-    return true;
-  }
-
-  if (entry.count >= DAILY_LIMIT) {
-    return false;
-  }
-
-  entry.count++;
-  return true;
+  return prisma.extractionLog.count({
+    where: {
+      userId,
+      type: { in: ["blog", "social"] },
+      createdAt: { gte: startOfDay },
+    },
+  });
 }
 
-function decrementRateLimit(userId: string) {
-  const today = new Date().toISOString().split("T")[0];
-  const entry = rateLimitMap.get(userId);
-  if (entry && entry.date === today && entry.count > 0) {
-    entry.count--;
-  }
+async function logExtraction(userId: string, url: string, type: "blog" | "social", status: "success" | "failed") {
+  await prisma.extractionLog.create({
+    data: { userId, url, type, status },
+  });
 }
 
 export async function POST(request: Request) {
@@ -51,7 +37,8 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  if (!checkRateLimit(user.id)) {
+  const todayCount = await getTodayCount(user.id);
+  if (todayCount >= DAILY_LIMIT) {
     return NextResponse.json(
       { error: "Daily extraction limit reached. Try again tomorrow." },
       { status: 429 }
@@ -77,11 +64,13 @@ export async function POST(request: Request) {
   if (isSocialMedia(platform)) {
     const job = jobManager.create(user.id, url);
 
+    await logExtraction(user.id, url, "social", "success");
+
     // Fire-and-forget — pipeline runs in background
-    runExtractionPipeline(job.id, url, platform).catch((err) => {
+    runExtractionPipeline(job.id, url, platform).catch(async (err) => {
       console.error("Pipeline error:", err);
       jobManager.fail(job.id, "Extraction failed unexpectedly");
-      decrementRateLimit(user.id);
+      // Log failure (the success log above still counts toward daily limit)
     });
 
     return NextResponse.json({
@@ -99,12 +88,15 @@ export async function POST(request: Request) {
 
       if (!recipe.title || recipe.title === "Untitled Recipe") {
         if (recipe.ingredients.length === 0 && recipe.instructions.length === 0) {
+          await logExtraction(user.id, url, "blog", "failed");
           return NextResponse.json(
             { error: "Could not extract a recipe from this page. Try a different URL or use manual entry." },
             { status: 422 }
           );
         }
       }
+
+      await logExtraction(user.id, url, "blog", "success");
 
       return NextResponse.json({
         type: "immediate",
@@ -118,6 +110,7 @@ export async function POST(request: Request) {
     } catch (err) {
       if (attempt === 1) {
         console.error("Extraction failed after retry:", err);
+        await logExtraction(user.id, url, "blog", "failed");
         const message = err instanceof Error ? err.message : "Extraction failed";
         return NextResponse.json(
           { error: `Failed to extract recipe: ${message}` },
