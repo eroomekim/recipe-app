@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Button from "@/components/ui/Button";
 import Input from "@/components/ui/Input";
@@ -94,20 +94,6 @@ export default function ImportForm() {
   const [extractionStage, setExtractionStage] = useState<string | null>(null);
   const [platformBadge, setPlatformBadge] = useState<string | null>(null);
 
-  // Memoize object URLs for file thumbnails and clean up on change
-  const filePreviewUrls = useMemo(() => {
-    return uploadedFiles.map((file) =>
-      file.type === "application/pdf" ? null : URL.createObjectURL(file)
-    );
-  }, [uploadedFiles]);
-
-  useEffect(() => {
-    return () => {
-      filePreviewUrls.forEach((url) => {
-        if (url) URL.revokeObjectURL(url);
-      });
-    };
-  }, [filePreviewUrls]);
 
   function populateRecipeFields(recipe: ExtractedRecipe) {
     setExtracted(recipe);
@@ -448,17 +434,12 @@ export default function ImportForm() {
               <div className="flex gap-2 overflow-x-auto pb-2">
                 {uploadedFiles.map((file, i) => (
                   <div key={`${file.name}-${i}`} className="relative shrink-0">
-                    {file.type === "application/pdf" ? (
-                      <div className="w-20 h-20 bg-gray-50 flex items-center justify-center">
-                        <span className="font-sans text-xs text-gray-600 uppercase">PDF</span>
-                      </div>
-                    ) : (
-                      <img
-                        src={filePreviewUrls[i] ?? ""}
-                        alt={file.name}
-                        className="w-20 h-20 object-cover"
-                      />
-                    )}
+                    <div className="w-20 h-20 bg-gray-50 flex flex-col items-center justify-center">
+                      <Upload className="w-5 h-5 text-gray-500 mb-1" />
+                      <span className="font-sans text-[10px] text-gray-600 uppercase truncate max-w-[72px] px-1">
+                        {file.type === "application/pdf" ? "PDF" : file.name.split(".").pop()}
+                      </span>
+                    </div>
                     <button
                       type="button"
                       onClick={() => removeUploadedFile(i)}
@@ -489,16 +470,6 @@ export default function ImportForm() {
                 : "Extract Recipe"}
             </Button>
 
-            {isImageExtracting && (
-              <div className="flex items-center justify-center gap-2 text-gray-600 font-sans text-sm">
-                <Spinner />
-                <span>
-                  {uploadPhase === "uploading"
-                    ? "Uploading images..."
-                    : "Analyzing images with AI..."}
-                </span>
-              </div>
-            )}
           </form>
         )}
       </div>
