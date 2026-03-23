@@ -141,7 +141,7 @@ export default function RecipePage({
       )}
       {recipe.servings && (
         <div className="px-5">
-          <div className="font-sans text-xs text-gray-500 uppercase tracking-wider">Servings</div>
+          <div className="font-sans text-xs text-gray-500 uppercase tracking-wider">Serving</div>
           <div className="flex items-center gap-2 mt-0.5">
             <button
               onClick={() => setScaleFactor((s) => Math.max(0.25, s - 0.25))}
