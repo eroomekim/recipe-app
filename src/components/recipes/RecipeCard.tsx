@@ -58,6 +58,7 @@ export default function RecipeCard({
         <span className="font-sans text-xs text-gray-500 mt-2 block">
           {recipe.ingredientCount} ingredients &middot;{" "}
           {recipe.instructionCount} steps
+          {recipe.cookTime ? <> &middot; {recipe.cookTime} min</> : null}
         </span>
       </article>
     </Link>
