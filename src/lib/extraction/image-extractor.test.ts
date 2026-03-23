@@ -103,4 +103,11 @@ describe("validateImageFiles", () => {
     }] as File[];
     expect(() => validateImageFiles(files)).not.toThrow();
   });
+
+  it("accepts HEIC and HEIF files", () => {
+    const heicFile = [{ size: 2000, type: "image/heic", name: "photo.heic" }] as File[];
+    const heifFile = [{ size: 2000, type: "image/heif", name: "photo.heif" }] as File[];
+    expect(() => validateImageFiles(heicFile)).not.toThrow();
+    expect(() => validateImageFiles(heifFile)).not.toThrow();
+  });
 });

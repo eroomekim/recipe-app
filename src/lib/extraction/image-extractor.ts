@@ -103,7 +103,8 @@ Rules:
 - Suggest dietary from: Vegan, Vegetarian, Gluten-Free, Dairy-Free, Keto, Paleo, Nut-Free, Low-Carb.
 - For cook time, convert any duration to total minutes (e.g., "1 hour 30 min" = 90).`;
 
-type ImageMediaType = "image/jpeg" | "image/png" | "image/webp" | "image/gif";
+// HEIC/HEIF files are converted to JPEG by the API route before reaching this function
+type ImageMediaType = "image/jpeg" | "image/png" | "image/webp";
 
 export interface PreparedFile {
   base64: string;
