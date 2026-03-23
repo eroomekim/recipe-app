@@ -51,6 +51,15 @@ async function convertHeicToJpeg(buffer: Buffer): Promise<Buffer> {
   return Buffer.from(result);
 }
 
+// Auto-rotate image using EXIF orientation data (phone photos are often rotated)
+async function autoRotate(buffer: Buffer): Promise<Buffer> {
+  try {
+    return await sharp(buffer).rotate().toBuffer();
+  } catch {
+    return buffer;
+  }
+}
+
 async function prepareFile(
   buffer: Buffer,
   mimeType: string
@@ -58,7 +67,8 @@ async function prepareFile(
   // Convert HEIC/HEIF to JPEG using heic-convert (sharp lacks HEVC codec)
   if (HEIC_TYPES.has(mimeType)) {
     const converted = await convertHeicToJpeg(buffer);
-    return { base64: converted.toString("base64"), mediaType: "image/jpeg" };
+    const rotated = await autoRotate(converted);
+    return { base64: rotated.toString("base64"), mediaType: "image/jpeg" };
   }
 
   // Detect actual format via sharp metadata for images that may be misreported
@@ -68,14 +78,18 @@ async function prepareFile(
       const metadata = await sharp(buffer).metadata();
       if (metadata.format === "heif") {
         const converted = await convertHeicToJpeg(buffer);
+        const rotated = await autoRotate(converted);
         return {
-          base64: converted.toString("base64"),
+          base64: rotated.toString("base64"),
           mediaType: "image/jpeg",
         };
       }
     } catch {
       // If sharp can't read metadata, proceed with original
     }
+    // Auto-rotate non-HEIC images too (JPEG/PNG from phones have EXIF rotation)
+    const rotated = await autoRotate(buffer);
+    return { base64: rotated.toString("base64"), mediaType: mimeType };
   }
 
   return { base64: buffer.toString("base64"), mediaType: mimeType };
