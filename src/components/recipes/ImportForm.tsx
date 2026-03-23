@@ -94,12 +94,20 @@ export default function ImportForm() {
   const [extractionStage, setExtractionStage] = useState<string | null>(null);
   const [platformBadge, setPlatformBadge] = useState<string | null>(null);
 
-  // Memoize object URLs for file thumbnails — avoids creating new URLs on every render
+  // Memoize object URLs for file thumbnails and clean up on change
   const filePreviewUrls = useMemo(() => {
     return uploadedFiles.map((file) =>
       file.type === "application/pdf" ? null : URL.createObjectURL(file)
     );
   }, [uploadedFiles]);
+
+  useEffect(() => {
+    return () => {
+      filePreviewUrls.forEach((url) => {
+        if (url) URL.revokeObjectURL(url);
+      });
+    };
+  }, [filePreviewUrls]);
 
   function populateRecipeFields(recipe: ExtractedRecipe) {
     setExtracted(recipe);
@@ -220,12 +228,12 @@ export default function ImportForm() {
       const formData = new FormData();
       uploadedFiles.forEach((file) => formData.append("files", file));
 
-      setUploadPhase("extracting");
       const res = await fetch("/api/extract/image", {
         method: "POST",
         body: formData,
       });
 
+      setUploadPhase("extracting");
       const data = await res.json();
 
       if (!res.ok) {
