@@ -99,26 +99,12 @@ export default function SignupForm() {
         <hr className="flex-1 border-t border-gray-300" />
       </div>
 
-      <div className="space-y-3">
-        <button
-          onClick={() => handleOAuthSignup("google")}
-          className="w-full bg-white text-black font-sans text-base font-semibold px-8 py-3 border border-black hover:bg-gray-50 transition-colors"
-        >
-          Sign up with Google
-        </button>
-        <button
-          onClick={() => handleOAuthSignup("apple")}
-          className="w-full bg-white text-black font-sans text-base font-semibold px-8 py-3 border border-black hover:bg-gray-50 transition-colors"
-        >
-          Sign up with Apple
-        </button>
-        <button
-          onClick={() => handleOAuthSignup("facebook")}
-          className="w-full bg-white text-black font-sans text-base font-semibold px-8 py-3 border border-black hover:bg-gray-50 transition-colors"
-        >
-          Sign up with Facebook
-        </button>
-      </div>
+      <button
+        onClick={() => handleOAuthSignup("google")}
+        className="w-full bg-white text-black font-sans text-base font-semibold px-8 py-3 border border-black hover:bg-gray-50 transition-colors"
+      >
+        Sign up with Google
+      </button>
 
       <p className="mt-6 text-center font-sans text-sm text-gray-600">
         Already have an account?{" "}

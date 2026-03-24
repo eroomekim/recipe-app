@@ -98,26 +98,12 @@ export default function LoginForm() {
         <hr className="flex-1 border-t border-gray-300" />
       </div>
 
-      <div className="space-y-3">
-        <button
-          onClick={() => handleOAuthLogin("google")}
-          className="w-full bg-white text-black font-sans text-base font-semibold px-8 py-3 border border-black hover:bg-gray-50 transition-colors"
-        >
-          Sign in with Google
-        </button>
-        <button
-          onClick={() => handleOAuthLogin("apple")}
-          className="w-full bg-white text-black font-sans text-base font-semibold px-8 py-3 border border-black hover:bg-gray-50 transition-colors"
-        >
-          Sign in with Apple
-        </button>
-        <button
-          onClick={() => handleOAuthLogin("facebook")}
-          className="w-full bg-white text-black font-sans text-base font-semibold px-8 py-3 border border-black hover:bg-gray-50 transition-colors"
-        >
-          Sign in with Facebook
-        </button>
-      </div>
+      <button
+        onClick={() => handleOAuthLogin("google")}
+        className="w-full bg-white text-black font-sans text-base font-semibold px-8 py-3 border border-black hover:bg-gray-50 transition-colors"
+      >
+        Sign in with Google
+      </button>
 
       <p className="mt-6 text-center font-sans text-sm text-gray-600">
         Don&apos;t have an account?{" "}
