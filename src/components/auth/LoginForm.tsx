@@ -91,11 +91,11 @@ export default function LoginForm() {
       </form>
 
       <div className="my-6 flex items-center gap-4">
-        <hr className="flex-1 border-t border-gray-300" />
+        <div className="flex-1 border-t border-gray-300" />
         <span className="font-sans text-xs text-gray-500 uppercase tracking-wider">
           or
         </span>
-        <hr className="flex-1 border-t border-gray-300" />
+        <div className="flex-1 border-t border-gray-300" />
       </div>
 
       <button
