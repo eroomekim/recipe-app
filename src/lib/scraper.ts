@@ -500,10 +500,10 @@ function extractInstructionsWithImages(
   const instructionSelectors = [
     ".wprm-recipe-instructions",
     ".tasty-recipe-instructions",
-    '[class*="instruction"]',
+    '[class*="instruction"]:not([class*="ingredient"]):not([class*="and-"])',
     '[itemprop="recipeInstructions"]',
     ".recipe-instructions",
-    ".directions",
+    '.directions:not([class*="ingredient"])',
     ".steps",
     ".recipe-method",
   ];
@@ -601,10 +601,10 @@ function extractFromHtml(
   const ingredientSelectors = [
     ".wprm-recipe-ingredient",
     ".tasty-recipe-ingredients li",
-    '[class*="ingredient"] li',
+    '[class*="ingredient"]:not([class*="direction"]):not([class*="instruction"]):not([class*="and-"]) li',
     '[itemprop="recipeIngredient"]',
     ".recipe-ingredients li",
-    ".ingredients li",
+    '.ingredients:not([class*="direction"]) li',
     ".ingredient-list li",
   ];
   for (const selector of ingredientSelectors) {
@@ -649,10 +649,10 @@ function extractFromHtml(
     const instructionSelectors = [
       ".wprm-recipe-instruction",
       ".tasty-recipe-instructions li",
-      '[class*="instruction"] li',
+      '[class*="instruction"]:not([class*="ingredient"]):not([class*="and-"]) li',
       '[itemprop="recipeInstructions"] li',
       ".recipe-instructions li",
-      ".directions li",
+      '.directions:not([class*="ingredient"]) li',
       ".steps li",
       ".recipe-method li",
     ];
