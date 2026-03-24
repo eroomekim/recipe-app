@@ -62,12 +62,6 @@ export default function Navbar({ user }: NavbarProps) {
                 Recipes
               </Link>
               <Link
-                href="/import"
-                className="font-sans text-base font-bold uppercase tracking-normal text-gray-900 hover:text-black transition-colors"
-              >
-                Import
-              </Link>
-              <Link
                 href="/grocery"
                 className="font-sans text-base font-bold uppercase tracking-normal text-gray-900 hover:text-black transition-colors"
               >
@@ -84,8 +78,15 @@ export default function Navbar({ user }: NavbarProps) {
             Recipe Book
           </Link>
 
-          {/* Right side — avatar with dropdown */}
+          {/* Right side — import link + avatar with dropdown */}
           {user ? (
+            <div className="flex items-center gap-5">
+              <Link
+                href="/import"
+                className="hidden md:block font-sans text-base font-bold uppercase tracking-normal text-gray-900 hover:text-black transition-colors"
+              >
+                Import
+              </Link>
             <div className="relative" ref={dropdownRef}>
               <button
                 onClick={() => setDropdownOpen(!dropdownOpen)}
@@ -128,6 +129,7 @@ export default function Navbar({ user }: NavbarProps) {
                   </button>
                 </div>
               )}
+            </div>
             </div>
           ) : (
             <Link
