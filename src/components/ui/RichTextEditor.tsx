@@ -92,7 +92,8 @@ export default function RichTextEditor({
       ].join(","),
       style: {
         fontFamily: '"Libre Baskerville", Georgia, serif',
-        fontSize: "16px",
+        fontSize: "14px",
+        lineHeight: "1.6",
       },
     }),
     [placeholder, minHeight]
