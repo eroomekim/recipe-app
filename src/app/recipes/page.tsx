@@ -14,7 +14,12 @@ export default async function RecipesPage() {
 
   if (!user) redirect("/login");
 
-  await ensureUser(user);
+  try {
+    await ensureUser(user);
+  } catch (err) {
+    console.error("ensureUser failed:", err);
+    throw err;
+  }
 
   const recipes = await prisma.recipe.findMany({
     where: { userId: user.id },
