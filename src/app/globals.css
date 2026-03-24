@@ -116,6 +116,21 @@
   color: var(--color-red-dark);
 }
 
+/* Jodit editor list styles — restore bullets/numbers stripped by Tailwind reset */
+.jodit-wysiwyg ul {
+  list-style-type: disc;
+  padding-left: 1.5em;
+  margin: 0.5em 0;
+}
+.jodit-wysiwyg ol {
+  list-style-type: decimal;
+  padding-left: 1.5em;
+  margin: 0.5em 0;
+}
+.jodit-wysiwyg li {
+  margin: 0.25em 0;
+}
+
 /* Base styles */
 body {
   font-family: var(--font-sans);
