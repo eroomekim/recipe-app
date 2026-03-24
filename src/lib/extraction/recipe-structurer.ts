@@ -41,7 +41,7 @@ Rules:
 - Separate ingredients from instructions (video transcripts often interleave them).
 - Use null for suggestedCookTimeMinutes and servings if not mentioned.
 - Use empty string for text fields and empty array for list fields if not available.
-- Suggest meal types from: Breakfast, Lunch, Dinner, Snack, Dessert, Appetizer.
+- Suggest meal types from: Breakfast, Lunch, Dinner, Snack, Dessert, Appetizer, Sandwich, Salad, Sauce, Dressing.
 - Suggest cuisines from: Italian, Mexican, Thai, Japanese, Indian, French, American, Mediterranean, Chinese, Korean, Vietnamese, Middle Eastern, Greek, Other.
 - Suggest dietary from: Vegan, Vegetarian, Gluten-Free, Dairy-Free, Keto, Paleo, Nut-Free, Low-Carb.
 

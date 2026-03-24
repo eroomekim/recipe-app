@@ -9,6 +9,10 @@ const mealTypes = [
   "Snack",
   "Dessert",
   "Appetizer",
+  "Sandwich",
+  "Salad",
+  "Sauce",
+  "Dressing",
 ];
 
 const cuisines = [

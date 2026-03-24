@@ -62,6 +62,10 @@ const MEAL_TYPES = [
   "Snack",
   "Dessert",
   "Appetizer",
+  "Sandwich",
+  "Salad",
+  "Sauce",
+  "Dressing",
 ];
 
 const CUISINES = [
@@ -347,7 +351,27 @@ export function extractRecipeFromPage(page: ScrapedPage): ExtractedRecipe {
   }
 
   if (page.jsonLd) {
-    return extractFromJsonLd(page.jsonLd, page.images, page.url, notes);
+    const jsonLdResult = extractFromJsonLd(page.jsonLd, page.images, page.url, notes);
+
+    // If JSON-LD had meaningful content, use it
+    if (jsonLdResult.ingredients.length > 0 || jsonLdResult.instructions.length > 0) {
+      return jsonLdResult;
+    }
+
+    // JSON-LD was hollow (empty ingredients + no instructions) — fall through to
+    // HTML extraction but keep useful metadata from JSON-LD (title, images, tags)
+    const htmlResult = extractFromHtml(page.html, page.images, page.url, notes);
+    return {
+      ...htmlResult,
+      title: jsonLdResult.title !== "Untitled Recipe" ? jsonLdResult.title : htmlResult.title,
+      images: jsonLdResult.images.length > 0 ? jsonLdResult.images : htmlResult.images,
+      suggestedMealTypes: jsonLdResult.suggestedMealTypes.length > 0 ? jsonLdResult.suggestedMealTypes : htmlResult.suggestedMealTypes,
+      suggestedCuisines: jsonLdResult.suggestedCuisines.length > 0 ? jsonLdResult.suggestedCuisines : htmlResult.suggestedCuisines,
+      suggestedDietary: jsonLdResult.suggestedDietary.length > 0 ? jsonLdResult.suggestedDietary : htmlResult.suggestedDietary,
+      suggestedCookTimeMinutes: jsonLdResult.suggestedCookTimeMinutes ?? htmlResult.suggestedCookTimeMinutes,
+      servings: jsonLdResult.servings ?? htmlResult.servings,
+      nutrition: jsonLdResult.nutrition ?? htmlResult.nutrition,
+    };
   }
 
   // Fallback: parse from HTML structure
@@ -591,6 +615,27 @@ function extractFromHtml(
     if (ingredients.length > 0) break;
   }
 
+  // Generic heuristic: find <ul> following a heading that contains "ingredient"
+  if (ingredients.length === 0) {
+    $("h1, h2, h3, h4, h5").each((_, el) => {
+      if (ingredients.length > 0) return;
+      const headingText = $(el).text().trim().toLowerCase();
+      if (!/ingredient/i.test(headingText)) return;
+      // Walk siblings to find the next <ul>
+      let sibling = $(el).next();
+      while (sibling.length && !sibling.is("h1, h2, h3, h4, h5")) {
+        if (sibling.is("ul")) {
+          sibling.find("li").each((_, li) => {
+            const text = $(li).text().trim();
+            if (text) ingredients.push(text);
+          });
+          if (ingredients.length > 0) return;
+        }
+        sibling = sibling.next();
+      }
+    });
+  }
+
   // Instructions — try image-aware extraction first
   const { instructions: instructionsWithImages, usedImageUrls } =
     extractInstructionsWithImages($, pageImages, baseUrl);
@@ -618,6 +663,26 @@ function extractFromHtml(
       });
       if (plainInstructions.length > 0) break;
     }
+    // Generic heuristic: find <ol> or <ul> following a heading about instructions/directions
+    if (plainInstructions.length === 0) {
+      $("h1, h2, h3, h4, h5").each((_, el) => {
+        if (plainInstructions.length > 0) return;
+        const headingText = $(el).text().trim().toLowerCase();
+        if (!/instruction|direction|method|step|preparation/i.test(headingText)) return;
+        let sibling = $(el).next();
+        while (sibling.length && !sibling.is("h1, h2, h3, h4, h5")) {
+          if (sibling.is("ol, ul")) {
+            sibling.find("li").each((_, li) => {
+              const text = $(li).text().trim();
+              if (text) plainInstructions.push(text);
+            });
+            if (plainInstructions.length > 0) return;
+          }
+          sibling = sibling.next();
+        }
+      });
+    }
+
     instructions = plainInstructions.map((text) => ({ text }));
   }
 
@@ -753,8 +818,12 @@ function resolveImages(
  * Parse ISO 8601 duration (PT1H30M, PT45M, etc.) to minutes.
  * Also handles plain text like "45 minutes", "1 hour 30 minutes".
  */
-function parseDuration(duration?: string | null): number | null {
+function parseDuration(duration?: unknown): number | null {
   if (!duration) return null;
+
+  // JSON-LD may provide a number (minutes) instead of a string
+  if (typeof duration === "number") return duration > 0 ? Math.round(duration) : null;
+  if (typeof duration !== "string") return null;
 
   const d = duration.trim();
 
@@ -783,19 +852,33 @@ function parseDuration(duration?: string | null): number | null {
 /**
  * Parse recipeYield (e.g., "4 servings", "12 cookies", "6") to integer.
  */
-export function parseServings(value?: string | string[] | null): number | null {
+export function parseServings(value?: unknown): number | null {
   if (!value) return null;
-  const str = Array.isArray(value) ? value[0] : value;
-  if (!str) return null;
-  const match = str.match(/(\d+)/);
+
+  // JSON-LD may provide a plain number
+  if (typeof value === "number") return value > 0 ? Math.round(value) : null;
+
+  const raw = Array.isArray(value) ? value[0] : value;
+  if (!raw) return null;
+
+  // Array element or value itself could be a number
+  if (typeof raw === "number") return raw > 0 ? Math.round(raw) : null;
+  if (typeof raw !== "string") return null;
+
+  const match = raw.match(/(\d+)/);
   return match ? parseInt(match[1], 10) : null;
 }
 
 /**
  * Parse numeric value from nutrition strings like "250 calories", "12 g", "12g", "12".
  */
-function parseNutritionValue(value?: string | null): number | null {
+function parseNutritionValue(value?: unknown): number | null {
   if (!value) return null;
+
+  // JSON-LD may provide a plain number
+  if (typeof value === "number") return value > 0 ? Math.round(value) : null;
+  if (typeof value !== "string") return null;
+
   const match = value.match(/(\d+(?:\.\d+)?)/);
   return match ? Math.round(parseFloat(match[1])) : null;
 }
@@ -856,13 +939,16 @@ function matchDietary(sources: string[]): string[] {
   return Array.from(matched);
 }
 
-function normalizeStringOrArray(value?: string | string[]): string[] {
+function normalizeStringOrArray(value?: unknown): string[] {
   if (!value) return [];
   if (typeof value === "string") {
     // Handle comma-separated values
     return value.split(",").map((s) => s.trim()).filter(Boolean);
   }
-  return value;
+  if (Array.isArray(value)) {
+    return value.filter((v): v is string => typeof v === "string");
+  }
+  return [];
 }
 
 function stripHtml(str: string): string {
