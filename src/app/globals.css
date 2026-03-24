@@ -116,7 +116,7 @@
   color: var(--color-red-dark);
 }
 
-/* Jodit editor list styles — restore bullets/numbers stripped by Tailwind reset */
+/* Jodit editor — restore default HTML styling stripped by Tailwind reset */
 .jodit-wysiwyg ul {
   list-style-type: disc;
   padding-left: 1.5em;
@@ -129,6 +129,39 @@
 }
 .jodit-wysiwyg li {
   margin: 0.25em 0;
+}
+.jodit-wysiwyg p {
+  margin: 0.5em 0;
+}
+.jodit-wysiwyg strong, .jodit-wysiwyg b {
+  font-weight: 700;
+}
+.jodit-wysiwyg em, .jodit-wysiwyg i {
+  font-style: italic;
+}
+.jodit-wysiwyg u {
+  text-decoration: underline;
+}
+.jodit-wysiwyg s, .jodit-wysiwyg strike {
+  text-decoration: line-through;
+}
+.jodit-wysiwyg a {
+  color: var(--color-red);
+  text-decoration: underline;
+}
+.jodit-wysiwyg a:hover {
+  color: var(--color-red-dark);
+}
+.jodit-wysiwyg h1, .jodit-wysiwyg h2, .jodit-wysiwyg h3 {
+  font-weight: 700;
+  margin: 0.75em 0 0.25em;
+}
+.jodit-wysiwyg blockquote {
+  border-left: 3px solid var(--color-gray-300);
+  padding-left: 1em;
+  margin: 0.5em 0;
+  color: var(--color-gray-600);
+  font-style: italic;
 }
 
 /* Base styles */
