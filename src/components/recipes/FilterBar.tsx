@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { Search } from "lucide-react";
+import { Search, SlidersHorizontal, X } from "lucide-react";
 import Tag from "@/components/ui/Tag";
 import type { RecipeCardData } from "@/types";
 
@@ -151,96 +151,142 @@ export default function FilterBar({ recipes, onFilter }: FilterBarProps) {
     applyFilters(search, selectedMealTypes, selectedCuisines, selectedDietary, next);
   }
 
+  const [filtersOpen, setFiltersOpen] = useState(false);
+
+  const activeFilterCount =
+    selectedMealTypes.size + selectedCuisines.size + selectedDietary.size +
+    (showFavorites ? 1 : 0) + (cookTimeRange ? 1 : 0);
+
   return (
-    <div className="mb-8 space-y-4">
-      {/* Search */}
-      <div className="relative">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
-        <input
-          type="text"
-          value={search}
-          onChange={(e) => handleSearch(e.target.value)}
-          placeholder="Search recipes..."
-          className="w-full border border-gray-300 pl-10 pr-4 py-2.5 font-sans text-sm text-black placeholder:text-gray-500 focus:outline-none focus:border-black transition-colors"
-        />
-      </div>
-
-      {/* Filter pills */}
-      <div className="space-y-3">
-        {/* Favorites + Meal types */}
-        {(availableTags.mealTypes.length > 0) && (
-          <div className="flex gap-2 flex-wrap items-center">
-            <Tag
-              label="Favorites"
-              active={showFavorites}
-              onClick={handleFavorites}
-            />
-            <span className="w-px h-4 bg-gray-300" />
-            {availableTags.mealTypes.map((m) => (
-              <Tag
-                key={m}
-                label={m}
-                active={selectedMealTypes.has(m)}
-                onClick={() => toggle(selectedMealTypes, setSelectedMealTypes, m)}
-              />
-            ))}
-          </div>
-        )}
-
-        {/* Cuisines */}
-        {availableTags.cuisines.length > 0 && (
-          <div className="flex gap-2 flex-wrap">
-            {availableTags.cuisines.map((c) => (
-              <Tag
-                key={c}
-                label={c}
-                active={selectedCuisines.has(c)}
-                onClick={() => toggle(selectedCuisines, setSelectedCuisines, c)}
-              />
-            ))}
-          </div>
-        )}
-
-        {/* Dietary */}
-        {availableTags.dietary.length > 0 && (
-          <div className="flex gap-2 flex-wrap">
-            {availableTags.dietary.map((d) => (
-              <Tag
-                key={d}
-                label={d}
-                active={selectedDietary.has(d)}
-                onClick={() => toggle(selectedDietary, setSelectedDietary, d)}
-              />
-            ))}
-          </div>
-        )}
-
-        {/* Cook time ranges */}
-        <div className="flex gap-2 flex-wrap">
-          {[
-            { key: "under30", label: "Under 30 min" },
-            { key: "30to60", label: "30–60 min" },
-            { key: "60to120", label: "1–2 hours" },
-            { key: "over120", label: "2+ hours" },
-          ].map((range) => (
-            <Tag
-              key={range.key}
-              label={range.label}
-              active={cookTimeRange === range.key}
-              onClick={() => handleCookTime(range.key)}
-            />
-          ))}
+    <div className="mb-8 space-y-3">
+      {/* Search + filter toggle */}
+      <div className="flex gap-2">
+        <div className="relative flex-1">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
+          <input
+            type="text"
+            value={search}
+            onChange={(e) => handleSearch(e.target.value)}
+            placeholder="Search recipes..."
+            className="w-full border border-gray-300 pl-10 pr-4 py-2.5 font-sans text-sm text-black placeholder:text-gray-500 focus:outline-none focus:border-black transition-colors"
+          />
         </div>
+        <button
+          onClick={() => setFiltersOpen(!filtersOpen)}
+          className={`flex items-center gap-1.5 px-3 py-2.5 border font-sans text-xs font-semibold uppercase tracking-wider transition-colors ${
+            filtersOpen || activeFilterCount > 0
+              ? "border-black bg-black text-white"
+              : "border-gray-300 text-gray-600 hover:border-black hover:text-black"
+          }`}
+        >
+          <SlidersHorizontal className="w-3.5 h-3.5" />
+          Filters
+          {activeFilterCount > 0 && (
+            <span className="ml-0.5 bg-white text-black text-[10px] w-4 h-4 flex items-center justify-center rounded-full font-bold">
+              {activeFilterCount}
+            </span>
+          )}
+        </button>
       </div>
 
-      {/* Clear filters */}
-      {hasActiveFilters && (
-        <button
-          onClick={clearAll}
-          className="font-sans text-xs text-gray-500 hover:text-black transition-colors"
-        >
-          Clear all filters &times;
-        </button>
+      {/* Active filter summary (when panel is closed) */}
+      {!filtersOpen && hasActiveFilters && (
+        <div className="flex items-center gap-2 flex-wrap">
+          {showFavorites && <Tag label="Favorites" active onClick={handleFavorites} />}
+          {Array.from(selectedMealTypes).map((m) => (
+            <Tag key={m} label={m} active onClick={() => toggle(selectedMealTypes, setSelectedMealTypes, m)} />
+          ))}
+          {Array.from(selectedCuisines).map((c) => (
+            <Tag key={c} label={c} active onClick={() => toggle(selectedCuisines, setSelectedCuisines, c)} />
+          ))}
+          {Array.from(selectedDietary).map((d) => (
+            <Tag key={d} label={d} active onClick={() => toggle(selectedDietary, setSelectedDietary, d)} />
+          ))}
+          {cookTimeRange && (
+            <Tag
+              label={
+                cookTimeRange === "under30" ? "Under 30 min" :
+                cookTimeRange === "30to60" ? "30–60 min" :
+                cookTimeRange === "60to120" ? "1–2 hours" : "2+ hours"
+              }
+              active
+              onClick={() => handleCookTime(cookTimeRange)}
+            />
+          )}
+          <button
+            onClick={clearAll}
+            className="font-sans text-xs text-gray-500 hover:text-black transition-colors ml-1"
+          >
+            Clear all
+          </button>
+        </div>
+      )}
+
+      {/* Expandable filter panel */}
+      {filtersOpen && (
+        <div className="border border-gray-200 p-4 space-y-4">
+          {/* Favorites + Meal types */}
+          {availableTags.mealTypes.length > 0 && (
+            <div>
+              <span className="font-sans text-[10px] font-semibold uppercase tracking-wider text-gray-500 block mb-2">Meal Type</span>
+              <div className="flex gap-2 flex-wrap items-center">
+                <Tag label="Favorites" active={showFavorites} onClick={handleFavorites} />
+                {availableTags.mealTypes.map((m) => (
+                  <Tag key={m} label={m} active={selectedMealTypes.has(m)} onClick={() => toggle(selectedMealTypes, setSelectedMealTypes, m)} />
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Cuisines */}
+          {availableTags.cuisines.length > 0 && (
+            <div>
+              <span className="font-sans text-[10px] font-semibold uppercase tracking-wider text-gray-500 block mb-2">Cuisine</span>
+              <div className="flex gap-2 flex-wrap">
+                {availableTags.cuisines.map((c) => (
+                  <Tag key={c} label={c} active={selectedCuisines.has(c)} onClick={() => toggle(selectedCuisines, setSelectedCuisines, c)} />
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Dietary */}
+          {availableTags.dietary.length > 0 && (
+            <div>
+              <span className="font-sans text-[10px] font-semibold uppercase tracking-wider text-gray-500 block mb-2">Dietary</span>
+              <div className="flex gap-2 flex-wrap">
+                {availableTags.dietary.map((d) => (
+                  <Tag key={d} label={d} active={selectedDietary.has(d)} onClick={() => toggle(selectedDietary, setSelectedDietary, d)} />
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Cook time */}
+          <div>
+            <span className="font-sans text-[10px] font-semibold uppercase tracking-wider text-gray-500 block mb-2">Cook Time</span>
+            <div className="flex gap-2 flex-wrap">
+              {[
+                { key: "under30", label: "Under 30 min" },
+                { key: "30to60", label: "30–60 min" },
+                { key: "60to120", label: "1–2 hours" },
+                { key: "over120", label: "2+ hours" },
+              ].map((range) => (
+                <Tag key={range.key} label={range.label} active={cookTimeRange === range.key} onClick={() => handleCookTime(range.key)} />
+              ))}
+            </div>
+          </div>
+
+          {/* Clear all */}
+          {hasActiveFilters && (
+            <button
+              onClick={clearAll}
+              className="font-sans text-xs text-gray-500 hover:text-black transition-colors"
+            >
+              Clear all filters
+            </button>
+          )}
+        </div>
       )}
     </div>
   );
