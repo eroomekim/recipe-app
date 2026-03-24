@@ -182,7 +182,7 @@ export default function EditRecipeForm({ recipeId, initialData }: EditRecipeForm
           <label className="block font-sans text-xs font-semibold uppercase tracking-wider text-gray-600 mb-2">
             Images
           </label>
-          {images.length > 0 && (
+          {images.length > 0 && (<>
             <div className="flex gap-3 overflow-x-auto pb-3 mb-3">
               {images.map((src, i) => (
                 <div
@@ -218,7 +218,7 @@ export default function EditRecipeForm({ recipeId, initialData }: EditRecipeForm
               ))}
             </div>
             <p className="font-sans text-xs text-gray-500 mt-2">Drag to reorder. Click the X to remove.</p>
-          )}
+          </>)}
           <div className="flex gap-2">
             <input
               type="text"
