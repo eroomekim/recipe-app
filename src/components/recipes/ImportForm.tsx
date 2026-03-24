@@ -353,13 +353,16 @@ export default function ImportForm() {
                 : "text-gray-600 hover:text-black"
             }`}
           >
-            Upload Image
+            Upload File
           </button>
         </div>
 
         {activeTab === "url" ? (
           /* URL tab — existing form */
           <form onSubmit={handleExtract} className="space-y-4">
+            <p className="font-serif text-lg italic text-gray-600 text-center mb-2">
+              Paste a link from your favorite food blog or social platform and we'll extract the recipe for you.
+            </p>
             <Input
               type="url"
               value={url}
@@ -367,6 +370,10 @@ export default function ImportForm() {
               placeholder="Paste a recipe URL..."
               required
             />
+
+            <p className="font-sans text-xs text-gray-500 text-center">
+              Supports food blogs, YouTube, Instagram, Pinterest, Facebook, and X/Twitter
+            </p>
 
             {extractError && (
               <p className="font-sans text-sm text-red">{extractError}</p>
@@ -405,6 +412,9 @@ export default function ImportForm() {
         ) : (
           /* Image upload tab */
           <form onSubmit={handleImageExtract} className="space-y-4">
+            <p className="font-serif text-lg italic text-gray-600 text-center mb-2">
+              Snap a photo of a cookbook page, screenshot a recipe, or upload a PDF — we'll do the rest.
+            </p>
             {/* Dropzone */}
             <div
               onDragOver={(e) => e.preventDefault()}
@@ -417,7 +427,10 @@ export default function ImportForm() {
                 Drag images here or tap to browse
               </p>
               <p className="font-sans text-xs text-gray-500 mt-1">
-                JPEG, PNG, WebP, HEIC, or PDF — up to 5 files, 20MB each
+                Up to 5 files, 20MB each
+              </p>
+              <p className="font-sans text-xs text-gray-500 mt-1">
+                Supports JPEG, PNG, WebP, HEIC, and PDF
               </p>
               <input
                 id="image-file-input"
