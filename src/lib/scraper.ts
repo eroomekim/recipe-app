@@ -341,12 +341,61 @@ export function extractRecipeFromPage(page: ScrapedPage): ExtractedRecipe {
   const $notes = cheerio.load(page.rawHtml);
   const notes = extractRecipeNotes($notes);
 
+  // Supplement with JSON-LD notes field if available and HTML extraction missed it
+  if (page.jsonLd) {
+    mergeJsonLdNotes(page.jsonLd, notes);
+  }
+
   if (page.jsonLd) {
     return extractFromJsonLd(page.jsonLd, page.images, page.url, notes);
   }
 
   // Fallback: parse from HTML structure
   return extractFromHtml(page.html, page.images, page.url, notes);
+}
+
+/**
+ * Extract notes from JSON-LD `notes` field (schema.org Recipe supports this).
+ * Many recipe plugins (WPRM, Tasty, etc.) populate this field.
+ * Only fills in fields that weren't already found by HTML extraction.
+ */
+function mergeJsonLdNotes(recipe: SchemaRecipe, notes: RecipeNotes): void {
+  const rawNotes = recipe.notes || recipe.recipeNotes;
+  if (!rawNotes) return;
+
+  const noteText = typeof rawNotes === "string"
+    ? rawNotes
+    : Array.isArray(rawNotes)
+      ? rawNotes.map((n: unknown) => typeof n === "string" ? n : (n as { text?: string })?.text || "").join("\n")
+      : "";
+
+  if (!noteText.trim()) return;
+
+  // Try to categorize the JSON-LD notes content
+  const stripped = noteText.replace(/<[^>]*>/g, "").trim();
+  const lines = stripped.split(/\n+/).filter(Boolean);
+
+  for (const line of lines) {
+    for (const { field, keywords } of [
+      { field: "storageTips" as const, keywords: /stor(age|e|ing)|refrigerat|freez|keep|leftover|shelf.?life|fridge/i },
+      { field: "makeAheadNotes" as const, keywords: /make.?ahead|prep.?ahead|advance|prepare.?earlier|night.?before|meal.?prep/i },
+      { field: "servingSuggestions" as const, keywords: /serv(e|ing).?(suggest|with|idea|tip)|pair.?with|goes.?well|accompan|side.?dish/i },
+      { field: "techniqueNotes" as const, keywords: /tip|trick|technique|chef|note|secret|why.?this.?works|pro.?tip/i },
+    ]) {
+      if (keywords.test(line) && !notes[field]) {
+        const cleaned = line.replace(/^[^:]+:\s*/i, "").trim();
+        notes[field] = cleaned.slice(0, 1000);
+        break;
+      }
+    }
+  }
+
+  // If nothing was categorized and techniqueNotes is still empty,
+  // put the whole notes content into techniqueNotes as a catch-all
+  const hasAny = notes.storageTips || notes.makeAheadNotes || notes.servingSuggestions || notes.techniqueNotes;
+  if (!hasAny && stripped.length > 10) {
+    notes.techniqueNotes = stripped.slice(0, 1000);
+  }
 }
 
 // ─── JSON-LD → ExtractedRecipe ───────────────────────────────────────────────
