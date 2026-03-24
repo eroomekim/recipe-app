@@ -217,6 +217,7 @@ export default function EditRecipeForm({ recipeId, initialData }: EditRecipeForm
                 </div>
               ))}
             </div>
+            <p className="font-sans text-xs text-gray-500 mt-2">Drag to reorder. Click the X to remove.</p>
           )}
           <div className="flex gap-2">
             <input
