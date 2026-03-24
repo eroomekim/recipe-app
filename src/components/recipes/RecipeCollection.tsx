@@ -36,6 +36,11 @@ export default function RecipeCollection({ recipes }: RecipeCollectionProps) {
         }}
         activeFilter={activeCollection}
       />
+      <div className="mb-4">
+        <span className="font-sans text-xs font-semibold uppercase tracking-wider text-gray-600">
+          {displayRecipes.length} {displayRecipes.length === 1 ? "Recipe" : "Recipes"}
+        </span>
+      </div>
       {displayRecipes.length === 0 ? (
         <div className="text-center py-16">
           <p className="font-serif text-lg text-gray-500 italic">

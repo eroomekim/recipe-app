@@ -75,11 +75,6 @@ export default async function RecipesPage() {
 
   return (
     <main className="max-w-[1200px] mx-auto px-4 py-8">
-      <div className="mb-8">
-        <span className="font-sans text-xs font-semibold uppercase tracking-wider text-gray-600">
-          {recipeCards.length} {recipeCards.length === 1 ? "Recipe" : "Recipes"}
-        </span>
-      </div>
       <RecipeCollection recipes={recipeCards} />
     </main>
   );
