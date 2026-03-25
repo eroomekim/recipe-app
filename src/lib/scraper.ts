@@ -473,7 +473,7 @@ function extractFromJsonLd(
   baseUrl: string,
   notes: RecipeNotes
 ): ExtractedRecipe {
-  const title = (recipe.name || "Untitled Recipe").trim();
+  const title = stripHtml(recipe.name || "Untitled Recipe").trim();
 
   // ── Ingredients ──
   const ingredients = (recipe.recipeIngredient || [])
@@ -1079,5 +1079,25 @@ function normalizeStringOrArray(value?: unknown): string[] {
 }
 
 function stripHtml(str: string): string {
-  return str.replace(/<[^>]*>/g, "").replace(/&amp;/g, "&").replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&quot;/g, '"').replace(/&#039;/g, "'").replace(/&nbsp;/g, " ");
+  return str
+    .replace(/<[^>]*>/g, "")
+    .replace(/&#(\d+);/g, (_, code) => String.fromCharCode(parseInt(code, 10)))
+    .replace(/&#x([0-9a-fA-F]+);/g, (_, code) => String.fromCharCode(parseInt(code, 16)))
+    .replace(/&amp;/g, "&")
+    .replace(/&lt;/g, "<")
+    .replace(/&gt;/g, ">")
+    .replace(/&quot;/g, '"')
+    .replace(/&apos;/g, "'")
+    .replace(/&nbsp;/g, " ")
+    .replace(/&rsquo;/g, "\u2019")
+    .replace(/&lsquo;/g, "\u2018")
+    .replace(/&rdquo;/g, "\u201D")
+    .replace(/&ldquo;/g, "\u201C")
+    .replace(/&ndash;/g, "\u2013")
+    .replace(/&mdash;/g, "\u2014")
+    .replace(/&frac12;/g, "\u00BD")
+    .replace(/&frac13;/g, "\u2153")
+    .replace(/&frac14;/g, "\u00BC")
+    .replace(/&frac34;/g, "\u00BE")
+    .replace(/&deg;/g, "\u00B0");
 }
