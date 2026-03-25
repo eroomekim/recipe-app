@@ -135,24 +135,63 @@ const IMAGE_SKIP_PATTERNS = [
   "data:image/gif;base64,R0lGODlhAQAB", // 1x1 tracking pixel
 ];
 
+// ─── Browser Fallback ─────────────────────────────────────────────────────────
+
+async function fetchWithBrowser(url: string): Promise<string> {
+  const { getBrowser } = await import("./extraction/browser");
+  const browser = await getBrowser();
+  const page = await browser.newPage();
+  try {
+    await page.goto(url, { waitUntil: "networkidle", timeout: 30_000 });
+    // Wait for bot protection challenges to resolve and content to render
+    await page.waitForFunction(
+      () => document.querySelector('script[type="application/ld+json"]') !== null
+        || document.querySelectorAll('[class*="ingredient"], [class*="instruction"], [itemprop]').length > 0
+        || document.body.innerText.length > 2000,
+      { timeout: 15_000 }
+    ).catch(() => {
+      // Timeout waiting for content — proceed with whatever we have
+    });
+    return await page.content();
+  } finally {
+    await page.close();
+  }
+}
+
 // ─── Page Fetcher ────────────────────────────────────────────────────────────
 
 export async function scrapePage(url: string): Promise<ScrapedPage> {
-  const response = await fetch(url, {
-    headers: {
-      "User-Agent":
-        "Mozilla/5.0 (compatible; RecipeBook/1.0; +https://recipebook.app)",
-      Accept: "text/html,application/xhtml+xml",
-    },
-    redirect: "follow",
-    signal: AbortSignal.timeout(15_000),
-  });
+  let html: string;
 
-  if (!response.ok) {
-    throw new Error(`Failed to fetch page: HTTP ${response.status}`);
+  try {
+    const response = await fetch(url, {
+      headers: {
+        "User-Agent":
+          "Mozilla/5.0 (compatible; RecipeBook/1.0; +https://recipebook.app)",
+        Accept: "text/html,application/xhtml+xml",
+      },
+      redirect: "follow",
+      signal: AbortSignal.timeout(15_000),
+    });
+
+    if (response.status === 403 || response.status === 402) {
+      // Site blocks server-side requests — fall back to headless browser
+      html = await fetchWithBrowser(url);
+      if (html.length < 1000 || html.includes("support@people.inc")) {
+        throw new Error("This site blocks automated access. Try using the Upload Image tab with a screenshot instead.");
+      }
+    } else if (!response.ok) {
+      throw new Error(`Failed to fetch page: HTTP ${response.status}`);
+    } else {
+      html = await response.text();
+    }
+  } catch (err) {
+    if (err instanceof Error && (err.message.includes("Failed to fetch page") || err.message.includes("blocks automated"))) {
+      throw err;
+    }
+    // Network errors or timeouts — try browser as fallback
+    html = await fetchWithBrowser(url);
   }
-
-  const html = await response.text();
   const $ = cheerio.load(html);
 
   // ── Extract JSON-LD recipe data ──
