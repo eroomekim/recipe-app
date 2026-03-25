@@ -21,17 +21,20 @@
   "dependencies": {
     "@anthropic-ai/sdk": "^0.80.0",
     "@paralleldrive/cuid2": "^3.3.0",
-    "@prisma/client": "^6.19.2",
+    "@prisma/adapter-pg": "^7.5.0",
+    "@prisma/client": "^7.5.0",
     "@supabase/ssr": "^0.9.0",
     "@supabase/supabase-js": "^2.99.2",
     "cheerio": "^1.2.0",
+    "dotenv": "^17.3.1",
     "heic-convert": "^2.1.0",
     "jodit": "^4.11.15",
     "jodit-react": "^5.3.21",
     "lucide-react": "^0.577.0",
     "next": "^16.1.7",
+    "pg": "^8.20.0",
     "playwright": "^1.58.2",
-    "prisma": "^6.19.2",
+    "prisma": "^7.5.0",
     "react": "^19.2.4",
     "react-dom": "^19.2.4",
     "sharp": "^0.34.5",
@@ -65,9 +68,6 @@
       "sharp",
       "unrs-resolver"
     ]
-  },
-  "prisma": {
-    "seed": "ts-node --compiler-options {\"module\":\"CommonJS\"} prisma/seed.ts"
   },
   "packageManager": "pnpm@10.32.1+sha512.a706938f0e89ac1456b6563eab4edf1d1faf3368d1191fc5c59790e96dc918e4456ab2e67d613de1043d2e8c81f87303e6b40d4ffeca9df15ef1ad567348f2be"
 }
