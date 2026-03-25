@@ -143,9 +143,9 @@ async function fetchWithProxy(url: string): Promise<string> {
     throw new Error("This site blocks automated access. Try using the Upload Image tab with a screenshot instead.");
   }
 
-  const proxyUrl = `https://api.scraperapi.com?api_key=${apiKey}&url=${encodeURIComponent(url)}&render=true`;
-  const response = await fetch(proxyUrl, {
-    signal: AbortSignal.timeout(45_000),
+  const params = new URLSearchParams({ api_key: apiKey, url });
+  const response = await fetch(`https://api.scraperapi.com?${params}`, {
+    signal: AbortSignal.timeout(60_000),
   });
 
   if (!response.ok) {
