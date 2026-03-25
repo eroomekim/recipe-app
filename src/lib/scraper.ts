@@ -138,23 +138,27 @@ const IMAGE_SKIP_PATTERNS = [
 // ─── Browser Fallback ─────────────────────────────────────────────────────────
 
 async function fetchWithBrowser(url: string): Promise<string> {
-  const { getBrowser } = await import("./extraction/browser");
-  const browser = await getBrowser();
-  const page = await browser.newPage();
   try {
-    await page.goto(url, { waitUntil: "networkidle", timeout: 30_000 });
-    // Wait for bot protection challenges to resolve and content to render
-    await page.waitForFunction(
-      () => document.querySelector('script[type="application/ld+json"]') !== null
-        || document.querySelectorAll('[class*="ingredient"], [class*="instruction"], [itemprop]').length > 0
-        || document.body.innerText.length > 2000,
-      { timeout: 15_000 }
-    ).catch(() => {
-      // Timeout waiting for content — proceed with whatever we have
-    });
-    return await page.content();
-  } finally {
-    await page.close();
+    const { getBrowser } = await import("./extraction/browser");
+    const browser = await getBrowser();
+    const page = await browser.newPage();
+    try {
+      await page.goto(url, { waitUntil: "networkidle", timeout: 30_000 });
+      // Wait for bot protection challenges to resolve and content to render
+      await page.waitForFunction(
+        () => document.querySelector('script[type="application/ld+json"]') !== null
+          || document.querySelectorAll('[class*="ingredient"], [class*="instruction"], [itemprop]').length > 0
+          || document.body.innerText.length > 2000,
+        { timeout: 15_000 }
+      ).catch(() => {
+        // Timeout waiting for content — proceed with whatever we have
+      });
+      return await page.content();
+    } finally {
+      await page.close();
+    }
+  } catch {
+    throw new Error("This site blocks automated access. Try using the Upload Image tab with a screenshot instead.");
   }
 }
 
