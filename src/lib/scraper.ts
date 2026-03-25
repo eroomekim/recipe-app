@@ -135,31 +135,29 @@ const IMAGE_SKIP_PATTERNS = [
   "data:image/gif;base64,R0lGODlhAQAB", // 1x1 tracking pixel
 ];
 
-// ─── Browser Fallback ─────────────────────────────────────────────────────────
+// ─── Proxy Fallback ──────────────────────────────────────────────────────────
 
-async function fetchWithBrowser(url: string): Promise<string> {
-  try {
-    const { getBrowser } = await import("./extraction/browser");
-    const browser = await getBrowser();
-    const page = await browser.newPage();
-    try {
-      await page.goto(url, { waitUntil: "networkidle", timeout: 30_000 });
-      // Wait for bot protection challenges to resolve and content to render
-      await page.waitForFunction(
-        () => document.querySelector('script[type="application/ld+json"]') !== null
-          || document.querySelectorAll('[class*="ingredient"], [class*="instruction"], [itemprop]').length > 0
-          || document.body.innerText.length > 2000,
-        { timeout: 15_000 }
-      ).catch(() => {
-        // Timeout waiting for content — proceed with whatever we have
-      });
-      return await page.content();
-    } finally {
-      await page.close();
-    }
-  } catch {
+async function fetchWithProxy(url: string): Promise<string> {
+  const apiKey = process.env.SCRAPER_API_KEY;
+  if (!apiKey) {
     throw new Error("This site blocks automated access. Try using the Upload Image tab with a screenshot instead.");
   }
+
+  const proxyUrl = `https://api.scraperapi.com?api_key=${apiKey}&url=${encodeURIComponent(url)}&render=true`;
+  const response = await fetch(proxyUrl, {
+    signal: AbortSignal.timeout(45_000),
+  });
+
+  if (!response.ok) {
+    throw new Error("This site blocks automated access. Try using the Upload Image tab with a screenshot instead.");
+  }
+
+  const html = await response.text();
+  if (html.length < 1000) {
+    throw new Error("This site blocks automated access. Try using the Upload Image tab with a screenshot instead.");
+  }
+
+  return html;
 }
 
 // ─── Page Fetcher ────────────────────────────────────────────────────────────
@@ -179,11 +177,8 @@ export async function scrapePage(url: string): Promise<ScrapedPage> {
     });
 
     if (response.status === 403 || response.status === 402) {
-      // Site blocks server-side requests — fall back to headless browser
-      html = await fetchWithBrowser(url);
-      if (html.length < 1000 || html.includes("support@people.inc")) {
-        throw new Error("This site blocks automated access. Try using the Upload Image tab with a screenshot instead.");
-      }
+      // Site blocks server-side requests — fall back to scraping proxy
+      html = await fetchWithProxy(url);
     } else if (!response.ok) {
       throw new Error(`Failed to fetch page: HTTP ${response.status}`);
     } else {
@@ -194,7 +189,7 @@ export async function scrapePage(url: string): Promise<ScrapedPage> {
       throw err;
     }
     // Network errors or timeouts — try browser as fallback
-    html = await fetchWithBrowser(url);
+    html = await fetchWithProxy(url);
   }
   const $ = cheerio.load(html);
 
