@@ -167,9 +167,14 @@ export async function scrapePage(url: string): Promise<ScrapedPage> {
   $(
     "script, style, nav, footer, header, iframe, noscript, svg, [role='navigation'], [role='banner']"
   ).remove();
-  $(
-    '[class*="ad-"], [class*="sidebar"], [class*="comment"], [id*="ad-"], [id*="sidebar"], [id*="comment"], [class*="social"], [class*="share"], [class*="related-posts"]'
-  ).remove();
+  // Remove non-content elements — but avoid overly broad attribute selectors
+  // that can match unrelated Squarespace/CMS classes (e.g., "ad-" inside "alternating-side-by-side-ad...")
+  $('[class*="sidebar"], [class*="related-posts"]').remove();
+  $(".ad-container, .ad-wrapper, .ad-slot, .ad-unit, .advertisement").remove();
+  $('[id*="sidebar"]').remove();
+  // Only remove comments/social/share sections that are clearly non-content
+  $("section[class*='comment'], .comments-section, .comment-list").remove();
+  $("div[class*='social-share'], div[class*='share-buttons']").remove();
 
   const bodyHtml = $("body").html() || "";
 
@@ -636,6 +641,59 @@ function extractFromHtml(
     });
   }
 
+  // Text-based heuristic: find "Ingredients:" in paragraph text followed by
+  // lines separated by <br> (common on Squarespace and simple blogs)
+  if (ingredients.length === 0) {
+    $("p, div.sqs-html-content").each((_, el) => {
+      if (ingredients.length > 0) return;
+      const innerHtml = $(el).html() || "";
+      const ingredientMatch = innerHtml.match(
+        /<strong>\s*Ingredients\s*:?\s*<\/strong>\s*<\/p>\s*<p[^>]*>\s*([\s\S]*?)(?=<\/p>\s*<p[^>]*>\s*(?:\d+\.|<strong>))/i
+      ) || innerHtml.match(
+        /(?:Ingredients\s*:)\s*<\/p>\s*<p[^>]*>\s*([\s\S]*?)(?=<\/p>\s*<p[^>]*>\s*\d+\.)/i
+      );
+      if (ingredientMatch) {
+        const block = ingredientMatch[1];
+        const lines = block.split(/<br\s*\/?>/i).map((l: string) =>
+          l.replace(/<[^>]*>/g, "").trim()
+        ).filter((l: string) => l && l !== "-");
+        ingredients.push(...lines);
+      }
+    });
+  }
+
+  // Broader text-based heuristic: scan all paragraph text for "Ingredients:" marker
+  if (ingredients.length === 0) {
+    const contentEl = $(".blog-item-content, .entry-content, .post-content, article").first();
+    if (contentEl.length) {
+      const contentHtml = contentEl.html() || "";
+      // Split by <p> tags, find the one with "Ingredients:"
+      const paragraphs = contentHtml.split(/<\/?p[^>]*>/i).filter((s: string) => s.trim());
+      let inIngredients = false;
+      for (const p of paragraphs) {
+        const text = p.replace(/<[^>]*>/g, "").trim();
+        if (/^ingredients\s*:/i.test(text)) {
+          inIngredients = true;
+          // Check if ingredients are on the same line after the label
+          const afterLabel = text.replace(/^ingredients\s*:\s*/i, "").trim();
+          if (afterLabel) {
+            const lines = afterLabel.split(/\n/).filter((l: string) => l.trim() && l.trim() !== "-");
+            ingredients.push(...lines);
+          }
+          continue;
+        }
+        if (inIngredients) {
+          // Stop at numbered steps
+          if (/^\d+\.\s/.test(text)) break;
+          const lines = p.split(/<br\s*\/?>/i).map((l: string) =>
+            l.replace(/<[^>]*>/g, "").trim()
+          ).filter((l: string) => l && l !== "-");
+          if (lines.length > 0) ingredients.push(...lines);
+        }
+      }
+    }
+  }
+
   // Instructions — try image-aware extraction first
   const { instructions: instructionsWithImages, usedImageUrls } =
     extractInstructionsWithImages($, pageImages, baseUrl);
@@ -681,6 +739,37 @@ function extractFromHtml(
           sibling = sibling.next();
         }
       });
+    }
+
+    // Text-based heuristic: numbered steps in paragraph text (e.g., "1. Do this<br>2. Do that")
+    if (plainInstructions.length === 0) {
+      const contentEl = $(".blog-item-content, .entry-content, .post-content, article").first();
+      if (contentEl.length) {
+        const contentHtml = contentEl.html() || "";
+        // Find numbered steps (1. ... 2. ... 3. ...)
+        const stepMatches = contentHtml.match(/(?:<br\s*\/?>|\n|<\/p>\s*<p[^>]*>)\s*(\d+\.\s[\s\S]*?)(?=(?:<br\s*\/?>|\n|<\/p>)\s*\d+\.\s|<\/p>\s*<\/div>|$)/gi);
+        if (stepMatches) {
+          for (const match of stepMatches) {
+            const text = match.replace(/<[^>]*>/g, "").trim();
+            if (text) {
+              // Remove the leading number prefix (e.g., "1. ")
+              const cleaned = text.replace(/^\d+\.\s*/, "").trim();
+              if (cleaned) plainInstructions.push(cleaned);
+            }
+          }
+        }
+        // Alternative: scan for all text matching "N. instruction text"
+        if (plainInstructions.length === 0) {
+          const allText = contentEl.text();
+          const numberedSteps = allText.match(/\d+\.\s+[^]+?(?=\d+\.\s|$)/g);
+          if (numberedSteps) {
+            for (const step of numberedSteps) {
+              const cleaned = step.replace(/^\d+\.\s*/, "").trim();
+              if (cleaned && cleaned.length > 10) plainInstructions.push(cleaned);
+            }
+          }
+        }
+      }
     }
 
     instructions = plainInstructions.map((text) => ({ text }));

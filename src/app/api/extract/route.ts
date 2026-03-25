@@ -5,6 +5,7 @@ import { scrapePage, extractRecipeFromPage } from "@/lib/scraper";
 import { detectPlatform, isSocialMedia } from "@/lib/extraction/platform-detector";
 import { jobManager } from "@/lib/extraction/job-manager";
 import { runExtractionPipeline } from "@/lib/extraction/pipeline";
+import { getStructurer } from "@/lib/extraction/recipe-structurer";
 
 const DAILY_LIMIT = parseInt(process.env.RATE_LIMIT_DAILY ?? "20", 10);
 
@@ -86,14 +87,44 @@ export async function POST(request: Request) {
       const page = await scrapePage(url);
       const recipe = extractRecipeFromPage(page);
 
-      if (!recipe.title || recipe.title === "Untitled Recipe") {
-        if (recipe.ingredients.length === 0 && recipe.instructions.length === 0) {
-          await logExtraction(user.id, url, "blog", "failed");
-          return NextResponse.json(
-            { error: "Could not extract a recipe from this page. Try a different URL or use manual entry." },
-            { status: 422 }
-          );
+      const cheerioWorked = recipe.ingredients.length > 0 || recipe.instructions.length > 0;
+
+      if (!cheerioWorked) {
+        // Cheerio scraper found nothing — fall back to AI extraction
+        const structurer = getStructurer();
+        console.log("AI fallback: structurer available:", !!structurer);
+        if (structurer) {
+          try {
+            const pageText = page.html.replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim().slice(0, 8000);
+            console.log("AI fallback: page text length:", pageText.length);
+
+            const aiRecipe = await structurer.structure({
+              text: pageText,
+              images: page.images.map((img) => img.src),
+              platform: "blog",
+              originalUrl: url,
+            });
+
+            if (aiRecipe.ingredients.length > 0 || aiRecipe.instructions.length > 0) {
+              await logExtraction(user.id, url, "blog", "success");
+              return NextResponse.json({
+                type: "immediate",
+                recipe: aiRecipe,
+                sourceUrl: url,
+                _meta: { method: "ai-fallback", platform: "blog" },
+              });
+            }
+            console.log("AI fallback: got recipe, ingredients:", aiRecipe.ingredients.length, "instructions:", aiRecipe.instructions.length);
+          } catch (aiErr) {
+            console.error("AI fallback extraction failed:", aiErr);
+          }
         }
+
+        await logExtraction(user.id, url, "blog", "failed");
+        return NextResponse.json(
+          { error: "Could not extract a recipe from this page. Try a different URL or use manual entry." },
+          { status: 422 }
+        );
       }
 
       await logExtraction(user.id, url, "blog", "success");

@@ -195,7 +195,7 @@ export default function RecipePage({
         Cook
       </button>
       <div className="flex items-center gap-2 px-4 py-2 border border-black font-sans text-xs font-semibold uppercase tracking-wider  hover:bg-black hover:text-white transition-colors">
-        <FavoriteButton recipeId={recipe.id} initialFavorite={recipe.isFavorite} />
+        <FavoriteButton recipeId={recipe.id} initialFavorite={recipe.isFavorite} variant="inline" />
         Favorite
       </div>
       <PrintRecipeButton recipe={recipe} />

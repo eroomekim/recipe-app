@@ -7,12 +7,14 @@ interface FavoriteButtonProps {
   recipeId: string;
   initialFavorite: boolean;
   className?: string;
+  variant?: "overlay" | "inline";
 }
 
 export default function FavoriteButton({
   recipeId,
   initialFavorite,
   className = "",
+  variant = "overlay",
 }: FavoriteButtonProps) {
   const [isFavorite, setIsFavorite] = useState(initialFavorite);
   const [saving, setSaving] = useState(false);
@@ -41,6 +43,12 @@ export default function FavoriteButton({
     }
   }
 
+  const heartClass = isFavorite
+    ? "text-red fill-current"
+    : variant === "overlay"
+      ? "text-white fill-white opacity-75 group-hover/fav:opacity-100"
+      : "text-black";
+
   return (
     <button
       onClick={(e) => {
@@ -48,12 +56,12 @@ export default function FavoriteButton({
         e.stopPropagation();
         toggle();
       }}
-      className={`transition-colors ${className}`}
+      className={`group/fav transition-colors ${className}`}
       aria-label={isFavorite ? "Remove from favorites" : "Add to favorites"}
     >
       <Heart
-        className={`w-5 h-5 ${isFavorite ? "text-red fill-current" : "text-current"}`}
-        strokeWidth={isFavorite ? 0 : 1.5}
+        className={`w-5 h-5 ${heartClass} transition-opacity`}
+        strokeWidth={isFavorite ? 0 : variant === "overlay" ? 0 : 1.5}
       />
     </button>
   );
