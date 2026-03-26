@@ -10,6 +10,7 @@ import Divider from "@/components/ui/Divider";
 import RichTextEditor from "@/components/ui/RichTextEditor";
 import { X, Upload } from "lucide-react";
 import type { ExtractedRecipe } from "@/types";
+import { apiUrl } from "@/lib/api";
 
 function toHtmlList(items: string[]): string {
   if (items.length === 0) return "";
@@ -142,7 +143,7 @@ export default function ImportForm() {
       }
 
       try {
-        const res = await fetch(`/api/extract/${jobId}`);
+        const res = await fetch(apiUrl(`/api/extract/${jobId}`));
         const data = await res.json();
 
         setExtractionStage(data.stage);
@@ -171,7 +172,7 @@ export default function ImportForm() {
     setExtracting(true);
 
     try {
-      const res = await fetch("/api/extract", {
+      const res = await fetch(apiUrl("/api/extract"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ url }),
@@ -214,7 +215,7 @@ export default function ImportForm() {
       const formData = new FormData();
       uploadedFiles.forEach((file) => formData.append("files", file));
 
-      const res = await fetch("/api/extract/image", {
+      const res = await fetch(apiUrl("/api/extract/image"), {
         method: "POST",
         body: formData,
       });
@@ -281,7 +282,7 @@ export default function ImportForm() {
     setSaving(true);
 
     try {
-      const res = await fetch("/api/recipes", {
+      const res = await fetch(apiUrl("/api/recipes"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
+import { apiUrl } from "@/lib/api";
 
 interface PersonalNotesProps {
   recipeId: string;
@@ -32,7 +33,7 @@ export default function PersonalNotes({
   async function save() {
     setSaving(true);
     try {
-      await fetch(`/api/recipes/${recipeId}`, {
+      await fetch(apiUrl(`/api/recipes/${recipeId}`), {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ personalNotes: notes, personalAdaptations: adaptations }),

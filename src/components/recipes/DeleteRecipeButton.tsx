@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { apiUrl } from "@/lib/api";
 
 export default function DeleteRecipeButton({ recipeId }: { recipeId: string }) {
   const router = useRouter();
@@ -14,7 +15,7 @@ export default function DeleteRecipeButton({ recipeId }: { recipeId: string }) {
 
     setDeleting(true);
 
-    const res = await fetch(`/api/recipes/${recipeId}`, {
+    const res = await fetch(apiUrl(`/api/recipes/${recipeId}`), {
       method: "DELETE",
     });
 

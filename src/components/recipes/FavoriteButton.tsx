@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Heart } from "lucide-react";
+import { apiUrl } from "@/lib/api";
 
 interface FavoriteButtonProps {
   recipeId: string;
@@ -27,7 +28,7 @@ export default function FavoriteButton({
     setIsFavorite(newValue);
 
     try {
-      const res = await fetch(`/api/recipes/${recipeId}`, {
+      const res = await fetch(apiUrl(`/api/recipes/${recipeId}`), {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ isFavorite: newValue }),

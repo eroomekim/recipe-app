@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import Divider from "@/components/ui/Divider";
 import type { SimilarRecipe } from "@/types";
+import { apiUrl } from "@/lib/api";
 
 interface SimilarRecipesProps {
   recipeId: string;
@@ -14,7 +15,7 @@ export default function SimilarRecipes({ recipeId }: SimilarRecipesProps) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch(`/api/recipes/${recipeId}/similar?limit=5`)
+    fetch(apiUrl(`/api/recipes/${recipeId}/similar?limit=5`))
       .then((r) => r.json())
       .then((data) => {
         if (Array.isArray(data)) setRecipes(data);

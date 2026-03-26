@@ -15,6 +15,7 @@ import { scaleIngredient } from "@/lib/ingredient-scaler";
 import { convertUnit } from "@/lib/unit-converter";
 import { useSettings } from "@/hooks/useSettings";
 import type { RecipeDetail } from "@/types";
+import { apiUrl } from "@/lib/api";
 
 interface RecipePageProps {
   recipe: RecipeDetail;
@@ -225,7 +226,7 @@ export default function RecipePage({
                   recipeId: recipe.id,
                   recipeTitle: recipe.title,
                 }));
-                const res = await fetch("/api/grocery", {
+                const res = await fetch(apiUrl("/api/grocery"), {
                   method: "POST",
                   headers: { "Content-Type": "application/json" },
                   body: JSON.stringify({ items }),

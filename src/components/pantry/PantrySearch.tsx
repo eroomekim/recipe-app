@@ -4,6 +4,7 @@ import { useState, useRef, useMemo } from "react";
 import { X, Search, ChevronDown, ChevronUp } from "lucide-react";
 import Link from "next/link";
 import type { IngredientMatchResult } from "@/types";
+import { apiUrl } from "@/lib/api";
 
 interface PantrySearchProps {
   knownIngredients: string[];
@@ -60,7 +61,7 @@ export default function PantrySearch({ knownIngredients }: PantrySearchProps) {
         ingredients: selectedIngredients.join(","),
         threshold: String(threshold),
       });
-      const res = await fetch(`/api/recipes/match-ingredients?${params}`);
+      const res = await fetch(apiUrl(`/api/recipes/match-ingredients?${params}`));
       if (res.ok) {
         setResults(await res.json());
       }

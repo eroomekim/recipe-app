@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import RecipePage from "./RecipePage";
 import type { RecipeDetail } from "@/types";
+import { apiUrl } from "@/lib/api";
 
 interface RecipeBookletProps {
   recipeIds: string[];
@@ -23,7 +24,7 @@ export default function RecipeBooklet({
   const fetchRecipe = useCallback(async (index: number) => {
     setLoading(true);
     try {
-      const res = await fetch(`/api/recipes/${recipeIds[index]}`);
+      const res = await fetch(apiUrl(`/api/recipes/${recipeIds[index]}`));
       if (res.ok) {
         const data = await res.json();
         setRecipe(data);

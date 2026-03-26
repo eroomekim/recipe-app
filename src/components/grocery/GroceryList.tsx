@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { Plus, Trash2, CheckCircle, Circle, ShoppingCart } from "lucide-react";
+import { apiUrl } from "@/lib/api";
 
 interface GroceryItem {
   id: string;
@@ -17,7 +18,7 @@ export default function GroceryList() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch("/api/grocery")
+    fetch(apiUrl("/api/grocery"))
       .then((r) => r.json())
       .then(setItems)
       .catch(() => {})
@@ -26,7 +27,7 @@ export default function GroceryList() {
 
   async function addItem() {
     if (!newItem.trim()) return;
-    const res = await fetch("/api/grocery", {
+    const res = await fetch(apiUrl("/api/grocery"), {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ text: newItem.trim() }),
@@ -40,7 +41,7 @@ export default function GroceryList() {
 
   async function toggleItem(id: string, checked: boolean) {
     setItems(items.map((i) => (i.id === id ? { ...i, checked } : i)));
-    await fetch("/api/grocery", {
+    await fetch(apiUrl("/api/grocery"), {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ id, checked }),
@@ -49,7 +50,7 @@ export default function GroceryList() {
 
   async function deleteItem(id: string) {
     setItems(items.filter((i) => i.id !== id));
-    await fetch("/api/grocery", {
+    await fetch(apiUrl("/api/grocery"), {
       method: "DELETE",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ id }),
@@ -58,7 +59,7 @@ export default function GroceryList() {
 
   async function clearChecked() {
     setItems(items.filter((i) => !i.checked));
-    await fetch("/api/grocery", {
+    await fetch(apiUrl("/api/grocery"), {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ clearChecked: true }),

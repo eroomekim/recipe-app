@@ -8,6 +8,7 @@ import TagSelector from "@/components/ui/TagSelector";
 import Divider from "@/components/ui/Divider";
 import RichTextEditor from "@/components/ui/RichTextEditor";
 import { X, GripVertical, Upload } from "lucide-react";
+import { apiUrl } from "@/lib/api";
 import Spinner from "@/components/ui/Spinner";
 
 /** Convert array of strings to an HTML unordered list */
@@ -131,7 +132,7 @@ export default function EditRecipeForm({ recipeId, initialData }: EditRecipeForm
     setSaving(true);
 
     try {
-      const res = await fetch(`/api/recipes/${recipeId}`, {
+      const res = await fetch(apiUrl(`/api/recipes/${recipeId}`), {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -265,7 +266,7 @@ export default function EditRecipeForm({ recipeId, initialData }: EditRecipeForm
                   for (const file of files) {
                     const formData = new FormData();
                     formData.append("file", file);
-                    const res = await fetch("/api/upload/image", {
+                    const res = await fetch(apiUrl("/api/upload/image"), {
                       method: "POST",
                       body: formData,
                     });

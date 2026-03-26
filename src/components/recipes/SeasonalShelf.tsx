@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import type { SeasonalRecipe } from "@/types";
+import { apiUrl } from "@/lib/api";
 
 const MONTH_NAMES = [
   "", "January", "February", "March", "April", "May", "June",
@@ -14,7 +15,7 @@ export default function SeasonalShelf() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch("/api/recipes/seasonal")
+    fetch(apiUrl("/api/recipes/seasonal"))
       .then((r) => r.json())
       .then((data) => {
         setRecipes(data);

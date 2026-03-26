@@ -5,6 +5,7 @@ import { useState } from "react";
 import Button from "@/components/ui/Button";
 import Input from "@/components/ui/Input";
 import type { CollectionData } from "@/types";
+import { apiUrl } from "@/lib/api";
 
 interface Props {
   onClose: () => void;
@@ -19,7 +20,7 @@ export default function CreateCollectionModal({ onClose, onCreated }: Props) {
     if (!name.trim()) return;
     setSaving(true);
     try {
-      const res = await fetch("/api/collections", {
+      const res = await fetch(apiUrl("/api/collections"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name: name.trim() }),

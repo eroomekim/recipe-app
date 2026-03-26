@@ -5,6 +5,7 @@ import { useSettings } from "@/hooks/useSettings";
 import { Minus, Plus } from "lucide-react";
 import Link from "next/link";
 import type { UserSettingsData } from "@/types";
+import { apiUrl } from "@/lib/api";
 
 interface ExtractionUsage {
   dailyLimit: number;
@@ -19,7 +20,7 @@ export default function SettingsPage() {
   const [usage, setUsage] = useState<ExtractionUsage | null>(null);
 
   useEffect(() => {
-    fetch("/api/extraction-usage")
+    fetch(apiUrl("/api/extraction-usage"))
       .then((r) => r.json())
       .then(setUsage)
       .catch(() => {});

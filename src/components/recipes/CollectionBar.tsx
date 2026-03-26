@@ -5,6 +5,7 @@ import { useState, useEffect } from "react";
 import { Plus } from "lucide-react";
 import CreateCollectionModal from "./CreateCollectionModal";
 import type { CollectionData, SmartCollectionData } from "@/types";
+import { apiUrl } from "@/lib/api";
 
 interface CollectionBarProps {
   onFilter: (recipeIds: string[] | null, label: string | null) => void;
@@ -17,8 +18,8 @@ export default function CollectionBar({ onFilter, activeFilter }: CollectionBarP
   const [showCreate, setShowCreate] = useState(false);
 
   useEffect(() => {
-    fetch("/api/collections").then((r) => r.json()).then(setCollections).catch(() => {});
-    fetch("/api/smart-collections").then((r) => r.json()).then(setSmartCollections).catch(() => {});
+    fetch(apiUrl("/api/collections")).then((r) => r.json()).then(setCollections).catch(() => {});
+    fetch(apiUrl("/api/smart-collections")).then((r) => r.json()).then(setSmartCollections).catch(() => {});
   }, []);
 
   async function handleClick(id: string, recipeIds: string[] | null, name: string) {
@@ -30,7 +31,7 @@ export default function CollectionBar({ onFilter, activeFilter }: CollectionBarP
     // For user collections, fetch recipe IDs from API
     if (!recipeIds) {
       try {
-        const res = await fetch(`/api/collections/${id}`);
+        const res = await fetch(apiUrl(`/api/collections/${id}`));
         if (res.ok) {
           const data = await res.json();
           onFilter(data.recipeIds ?? [], id);

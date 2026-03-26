@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { FolderPlus } from "lucide-react";
 import type { CollectionData } from "@/types";
+import { apiUrl } from "@/lib/api";
 
 interface Props {
   recipeId: string;
@@ -14,12 +15,12 @@ export default function AddToCollectionButton({ recipeId }: Props) {
 
   useEffect(() => {
     if (open) {
-      fetch("/api/collections").then((r) => r.json()).then(setCollections).catch(() => {});
+      fetch(apiUrl("/api/collections")).then((r) => r.json()).then(setCollections).catch(() => {});
     }
   }, [open]);
 
   async function addToCollection(collectionId: string) {
-    await fetch(`/api/collections/${collectionId}/recipes`, {
+    await fetch(apiUrl(`/api/collections/${collectionId}/recipes`), {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ recipeId }),

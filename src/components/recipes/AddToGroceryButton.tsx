@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { ShoppingCart, Check } from "lucide-react";
 import type { ScaledResult } from "@/lib/ingredient-scaler";
+import { apiUrl } from "@/lib/api";
 
 interface AddToGroceryButtonProps {
   recipeId: string;
@@ -23,7 +24,7 @@ export default function AddToGroceryButton({
     setSaving(true);
 
     try {
-      const res = await fetch("/api/grocery", {
+      const res = await fetch(apiUrl("/api/grocery"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
