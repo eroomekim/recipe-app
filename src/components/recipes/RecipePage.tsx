@@ -10,6 +10,7 @@ import ImageLightbox from "./ImageLightbox";
 import NutritionCard from "./NutritionCard";
 import SimilarRecipes from "./SimilarRecipes";
 import { X, ExternalLink, CookingPot, Minus, Plus, Square, CheckSquare, ShoppingCart, Check } from "lucide-react";
+import CookTimeAdjuster from "./CookTimeAdjuster";
 import { scaleIngredient } from "@/lib/ingredient-scaler";
 import { convertUnit } from "@/lib/unit-converter";
 import { useSettings } from "@/hooks/useSettings";
@@ -135,6 +136,7 @@ export default function RecipePage({
         <div className="pr-5">
           <div className="font-sans text-xs text-gray-500 uppercase tracking-wider">Cook Time</div>
           <div className="font-sans text-lg font-bold text-black mt-0.5">{recipe.cookTime} mins</div>
+          <CookTimeAdjuster cookTime={recipe.cookTime} />
         </div>
       )}
       {recipe.cookTime && recipe.servings && (
