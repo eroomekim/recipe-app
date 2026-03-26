@@ -18,6 +18,8 @@ export async function GET() {
       defaultServings: null,
       cookingAutoReadAloud: false,
       cookingKeepAwake: true,
+      altitude: null,
+      equipment: [],
     });
   }
 
@@ -27,6 +29,8 @@ export async function GET() {
     defaultServings: settings.defaultServings,
     cookingAutoReadAloud: settings.cookingAutoReadAloud,
     cookingKeepAwake: settings.cookingKeepAwake,
+    altitude: settings.altitude,
+    equipment: settings.equipment,
   });
 }
 
@@ -45,6 +49,8 @@ export async function PUT(request: Request) {
       defaultServings: body.defaultServings,
       cookingAutoReadAloud: body.cookingAutoReadAloud,
       cookingKeepAwake: body.cookingKeepAwake,
+      altitude: body.altitude,
+      equipment: body.equipment,
     },
     create: {
       userId: user.id,
@@ -53,6 +59,8 @@ export async function PUT(request: Request) {
       defaultServings: body.defaultServings ?? null,
       cookingAutoReadAloud: body.cookingAutoReadAloud ?? false,
       cookingKeepAwake: body.cookingKeepAwake ?? true,
+      altitude: body.altitude ?? null,
+      equipment: body.equipment ?? [],
     },
   });
 
@@ -62,5 +70,7 @@ export async function PUT(request: Request) {
     defaultServings: settings.defaultServings,
     cookingAutoReadAloud: settings.cookingAutoReadAloud,
     cookingKeepAwake: settings.cookingKeepAwake,
+    altitude: settings.altitude,
+    equipment: settings.equipment,
   });
 }

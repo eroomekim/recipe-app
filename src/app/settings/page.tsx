@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useSettings } from "@/hooks/useSettings";
 import { Minus, Plus } from "lucide-react";
 import Link from "next/link";
+import type { UserSettingsData } from "@/types";
 
 interface ExtractionUsage {
   dailyLimit: number;
@@ -188,6 +189,72 @@ export default function SettingsPage() {
               }`}
             />
           </button>
+        </div>
+      </section>
+
+      {/* My Kitchen */}
+      <section className="mb-10">
+        <h2 className="font-sans text-xs font-bold uppercase tracking-wider text-gray-500 mb-6">
+          My Kitchen
+        </h2>
+
+        {/* Altitude */}
+        <div className="flex items-center justify-between py-4 border-b border-gray-200">
+          <div>
+            <div className="font-serif text-base text-black">Altitude</div>
+            <div className="font-sans text-xs text-gray-500 mt-0.5">
+              Adjusts baking times for your elevation
+            </div>
+          </div>
+          <select
+            value={settings.altitude ?? ""}
+            onChange={(e) => update({ altitude: (e.target.value || null) as UserSettingsData["altitude"] })}
+            className="font-sans text-sm border border-gray-300 px-3 py-2 bg-white text-black focus:outline-none focus:border-black transition-colors"
+          >
+            <option value="">Not set</option>
+            <option value="sea_level">Sea Level (0–2,000 ft)</option>
+            <option value="moderate">Moderate (2,000–5,000 ft)</option>
+            <option value="high">High (5,000–7,500 ft)</option>
+            <option value="very_high">Very High (7,500+ ft)</option>
+          </select>
+        </div>
+
+        {/* Equipment */}
+        <div className="py-4 border-b border-gray-200">
+          <div className="mb-3">
+            <div className="font-serif text-base text-black">Equipment</div>
+            <div className="font-sans text-xs text-gray-500 mt-0.5">
+              Cook times adjust based on your appliances
+            </div>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            {([
+              { key: "convection_oven", label: "Convection Oven" },
+              { key: "instant_pot", label: "Instant Pot" },
+              { key: "air_fryer", label: "Air Fryer" },
+              { key: "slow_cooker", label: "Slow Cooker" },
+            ] as const).map(({ key, label }) => {
+              const active = settings.equipment.includes(key);
+              return (
+                <button
+                  key={key}
+                  onClick={() => {
+                    const next = active
+                      ? settings.equipment.filter((e) => e !== key)
+                      : [...settings.equipment, key];
+                    update({ equipment: next });
+                  }}
+                  className={`px-3 py-1.5 font-sans text-xs font-semibold uppercase tracking-wide transition-colors ${
+                    active
+                      ? "bg-black text-white"
+                      : "bg-gray-50 text-gray-600 hover:bg-gray-200"
+                  }`}
+                >
+                  {label}
+                </button>
+              );
+            })}
+          </div>
         </div>
       </section>
 
