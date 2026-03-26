@@ -12,7 +12,7 @@ export function useHaptics() {
   const impact = useCallback(async (style: HapticStyle = "light") => {
     try {
       const { Haptics, ImpactStyle } = await import("@capacitor/haptics");
-      const styleMap: Record<HapticStyle, ImpactStyle> = {
+      const styleMap: Record<HapticStyle, typeof ImpactStyle[keyof typeof ImpactStyle]> = {
         light: ImpactStyle.Light,
         medium: ImpactStyle.Medium,
         heavy: ImpactStyle.Heavy,
