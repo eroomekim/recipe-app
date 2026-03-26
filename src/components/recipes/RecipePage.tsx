@@ -8,6 +8,7 @@ import CookingMode from "@/components/cooking/CookingMode";
 import Divider from "@/components/ui/Divider";
 import ImageLightbox from "./ImageLightbox";
 import NutritionCard from "./NutritionCard";
+import SimilarRecipes from "./SimilarRecipes";
 import { X, ExternalLink, CookingPot, Minus, Plus, Square, CheckSquare, ShoppingCart, Check } from "lucide-react";
 import { scaleIngredient } from "@/lib/ingredient-scaler";
 import { convertUnit } from "@/lib/unit-converter";
@@ -476,6 +477,9 @@ export default function RecipePage({
             </div>
           </>
         )}
+
+        {/* Similar recipes */}
+        <SimilarRecipes recipeId={recipe.id} />
 
         {/* Image lightbox */}
         {lightboxIndex !== null && (
