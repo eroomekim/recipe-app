@@ -26,6 +26,8 @@ model UserSettings {
   defaultServings     Int?    // null = use recipe original
   cookingAutoReadAloud Boolean @default(false)
   cookingKeepAwake    Boolean @default(true)
+  altitude            String?
+  equipment           String[] @default([])
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }

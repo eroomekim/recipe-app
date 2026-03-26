@@ -59,6 +59,15 @@ export interface RecipeCardData {
     name: string;
     type: "MEAL_TYPE" | "CUISINE" | "DIETARY";
   }[];
+  nutrition: {
+    calories: number | null;
+    protein: number | null;
+    carbs: number | null;
+    fat: number | null;
+    fiber: number | null;
+    sugar: number | null;
+    sodium: number | null;
+  } | null;
 }
 
 export interface RecipeDetail {
@@ -142,12 +151,17 @@ export interface ScaledIngredient {
   checked: boolean;
 }
 
+export type AltitudeSetting = "sea_level" | "moderate" | "high" | "very_high";
+export type EquipmentType = "convection_oven" | "instant_pot" | "air_fryer" | "slow_cooker";
+
 export interface UserSettingsData {
   measurementSystem: "imperial" | "metric";
   maxDisplayImages: number;
   defaultServings: number | null;
   cookingAutoReadAloud: boolean;
   cookingKeepAwake: boolean;
+  altitude: AltitudeSetting | null;
+  equipment: EquipmentType[];
 }
 
 export const DEFAULT_SETTINGS: UserSettingsData = {
@@ -156,7 +170,41 @@ export const DEFAULT_SETTINGS: UserSettingsData = {
   defaultServings: null,
   cookingAutoReadAloud: false,
   cookingKeepAwake: true,
+  altitude: null,
+  equipment: [],
 };
+
+// --- Smart Features Types ---
+
+export interface IngredientMatchResult {
+  recipe: RecipeCardData;
+  matchedCount: number;
+  totalCount: number;
+  coveragePercent: number;
+  missingIngredients: string[];
+}
+
+export interface SeasonalRecipe {
+  recipe: RecipeCardData;
+  seasonalScore: number;
+  seasonalIngredients: string[];
+}
+
+export interface SimilarRecipe {
+  id: string;
+  title: string;
+  images: string[];
+  cookTime: number | null;
+  sharedIngredientCount: number;
+  similarityScore: number;
+  tags: { name: string; type: "MEAL_TYPE" | "CUISINE" | "DIETARY" }[];
+}
+
+export interface CookTimeAdjustment {
+  originalMinutes: number;
+  adjustedMinutes: number;
+  label: string;
+}
 
 export type ExtractResponse =
   | {
