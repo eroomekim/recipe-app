@@ -63,6 +63,15 @@ export async function GET() {
       name: rt.tag.name,
       type: rt.tag.type,
     })),
+    nutrition: r.nutritionCalories !== null ? {
+      calories: r.nutritionCalories,
+      protein: r.nutritionProtein,
+      carbs: r.nutritionCarbs,
+      fat: r.nutritionFat,
+      fiber: r.nutritionFiber,
+      sugar: r.nutritionSugar,
+      sodium: r.nutritionSodium,
+    } : null,
   }));
 
   return NextResponse.json(result);
