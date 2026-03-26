@@ -28,6 +28,7 @@ export default function FilterBar({ recipes, onFilter }: FilterBarProps) {
   const [selectedDietary, setSelectedDietary] = useState<Set<string>>(new Set());
   const [showFavorites, setShowFavorites] = useState(false);
   const [cookTimeRange, setCookTimeRange] = useState<string | null>(null);
+  const [nutritionFilter, setNutritionFilter] = useState<string | null>(null);
 
   // Determine which tags actually exist in the user's recipes
   const availableTags = useMemo(() => {
@@ -49,7 +50,7 @@ export default function FilterBar({ recipes, onFilter }: FilterBarProps) {
   }, [recipes]);
 
   const hasActiveFilters =
-    search || selectedMealTypes.size > 0 || selectedCuisines.size > 0 || selectedDietary.size > 0 || showFavorites || cookTimeRange;
+    search || selectedMealTypes.size > 0 || selectedCuisines.size > 0 || selectedDietary.size > 0 || showFavorites || cookTimeRange || nutritionFilter;
 
   function toggle(set: Set<string>, setFn: (s: Set<string>) => void, value: string) {
     const next = new Set(set);
@@ -71,12 +72,14 @@ export default function FilterBar({ recipes, onFilter }: FilterBarProps) {
     originalSet?: Set<string>,
     setFn?: (s: Set<string>) => void,
     cookTime?: string | null,
+    nutrition?: string | null,
   ) {
     // Determine effective sets (the toggled one needs the updated version)
     const effectiveMealTypes = setFn === setSelectedMealTypes && changedSet ? changedSet : mealTypes;
     const effectiveCuisines = setFn === setSelectedCuisines && changedSet ? changedSet : cuisines;
     const effectiveDietary = setFn === setSelectedDietary && changedSet ? changedSet : dietary;
     const effectiveCookTime = cookTime !== undefined ? cookTime : cookTimeRange;
+    const effectiveNutrition = nutrition !== undefined ? nutrition : nutritionFilter;
 
     const filtered = recipes.filter((r) => {
       // Search
@@ -118,6 +121,19 @@ export default function FilterBar({ recipes, onFilter }: FilterBarProps) {
         if (effectiveCookTime === "over120" && ct < 120) return false;
       }
 
+      // Nutrition filter
+      if (effectiveNutrition) {
+        const n = r.nutrition;
+        if (!n || n.calories === null) return false;
+        if (effectiveNutrition === "under300" && n.calories > 300) return false;
+        if (effectiveNutrition === "300to500" && (n.calories < 300 || n.calories > 500)) return false;
+        if (effectiveNutrition === "500to700" && (n.calories < 500 || n.calories > 700)) return false;
+        if (effectiveNutrition === "over700" && n.calories < 700) return false;
+        if (effectiveNutrition === "highProtein" && (n.protein === null || n.protein < 25)) return false;
+        if (effectiveNutrition === "lowCarb" && (n.carbs === null || n.carbs > 20)) return false;
+        if (effectiveNutrition === "lowCalorie" && n.calories > 400) return false;
+      }
+
       return true;
     });
 
@@ -131,6 +147,7 @@ export default function FilterBar({ recipes, onFilter }: FilterBarProps) {
     setSelectedDietary(new Set());
     setShowFavorites(false);
     setCookTimeRange(null);
+    setNutritionFilter(null);
     onFilter(recipes);
   }
 
@@ -151,11 +168,17 @@ export default function FilterBar({ recipes, onFilter }: FilterBarProps) {
     applyFilters(search, selectedMealTypes, selectedCuisines, selectedDietary, next);
   }
 
+  function handleNutrition(value: string) {
+    const next = nutritionFilter === value ? null : value;
+    setNutritionFilter(next);
+    applyFilters(search, selectedMealTypes, selectedCuisines, selectedDietary, showFavorites, undefined, undefined, undefined, undefined, undefined, next);
+  }
+
   const [filtersOpen, setFiltersOpen] = useState(false);
 
   const activeFilterCount =
     selectedMealTypes.size + selectedCuisines.size + selectedDietary.size +
-    (showFavorites ? 1 : 0) + (cookTimeRange ? 1 : 0);
+    (showFavorites ? 1 : 0) + (cookTimeRange ? 1 : 0) + (nutritionFilter ? 1 : 0);
 
   return (
     <div className="mb-8 space-y-3">
@@ -211,6 +234,20 @@ export default function FilterBar({ recipes, onFilter }: FilterBarProps) {
               }
               active
               onClick={() => handleCookTime(cookTimeRange)}
+            />
+          )}
+          {nutritionFilter && (
+            <Tag
+              label={
+                nutritionFilter === "under300" ? "Under 300 cal" :
+                nutritionFilter === "300to500" ? "300–500 cal" :
+                nutritionFilter === "500to700" ? "500–700 cal" :
+                nutritionFilter === "over700" ? "700+ cal" :
+                nutritionFilter === "highProtein" ? "High Protein" :
+                nutritionFilter === "lowCarb" ? "Low Carb" : "Low Calorie"
+              }
+              active
+              onClick={() => handleNutrition(nutritionFilter)}
             />
           )}
           <button
@@ -273,6 +310,24 @@ export default function FilterBar({ recipes, onFilter }: FilterBarProps) {
                 { key: "over120", label: "2+ hours" },
               ].map((range) => (
                 <Tag key={range.key} label={range.label} active={cookTimeRange === range.key} onClick={() => handleCookTime(range.key)} />
+              ))}
+            </div>
+          </div>
+
+          {/* Nutrition */}
+          <div>
+            <span className="font-sans text-[10px] font-semibold uppercase tracking-wider text-gray-500 block mb-2">Nutrition</span>
+            <div className="flex gap-2 flex-wrap">
+              {[
+                { key: "under300", label: "Under 300 cal" },
+                { key: "300to500", label: "300–500 cal" },
+                { key: "500to700", label: "500–700 cal" },
+                { key: "over700", label: "700+ cal" },
+                { key: "highProtein", label: "High Protein" },
+                { key: "lowCarb", label: "Low Carb" },
+                { key: "lowCalorie", label: "Low Calorie" },
+              ].map((item) => (
+                <Tag key={item.key} label={item.label} active={nutritionFilter === item.key} onClick={() => handleNutrition(item.key)} />
               ))}
             </div>
           </div>
