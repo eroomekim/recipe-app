@@ -141,19 +141,6 @@ export interface SmartCollectionData {
   previewImages: string[];
 }
 
-export interface SimilarRecipe {
-  id: string;
-  title: string;
-  images: string[];
-  cookTime: number | null;
-  sharedIngredientCount: number;
-  similarityScore: number;
-  tags: {
-    name: string;
-    type: string;
-  }[];
-}
-
 export interface ScaledIngredient {
   text: string;
   scaledText: string;
