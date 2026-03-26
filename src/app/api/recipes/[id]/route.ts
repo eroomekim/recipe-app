@@ -209,6 +209,11 @@ export async function DELETE(
     return NextResponse.json({ error: "Not found" }, { status: 404 });
   }
 
+  // Log deletion for sync
+  await prisma.recipeDeletion.create({
+    data: { recipeId: id, userId: user.id },
+  });
+
   // Delete images from storage
   await deleteRecipeImages(user.id, id);
 

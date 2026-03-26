@@ -187,6 +187,15 @@ model ExtractionLog {
   @@index([userId, createdAt])
 }
 
+model RecipeDeletion {
+  id        String   @id @default(cuid())
+  recipeId  String
+  userId    String
+  deletedAt DateTime @default(now())
+
+  @@index([userId, deletedAt])
+}
+
 enum TagType {
   MEAL_TYPE
   CUISINE
