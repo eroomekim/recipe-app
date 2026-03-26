@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Playfair_Display, Libre_Baskerville, Inter } from "next/font/google";
 import { createClient } from "@/lib/supabase/server";
 import Navbar from "@/components/layout/Navbar";
@@ -24,9 +24,26 @@ const inter = Inter({
   display: "swap",
 });
 
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover",
+  themeColor: "#FFFFFF",
+};
+
 export const metadata: Metadata = {
   title: "Recipe Book",
   description: "Your personal recipe collection",
+  manifest: "/manifest.json",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "black-translucent",
+    title: "Recipe Book",
+  },
+  icons: {
+    icon: "/favicon.ico",
+    apple: "/icons/apple-touch-icon.png",
+  },
 };
 
 export default async function RootLayout({
