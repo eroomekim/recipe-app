@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import RecipePage from "./RecipePage";
 import type { RecipeDetail } from "@/types";
@@ -20,6 +20,8 @@ export default function RecipeBooklet({
   const [currentIndex, setCurrentIndex] = useState(initialIndex);
   const [recipe, setRecipe] = useState<RecipeDetail | null>(null);
   const [loading, setLoading] = useState(true);
+  const touchStartX = useRef<number | null>(null);
+  const touchStartY = useRef<number | null>(null);
 
   const fetchRecipe = useCallback(async (index: number) => {
     setLoading(true);
@@ -46,6 +48,24 @@ export default function RecipeBooklet({
     if (currentIndex < recipeIds.length - 1) setCurrentIndex(currentIndex + 1);
   }, [currentIndex, recipeIds.length]);
 
+  function handleTouchStart(e: React.TouchEvent) {
+    touchStartX.current = e.touches[0].clientX;
+    touchStartY.current = e.touches[0].clientY;
+  }
+
+  function handleTouchEnd(e: React.TouchEvent) {
+    if (touchStartX.current === null || touchStartY.current === null) return;
+    const deltaX = e.changedTouches[0].clientX - touchStartX.current;
+    const deltaY = e.changedTouches[0].clientY - touchStartY.current;
+    touchStartX.current = null;
+    touchStartY.current = null;
+
+    if (Math.abs(deltaX) > 50 && Math.abs(deltaX) > Math.abs(deltaY)) {
+      if (deltaX < 0) goNext();
+      else goPrev();
+    }
+  }
+
   useEffect(() => {
     function handleKey(e: KeyboardEvent) {
       if (e.key === "ArrowLeft") goPrev();
@@ -70,7 +90,11 @@ export default function RecipeBooklet({
         onClick={onClose}
       />
 
-      <div className="relative z-10 w-[92vw] max-w-article bg-white mx-auto rounded-[8px] overflow-hidden animate-slideUp">
+      <div
+        className="relative z-10 w-[92vw] max-w-article bg-white mx-auto rounded-[8px] overflow-hidden animate-slideUp"
+        onTouchStart={handleTouchStart}
+        onTouchEnd={handleTouchEnd}
+      >
         {loading ? (
           <div className="flex items-center justify-center h-[70vh]">
             <div className="w-6 h-6 border-2 border-black border-t-transparent rounded-full animate-spin" />

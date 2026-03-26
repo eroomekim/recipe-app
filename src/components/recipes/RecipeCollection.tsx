@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef, useCallback } from "react";
 import RecipeGrid from "./RecipeGrid";
 import CollectionBar from "./CollectionBar";
 import FilterBar from "./FilterBar";
@@ -15,6 +15,34 @@ export default function RecipeCollection({ recipes }: RecipeCollectionProps) {
   const [collectionFilterIds, setCollectionFilterIds] = useState<string[] | null>(null);
   const [activeCollection, setActiveCollection] = useState<string | null>(null);
   const [searchFiltered, setSearchFiltered] = useState<RecipeCardData[] | null>(null);
+  const [refreshing, setRefreshing] = useState(false);
+  const pullStartY = useRef<number | null>(null);
+
+  const handlePullStart = useCallback((e: React.TouchEvent) => {
+    if (window.scrollY === 0) {
+      pullStartY.current = e.touches[0].clientY;
+    }
+  }, []);
+
+  const handlePullEnd = useCallback(async (e: React.TouchEvent) => {
+    if (pullStartY.current === null) return;
+    const deltaY = e.changedTouches[0].clientY - pullStartY.current;
+    pullStartY.current = null;
+
+    if (deltaY > 80) {
+      setRefreshing(true);
+      try {
+        const { syncAll, replayPendingChanges } = await import("@/lib/offline/sync");
+        await replayPendingChanges();
+        await syncAll();
+        window.location.reload();
+      } catch {
+        // Sync failed silently
+      } finally {
+        setRefreshing(false);
+      }
+    }
+  }, []);
 
   // Apply collection filter first, then search/tag filters on top
   const collectionRecipes = collectionFilterIds
@@ -24,7 +52,12 @@ export default function RecipeCollection({ recipes }: RecipeCollectionProps) {
   const displayRecipes = searchFiltered ?? collectionRecipes;
 
   return (
-    <>
+    <div onTouchStart={handlePullStart} onTouchEnd={handlePullEnd}>
+      {refreshing && (
+        <div className="flex justify-center py-3">
+          <div className="w-5 h-5 border-2 border-black border-t-transparent rounded-full animate-spin" />
+        </div>
+      )}
       <SeasonalShelf />
       <FilterBar
         recipes={collectionRecipes}
@@ -52,6 +85,6 @@ export default function RecipeCollection({ recipes }: RecipeCollectionProps) {
       ) : (
         <RecipeGrid recipes={displayRecipes} />
       )}
-    </>
+    </div>
   );
 }
