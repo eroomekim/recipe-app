@@ -40,7 +40,7 @@ export default function Navbar({ user }: NavbarProps) {
 
   return (
     <>
-      <nav className="sticky top-0 z-50 bg-white border-b border-gray-200">
+      <nav className="sticky top-0 z-50 bg-white border-b border-gray-200 safe-top">
         <div className="max-w-[1200px] mx-auto px-4 h-14 flex items-center justify-between">
           {/* Mobile: hamburger */}
           {user && (
