@@ -56,6 +56,13 @@ export default function MobileMenu({
           >
             Grocery List
           </Link>
+          <Link
+            href="/pantry"
+            onClick={onClose}
+            className="font-sans text-base font-bold uppercase tracking-normal text-gray-900"
+          >
+            Pantry
+          </Link>
         </nav>
 
         <hr className="border-t border-gray-300" />
