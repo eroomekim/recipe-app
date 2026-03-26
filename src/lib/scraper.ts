@@ -439,6 +439,7 @@ function mergeJsonLdNotes(recipe: SchemaRecipe, notes: RecipeNotes): void {
   if (!noteText.trim()) return;
 
   // Try to categorize the JSON-LD notes content
+  // Use plain text for keyword matching, but preserve HTML for storage
   const stripped = noteText.replace(/<[^>]*>/g, "").trim();
   const lines = stripped.split(/\n+/).filter(Boolean);
 
@@ -451,7 +452,7 @@ function mergeJsonLdNotes(recipe: SchemaRecipe, notes: RecipeNotes): void {
     ]) {
       if (keywords.test(line) && !notes[field]) {
         const cleaned = line.replace(/^[^:]+:\s*/i, "").trim();
-        notes[field] = cleaned.slice(0, 1000);
+        notes[field] = cleaned.slice(0, 2000);
         break;
       }
     }
@@ -459,9 +460,10 @@ function mergeJsonLdNotes(recipe: SchemaRecipe, notes: RecipeNotes): void {
 
   // If nothing was categorized and techniqueNotes is still empty,
   // put the whole notes content into techniqueNotes as a catch-all
+  // Preserve HTML if present in the original
   const hasAny = notes.storageTips || notes.makeAheadNotes || notes.servingSuggestions || notes.techniqueNotes;
-  if (!hasAny && stripped.length > 10) {
-    notes.techniqueNotes = stripped.slice(0, 1000);
+  if (!hasAny && noteText.trim().length > 10) {
+    notes.techniqueNotes = noteText.trim().slice(0, 2000);
   }
 }
 

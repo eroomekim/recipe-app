@@ -19,7 +19,7 @@ const SECTION_PATTERNS: { field: keyof RecipeNotes; keywords: RegExp }[] = [
 const HEADING_PATTERNS: { field: keyof RecipeNotes; keywords: RegExp }[] = [
   { field: "storageTips", keywords: /\b(stor(age|e|ing)|refrigerat|freez(e|ing|er)|keep(ing)?|leftover|shelf.?life|fridge|how\s+to\s+store)\b/i },
   { field: "makeAheadNotes", keywords: /\b(make.?ahead|prep.?ahead|advance|prepare.?earlier|night.?before|meal.?prep)\b/i },
-  { field: "servingSuggestions", keywords: /\b(serv(e|ing).?(suggest|with|idea|tip)|pair.?with|goes.?well|accompan|side.?dish|what.?to.?serve)\b/i },
+  { field: "servingSuggestions", keywords: /\b(serv(e|ing)\s+(suggest\w*|with|ideas?|tips?)|pair.?with|goes.?well|accompan|side.?dish|what.?to.?serve)\b/i },
   { field: "techniqueNotes", keywords: /\b(tips?|tricks?|techniques?|chef.?s?\s+note|secret|why.?this.?works|pro.?tip|helpful.?hint|recipe\s+notes?)\b/i },
 ];
 
@@ -88,17 +88,17 @@ export function extractRecipeNotes($: CheerioAPI): RecipeNotes {
 
         if (afterLabel) {
           // Also collect any following sibling paragraphs that don't have their own bold label
-          const parts = [afterLabel];
+          const parts = [`<p>${afterLabel}</p>`];
           let sibling = $(el).next();
           while (sibling.length && !sibling.is("h1, h2, h3, h4, h5, h6")) {
             // Stop if the next element starts with its own bold label
             const nextStrong = sibling.find("strong, b").first();
             if (nextStrong.length > 0 && isLeadingChild($, sibling, nextStrong)) break;
-            const text = sibling.text().trim();
-            if (text) parts.push(text);
+            const html = $.html(sibling).trim();
+            if (html) parts.push(html);
             sibling = sibling.next();
           }
-          result[field] = parts.join(" ").slice(0, 1000);
+          result[field] = parts.join("").slice(0, 2000);
         }
         break;
       }
@@ -112,7 +112,7 @@ export function extractRecipeNotes($: CheerioAPI): RecipeNotes {
       if (keywords.test(term) && !result[field]) {
         const dd = $(el).next("dd");
         if (dd.length > 0) {
-          result[field] = dd.text().trim().slice(0, 1000);
+          result[field] = (dd.html() || "").trim().slice(0, 2000);
         }
       }
     }
@@ -131,9 +131,9 @@ export function extractRecipeNotes($: CheerioAPI): RecipeNotes {
     const className = $(el).attr("class") || "";
     for (const { pattern, field } of classMappings) {
       if (pattern.test(className) && !result[field]) {
-        const text = $(el).text().trim();
-        if (text && text.length > 10) {
-          result[field] = text.slice(0, 1000);
+        const html = ($(el).html() || "").trim();
+        if (html && html.length > 10) {
+          result[field] = html.slice(0, 2000);
         }
       }
     }
@@ -143,8 +143,9 @@ export function extractRecipeNotes($: CheerioAPI): RecipeNotes {
 }
 
 /**
- * Collect text from sibling elements until the next heading.
+ * Collect HTML from sibling elements until the next heading.
  * Also handles the case where content is inside a wrapper div with the heading.
+ * Preserves markup (bold, lists, links, etc.) for rich text display.
  */
 function collectSiblingContent($: CheerioAPI, headingEl: ReturnType<CheerioAPI>): string {
   const content: string[] = [];
@@ -152,8 +153,8 @@ function collectSiblingContent($: CheerioAPI, headingEl: ReturnType<CheerioAPI>)
   // First try: direct siblings
   let sibling = headingEl.next();
   while (sibling.length && !sibling.is("h1, h2, h3, h4, h5")) {
-    const text = sibling.text().trim();
-    if (text) content.push(text);
+    const html = $.html(sibling).trim();
+    if (html) content.push(html);
     sibling = sibling.next();
   }
 
@@ -169,14 +170,14 @@ function collectSiblingContent($: CheerioAPI, headingEl: ReturnType<CheerioAPI>)
           return;
         }
         if (foundHeading) {
-          const text = $(child).text().trim();
-          if (text) content.push(text);
+          const html = $.html($(child)).trim();
+          if (html) content.push(html);
         }
       });
     }
   }
 
-  return content.join(" ");
+  return content.join("");
 }
 
 /**
@@ -207,10 +208,12 @@ function extractFromInnerHeadings(
 
     for (const { field, keywords } of HEADING_PATTERNS) {
       if (keywords.test(labelText) && !result[field]) {
-        const fullText = parentEl.text().trim();
-        const afterLabel = fullText.replace(new RegExp(`^${escapeRegExp($(el).text().trim())}\\s*`), "").trim();
+        // Get the parent's HTML, remove the label element, keep the rest
+        const parentHtml = (parentEl.html() || "").trim();
+        const labelHtml = $.html($(el));
+        const afterLabel = parentHtml.replace(labelHtml, "").replace(/^\s*:?\s*/, "").trim();
         if (afterLabel) {
-          result[field] = afterLabel.slice(0, 1000);
+          result[field] = afterLabel.slice(0, 2000);
         }
       }
     }
