@@ -4,6 +4,7 @@ import { useState } from "react";
 import RecipeGrid from "./RecipeGrid";
 import CollectionBar from "./CollectionBar";
 import FilterBar from "./FilterBar";
+import SeasonalShelf from "./SeasonalShelf";
 import type { RecipeCardData } from "@/types";
 
 interface RecipeCollectionProps {
@@ -24,6 +25,7 @@ export default function RecipeCollection({ recipes }: RecipeCollectionProps) {
 
   return (
     <>
+      <SeasonalShelf />
       <FilterBar
         recipes={collectionRecipes}
         onFilter={(filtered) => setSearchFiltered(filtered)}
