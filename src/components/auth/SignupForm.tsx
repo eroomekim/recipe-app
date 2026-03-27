@@ -36,7 +36,9 @@ export default function SignupForm() {
     const { error } = await supabase.auth.signInWithOAuth({
       provider,
       options: {
-        redirectTo: `${window.location.origin}/auth/callback`,
+        redirectTo: typeof window !== "undefined" && window.location.href.startsWith("capacitor://")
+          ? "capacitor://localhost/auth/callback"
+          : `${window.location.origin}/auth/callback`,
       },
     });
     if (error) setError(error.message);
