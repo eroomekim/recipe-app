@@ -31,7 +31,7 @@ const CONVERSIONS: Record<string, { unit: string; factor: number }> = {
   pounds: { unit: "g", factor: 453.592 },
   lb: { unit: "g", factor: 453.592 },
   lbs: { unit: "g", factor: 453.592 },
-  // Temperature (handled separately)
+  // Temperature: see convertTemperatureInText below
 };
 
 const METRIC_TO_IMPERIAL: Record<string, { unit: string; factor: number }> = {
@@ -103,4 +103,31 @@ export function convertUnit(
     const smart = smartImperialUnit(conv.unit, raw);
     return { quantity: parseFloat(formatValue(smart.value)), unit: smart.unit, converted: true };
   }
+}
+
+/**
+ * Convert temperature values in text between °F and °C.
+ * Matches patterns like: 350°F, 350 °F, 350 degrees Fahrenheit, 180°C, etc.
+ */
+export function convertTemperatureInText(
+  text: string,
+  targetSystem: "imperial" | "metric"
+): string {
+  const tempRegex = /(\d+(?:\.\d+)?)\s*(?:°\s*|degrees?\s+)?([FfCc](?:ahrenheit|elsius)?)\b/g;
+
+  return text.replace(tempRegex, (match, value, unit) => {
+    const temp = parseFloat(value);
+    const isFahrenheit = unit[0].toUpperCase() === "F";
+
+    if (isFahrenheit && targetSystem === "metric") {
+      const celsius = Math.round((temp - 32) * 5 / 9);
+      return `${celsius}°C`;
+    }
+    if (!isFahrenheit && targetSystem === "imperial") {
+      const fahrenheit = Math.round(temp * 9 / 5 + 32);
+      return `${fahrenheit}°F`;
+    }
+
+    return match;
+  });
 }
