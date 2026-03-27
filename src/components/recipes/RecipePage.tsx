@@ -12,7 +12,7 @@ import SimilarRecipes from "./SimilarRecipes";
 import { X, ExternalLink, CookingPot, Minus, Plus, Square, CheckSquare, ShoppingCart, Check } from "lucide-react";
 import CookTimeAdjuster from "./CookTimeAdjuster";
 import { scaleIngredient } from "@/lib/ingredient-scaler";
-import { convertUnit } from "@/lib/unit-converter";
+import { convertUnit, convertTemperatureInText } from "@/lib/unit-converter";
 import { useSettings } from "@/hooks/useSettings";
 import type { RecipeDetail } from "@/types";
 import { apiUrl } from "@/lib/api";
@@ -310,7 +310,7 @@ export default function RecipePage({
                 {String(i + 1).padStart(2, "0")}
               </span>
               <p className="font-serif text-base leading-relaxed text-black">
-                {inst.text}
+                {convertTemperatureInText(inst.text, settings.measurementSystem)}
               </p>
             </div>
             {inst.imageUrl && (
