@@ -6,6 +6,7 @@ import IngredientDrawer from "./IngredientDrawer";
 import VoiceControl from "./VoiceControl";
 import { useWakeLock } from "@/hooks/useWakeLock";
 import { scaleIngredient } from "@/lib/ingredient-scaler";
+import { convertTemperatureInText } from "@/lib/unit-converter";
 import type { RecipeDetail, ScaledIngredient } from "@/types";
 
 interface CookingModeProps {
@@ -13,9 +14,10 @@ interface CookingModeProps {
   onExit: () => void;
   defaultAutoReadAloud?: boolean;
   defaultKeepAwake?: boolean;
+  measurementSystem?: "imperial" | "metric";
 }
 
-export default function CookingMode({ recipe, onExit, defaultAutoReadAloud = false, defaultKeepAwake = true }: CookingModeProps) {
+export default function CookingMode({ recipe, onExit, defaultAutoReadAloud = false, defaultKeepAwake = true, measurementSystem = "imperial" }: CookingModeProps) {
   const [currentStep, setCurrentStep] = useState(0);
   const [scaleFactor, setScaleFactor] = useState(1);
   const [checkedIngredients, setCheckedIngredients] = useState<Set<number>>(new Set());
@@ -55,13 +57,13 @@ export default function CookingMode({ recipe, onExit, defaultAutoReadAloud = fal
   useEffect(() => {
     if (autoReadAloud && guidedMode && "speechSynthesis" in window) {
       window.speechSynthesis.cancel();
-      const utterance = new SpeechSynthesisUtterance(recipe.instructions[currentStep].text);
+      const utterance = new SpeechSynthesisUtterance(convertTemperatureInText(recipe.instructions[currentStep].text, measurementSystem));
       window.speechSynthesis.speak(utterance);
     }
     return () => {
       if ("speechSynthesis" in window) window.speechSynthesis.cancel();
     };
-  }, [currentStep, autoReadAloud, guidedMode, recipe.instructions]);
+  }, [currentStep, autoReadAloud, guidedMode, recipe.instructions, measurementSystem]);
 
   // Scaled ingredients
   const scaledIngredients: ScaledIngredient[] = useMemo(() => {
@@ -91,11 +93,11 @@ export default function CookingMode({ recipe, onExit, defaultAutoReadAloud = fal
     else if (command === "previous") setCurrentStep((s) => Math.max(s - 1, 0));
     else if (command === "repeat") {
       if ("speechSynthesis" in window) {
-        const utterance = new SpeechSynthesisUtterance(recipe.instructions[currentStep].text);
+        const utterance = new SpeechSynthesisUtterance(convertTemperatureInText(recipe.instructions[currentStep].text, measurementSystem));
         window.speechSynthesis.speak(utterance);
       }
     }
-  }, [currentStep, recipe.instructions]);
+  }, [currentStep, recipe.instructions, measurementSystem]);
 
   const goPrev = () => setCurrentStep((s) => Math.max(s - 1, 0));
   const goNext = () => setCurrentStep((s) => Math.min(s + 1, recipe.instructions.length - 1));
@@ -175,6 +177,7 @@ export default function CookingMode({ recipe, onExit, defaultAutoReadAloud = fal
           stepNumber={currentStep + 1}
           totalSteps={recipe.instructions.length}
           text={recipe.instructions[currentStep].text}
+          measurementSystem={measurementSystem}
         />
 
         {/* Left tap zone */}

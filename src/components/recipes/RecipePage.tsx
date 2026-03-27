@@ -102,6 +102,7 @@ export default function RecipePage({
         onExit={() => setCooking(false)}
         defaultAutoReadAloud={settings.cookingAutoReadAloud}
         defaultKeepAwake={settings.cookingKeepAwake}
+        measurementSystem={settings.measurementSystem}
       />
     );
   }

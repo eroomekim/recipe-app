@@ -1,11 +1,13 @@
 "use client";
 
 import CookingTimer from "./CookingTimer";
+import { convertTemperatureInText } from "@/lib/unit-converter";
 
 interface CookingStepProps {
   stepNumber: number;
   totalSteps: number;
   text: string;
+  measurementSystem?: "imperial" | "metric";
 }
 
 // Extract time references from step text (e.g., "cook 15 minutes" → 15*60)
@@ -17,7 +19,7 @@ function extractTimerSeconds(text: string): number | null {
   return null;
 }
 
-export default function CookingStep({ stepNumber, totalSteps, text }: CookingStepProps) {
+export default function CookingStep({ stepNumber, totalSteps, text, measurementSystem = "imperial" }: CookingStepProps) {
   const timerSeconds = extractTimerSeconds(text);
 
   return (
@@ -27,7 +29,7 @@ export default function CookingStep({ stepNumber, totalSteps, text }: CookingSte
       </div>
 
       <p className="font-serif text-xl md:text-2xl leading-relaxed text-white max-w-[600px]">
-        {text}
+        {convertTemperatureInText(text, measurementSystem)}
       </p>
 
       {timerSeconds && (
