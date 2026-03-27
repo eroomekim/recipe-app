@@ -14,7 +14,7 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "postinstall": "prisma generate",
-    "build:ios": "CAPACITOR_BUILD=true NEXT_PUBLIC_API_BASE_URL=https://recipebook.vercel.app next build",
+    "build:ios": "CAPACITOR_BUILD=true NEXT_PUBLIC_API_BASE_URL=https://recipe-r33z9gv7r-eroomekim-3797s-projects.vercel.app next build",
     "cap:sync": "npx cap sync ios",
     "cap:open": "npx cap open ios"
   },
