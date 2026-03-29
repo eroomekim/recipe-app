@@ -33,15 +33,31 @@ export default function LoginForm() {
   }
 
   async function handleOAuthLogin(provider: "google" | "apple" | "facebook") {
-    const { error } = await supabase.auth.signInWithOAuth({
+    const isCapacitor = typeof window !== "undefined" &&
+      (window.location.href.startsWith("capacitor://") || window.location.hostname === "localhost" && navigator.userAgent.includes("capacitor"));
+
+    const { data, error } = await supabase.auth.signInWithOAuth({
       provider,
       options: {
-        redirectTo: typeof window !== "undefined" && window.location.href.startsWith("capacitor://")
-          ? "capacitor://localhost/auth/callback"
-          : `${window.location.origin}/auth/callback`,
+        redirectTo: `${process.env.NEXT_PUBLIC_API_BASE_URL || window.location.origin}/auth/callback`,
+        skipBrowserRedirect: isCapacitor,
       },
     });
-    if (error) setError(error.message);
+    if (error) {
+      setError(error.message);
+      return;
+    }
+
+    // On Capacitor, open OAuth URL in system browser
+    if (isCapacitor && data?.url) {
+      try {
+        const { Browser } = await import("@capacitor/browser");
+        await Browser.open({ url: data.url });
+      } catch {
+        // Fallback to regular redirect
+        window.location.href = data.url;
+      }
+    }
   }
 
   return (
