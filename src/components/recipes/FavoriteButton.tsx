@@ -3,7 +3,6 @@
 import { useState } from "react";
 import { Heart } from "lucide-react";
 import { apiUrl } from "@/lib/api";
-import { useHaptics } from "@/hooks/useHaptics";
 
 interface FavoriteButtonProps {
   recipeId: string;
@@ -20,7 +19,6 @@ export default function FavoriteButton({
 }: FavoriteButtonProps) {
   const [isFavorite, setIsFavorite] = useState(initialFavorite);
   const [saving, setSaving] = useState(false);
-  const { impact } = useHaptics();
 
   async function toggle() {
     if (saving) return;
@@ -28,7 +26,6 @@ export default function FavoriteButton({
 
     const newValue = !isFavorite;
     setIsFavorite(newValue);
-    impact("light");
 
     try {
       const res = await fetch(apiUrl(`/api/recipes/${recipeId}`), {

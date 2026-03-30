@@ -31,16 +31,7 @@ export default function RecipeCollection({ recipes }: RecipeCollectionProps) {
 
     if (deltaY > 80) {
       setRefreshing(true);
-      try {
-        const { syncAll, replayPendingChanges } = await import("@/lib/offline/sync");
-        await replayPendingChanges();
-        await syncAll();
-        window.location.reload();
-      } catch {
-        // Sync failed silently
-      } finally {
-        setRefreshing(false);
-      }
+      window.location.reload();
     }
   }, []);
 

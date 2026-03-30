@@ -2,7 +2,6 @@ import type { Metadata, Viewport } from "next";
 import { Playfair_Display, Libre_Baskerville, Inter } from "next/font/google";
 import { createClient } from "@/lib/supabase/server";
 import Navbar from "@/components/layout/Navbar";
-import ServiceWorkerRegistration from "@/components/ServiceWorkerRegistration";
 import "./globals.css";
 
 const playfair = Playfair_Display({
@@ -64,7 +63,6 @@ export default async function RootLayout({
         className={`${playfair.variable} ${libreBaskerville.variable} ${inter.variable}`}
       >
         <Navbar user={user ? { email: user.email! } : null} />
-        <ServiceWorkerRegistration />
         {children}
       </body>
     </html>
