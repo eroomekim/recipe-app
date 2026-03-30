@@ -6,7 +6,7 @@ import { createClient } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
 import { Menu, Settings, HelpCircle, LogOut } from "lucide-react";
 import MobileMenu from "./MobileMenu";
-import OfflineBanner from "@/components/ui/OfflineBanner";
+
 
 interface NavbarProps {
   user: { email: string } | null;
@@ -148,8 +148,6 @@ export default function Navbar({ user }: NavbarProps) {
           )}
         </div>
       </nav>
-
-      <OfflineBanner />
 
       {user && (
         <MobileMenu
