@@ -48,7 +48,7 @@ export default function FavoriteButton({
     ? "text-red fill-current"
     : variant === "overlay"
       ? "text-white fill-white opacity-75 group-hover/fav:opacity-100"
-      : "text-black";
+      : "text-current";
 
   return (
     <button
