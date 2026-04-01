@@ -19,18 +19,20 @@ export default async function Home() {
         Import recipes from your favorite food blogs. AI extracts the details.
         You build the collection.
       </p>
-      <Link
-        href="/signup"
-        className="mt-8 bg-black text-white font-sans text-base font-semibold px-8 py-3 hover:bg-gray-900 transition-colors"
-      >
-        Get Started
-      </Link>
-      <p className="mt-4 font-sans text-sm text-gray-500">
-        Already have an account?{" "}
-        <Link href="/login" className="text-black underline">
-          Sign in
+      <div className="flex gap-4 mt-8">
+        <Link
+          href="/signup"
+          className="bg-black text-white font-sans text-base font-semibold px-8 py-3 hover:bg-gray-900 transition-colors"
+        >
+          Register
         </Link>
-      </p>
+        <Link
+          href="/login"
+          className="bg-white text-black font-sans text-base font-semibold px-8 py-3 border border-black hover:bg-gray-50 transition-colors"
+        >
+          Login
+        </Link>
+      </div>
     </main>
   );
 }
