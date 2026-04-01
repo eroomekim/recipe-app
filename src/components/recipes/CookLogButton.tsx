@@ -86,7 +86,7 @@ export default function CookLogButton({ recipeId }: CookLogButtonProps) {
 
   return (
     <div>
-      {/* Button */}
+      {/* Button — sits in the action row */}
       <button
         onClick={() => setFormOpen(!formOpen)}
         className="flex items-center gap-2 px-4 py-2 border border-black text-black font-sans text-xs font-semibold uppercase tracking-wider hover:bg-black hover:text-white transition-colors"
@@ -95,9 +95,9 @@ export default function CookLogButton({ recipeId }: CookLogButtonProps) {
         I Made This
       </button>
 
-      {/* Inline form */}
+      {/* Inline form — full width below button row */}
       {formOpen && (
-        <div className="mt-3 flex gap-2">
+        <div className="mt-4 flex gap-2 w-[calc(100vw-2.5rem)] max-w-article -ml-0 sm:w-auto sm:max-w-none">
           <input
             ref={inputRef}
             type="text"

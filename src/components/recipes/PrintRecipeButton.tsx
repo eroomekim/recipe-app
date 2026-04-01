@@ -199,9 +199,9 @@ export default function PrintRecipeButton({ recipe }: { recipe: RecipeDetail }) 
   return (
     <button
       onClick={handlePrint}
-      className="flex items-center gap-2 px-4 py-2 border bg-white text-black font-sans text-base font-semibold border-black hover:bg-black hover:text-white transition-colors"
+      className="flex items-center gap-2 px-4 py-2 border bg-white text-black font-sans text-xs font-semibold uppercase tracking-wider border-black hover:bg-black hover:text-white transition-colors"
     >
-      <Printer className="w-4.5 h-4.5" />
+      <Printer className="w-4 h-4" />
       Print
     </button>
   );
