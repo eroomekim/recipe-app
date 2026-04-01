@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { X } from "lucide-react";
 
@@ -14,18 +15,44 @@ export default function MobileMenu({
   onClose,
   onSignOut,
 }: MobileMenuProps) {
-  if (!open) return null;
+  // Track whether the component should be in the DOM
+  const [mounted, setMounted] = useState(false);
+  // Track whether the animation classes are active
+  const [visible, setVisible] = useState(false);
+
+  useEffect(() => {
+    if (open) {
+      setMounted(true);
+      // Trigger animation on next frame so the initial state renders first
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => setVisible(true));
+      });
+    } else {
+      setVisible(false);
+      // Wait for animation to finish before unmounting
+      const timer = setTimeout(() => setMounted(false), 300);
+      return () => clearTimeout(timer);
+    }
+  }, [open]);
+
+  if (!mounted) return null;
 
   return (
     <div className="fixed inset-0 z-[60] md:hidden">
       {/* Backdrop */}
       <div
-        className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+        className={`absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity duration-300 ${
+          visible ? "opacity-100" : "opacity-0"
+        }`}
         onClick={onClose}
       />
 
       {/* Slide-out panel */}
-      <div className="absolute left-0 top-0 bottom-0 w-64 bg-white p-6 flex flex-col gap-6">
+      <div
+        className={`absolute left-0 top-0 bottom-0 w-64 bg-white p-6 flex flex-col gap-6 transition-transform duration-300 ease-out-expo ${
+          visible ? "translate-x-0" : "-translate-x-full"
+        }`}
+      >
         <button
           onClick={onClose}
           className="self-end font-sans text-base text-gray-600"
