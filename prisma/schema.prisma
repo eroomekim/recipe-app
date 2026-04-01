@@ -28,6 +28,7 @@ model UserSettings {
   cookingKeepAwake    Boolean @default(true)
   altitude            String?
   equipment           String[] @default([])
+  theme               String  @default("system") // "system" | "light" | "dark"
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }

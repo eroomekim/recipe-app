@@ -2,7 +2,10 @@ import type { Metadata, Viewport } from "next";
 import { Playfair_Display, Libre_Baskerville, Inter } from "next/font/google";
 import { createClient } from "@/lib/supabase/server";
 import Navbar from "@/components/layout/Navbar";
+import ThemeProvider from "@/components/ThemeProvider";
 import "./globals.css";
+
+const themeScript = `(function(){var t=localStorage.getItem("theme-resolved");if(t==="dark")document.documentElement.classList.add("dark")})();`;
 
 const playfair = Playfair_Display({
   subsets: ["latin"],
@@ -60,10 +63,14 @@ export default async function RootLayout({
 
   return (
     <html lang="en" suppressHydrationWarning>
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: themeScript }} />
+      </head>
       <body
         suppressHydrationWarning
         className={`${playfair.variable} ${libreBaskerville.variable} ${inter.variable}`}
       >
+        <ThemeProvider />
         <Navbar user={user ? { email: user.email! } : null} />
         {children}
       </body>

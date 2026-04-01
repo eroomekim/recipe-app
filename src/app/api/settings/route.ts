@@ -20,6 +20,7 @@ export async function GET() {
       cookingKeepAwake: true,
       altitude: null,
       equipment: [],
+      theme: "system",
     });
   }
 
@@ -31,6 +32,7 @@ export async function GET() {
     cookingKeepAwake: settings.cookingKeepAwake,
     altitude: settings.altitude,
     equipment: settings.equipment,
+    theme: settings.theme,
   });
 }
 
@@ -51,6 +53,7 @@ export async function PUT(request: Request) {
       cookingKeepAwake: body.cookingKeepAwake,
       altitude: body.altitude,
       equipment: body.equipment,
+      theme: body.theme,
     },
     create: {
       userId: user.id,
@@ -61,6 +64,7 @@ export async function PUT(request: Request) {
       cookingKeepAwake: body.cookingKeepAwake ?? true,
       altitude: body.altitude ?? null,
       equipment: body.equipment ?? [],
+      theme: body.theme ?? "system",
     },
   });
 
@@ -72,5 +76,6 @@ export async function PUT(request: Request) {
     cookingKeepAwake: settings.cookingKeepAwake,
     altitude: settings.altitude,
     equipment: settings.equipment,
+    theme: settings.theme,
   });
 }

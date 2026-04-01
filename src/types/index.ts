@@ -162,6 +162,7 @@ export interface UserSettingsData {
   cookingKeepAwake: boolean;
   altitude: AltitudeSetting | null;
   equipment: EquipmentType[];
+  theme: "system" | "light" | "dark";
 }
 
 export const DEFAULT_SETTINGS: UserSettingsData = {
@@ -172,6 +173,7 @@ export const DEFAULT_SETTINGS: UserSettingsData = {
   cookingKeepAwake: true,
   altitude: null,
   equipment: [],
+  theme: "system",
 };
 
 // --- Smart Features Types ---

@@ -67,6 +67,38 @@
   --animate-slideUp: slideUp 350ms cubic-bezier(0.16, 1, 0.3, 1);
 }
 
+/* Dark mode — true inversion of the editorial palette */
+.dark {
+  --color-black: #FFFFFF;
+  --color-white: #000000;
+  --color-gray-950: #E8E8E8;
+  --color-gray-900: #E0E0E0;
+  --color-gray-800: #D0D0D0;
+  --color-gray-600: #A0A0A0;
+  --color-gray-500: #707070;
+  --color-gray-300: #333333;
+  --color-gray-200: #2A2A2A;
+  --color-gray-50: #111111;
+  color-scheme: dark;
+}
+
+/* Print always uses light mode */
+@media print {
+  .dark {
+    --color-black: #000000;
+    --color-white: #FFFFFF;
+    --color-gray-950: #181818;
+    --color-gray-900: #232323;
+    --color-gray-800: #2F2F2F;
+    --color-gray-600: #5F5F5F;
+    --color-gray-500: #949494;
+    --color-gray-300: #C6C6C6;
+    --color-gray-200: #E6E6E6;
+    --color-gray-50: #F5F5F5;
+    color-scheme: light;
+  }
+}
+
 @keyframes slideUp {
   from {
     opacity: 0;

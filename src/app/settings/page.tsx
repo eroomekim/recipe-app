@@ -45,6 +45,35 @@ export default function SettingsPage() {
           Display Preferences
         </h2>
 
+        {/* Theme */}
+        <div className="flex items-center justify-between py-4 border-b border-gray-200">
+          <div>
+            <div className="font-serif text-base text-black">Theme</div>
+            <div className="font-sans text-xs text-gray-500 mt-0.5">
+              Choose light, dark, or follow your system setting
+            </div>
+          </div>
+          <div className="flex">
+            {([
+              { key: "system", label: "System" },
+              { key: "light", label: "Light" },
+              { key: "dark", label: "Dark" },
+            ] as const).map(({ key, label }) => (
+              <button
+                key={key}
+                onClick={() => update({ theme: key })}
+                className={`px-4 py-2 font-sans text-xs font-semibold uppercase tracking-wider transition-colors ${
+                  settings.theme === key
+                    ? "bg-black text-white"
+                    : "bg-gray-50 text-gray-600 hover:bg-gray-200"
+                }`}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
+        </div>
+
         {/* Measurement System */}
         <div className="flex items-center justify-between py-4 border-b border-gray-200">
           <div>
