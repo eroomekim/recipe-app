@@ -50,30 +50,37 @@ export default function SettingsPage() {
           <div>
             <div className="font-serif text-base text-black">Measurement System</div>
             <div className="font-sans text-xs text-gray-500 mt-0.5">
-              Convert ingredient units when viewing recipes
+              Convert ingredient units and temperatures when viewing recipes
             </div>
           </div>
-          <div className="flex">
-            <button
-              onClick={() => update({ measurementSystem: "imperial" })}
-              className={`px-4 py-2 font-sans text-xs font-semibold uppercase tracking-wider transition-colors ${
-                settings.measurementSystem === "imperial"
-                  ? "bg-black text-white"
-                  : "bg-gray-50 text-gray-600 hover:bg-gray-200"
-              }`}
-            >
-              Imperial
-            </button>
-            <button
-              onClick={() => update({ measurementSystem: "metric" })}
-              className={`px-4 py-2 font-sans text-xs font-semibold uppercase tracking-wider transition-colors ${
-                settings.measurementSystem === "metric"
-                  ? "bg-black text-white"
-                  : "bg-gray-50 text-gray-600 hover:bg-gray-200"
-              }`}
-            >
-              Metric
-            </button>
+          <div className="flex flex-col items-end gap-2">
+            <div className="flex">
+              <button
+                onClick={() => update({ measurementSystem: "imperial" })}
+                className={`px-4 py-2 font-sans text-xs font-semibold uppercase tracking-wider transition-colors ${
+                  settings.measurementSystem === "imperial"
+                    ? "bg-black text-white"
+                    : "bg-gray-50 text-gray-600 hover:bg-gray-200"
+                }`}
+              >
+                Imperial
+              </button>
+              <button
+                onClick={() => update({ measurementSystem: "metric" })}
+                className={`px-4 py-2 font-sans text-xs font-semibold uppercase tracking-wider transition-colors ${
+                  settings.measurementSystem === "metric"
+                    ? "bg-black text-white"
+                    : "bg-gray-50 text-gray-600 hover:bg-gray-200"
+                }`}
+              >
+                Metric
+              </button>
+            </div>
+            <div className="font-sans text-[11px] text-gray-400 text-right max-w-[200px]">
+              {settings.measurementSystem === "imperial"
+                ? "Cups, tablespoons, ounces, °F"
+                : "Grams, milliliters, liters, °C"}
+            </div>
           </div>
         </div>
 
