@@ -165,7 +165,7 @@ export default function RecipePage({
           <div className="flex items-center gap-2 mt-0.5">
             <button
               onClick={() => setScaleFactor((s) => Math.max(0.25, s - 0.25))}
-              className="w-6 h-6 flex items-center justify-center rounded-full bg-gray-100 hover:bg-gray-200 transition-colors"
+              className="w-6 h-6 flex items-center justify-center rounded-full bg-gray-50 hover:bg-gray-200 transition-colors"
               aria-label="Decrease servings"
             >
               <Minus className="w-3 h-3 text-gray-600" />
@@ -175,7 +175,7 @@ export default function RecipePage({
             </span>
             <button
               onClick={() => setScaleFactor((s) => s + 0.25)}
-              className="w-6 h-6 flex items-center justify-center rounded-full bg-gray-100 hover:bg-gray-200 transition-colors"
+              className="w-6 h-6 flex items-center justify-center rounded-full bg-gray-50 hover:bg-gray-200 transition-colors"
               aria-label="Increase servings"
             >
               <Plus className="w-3 h-3 text-gray-600" />

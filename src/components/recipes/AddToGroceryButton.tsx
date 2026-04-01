@@ -54,7 +54,7 @@ export default function AddToGroceryButton({
       className={`flex-1 flex flex-col items-center gap-1.5 py-3 rounded-xl transition-colors ${
         added
           ? "bg-green-50 text-green-600"
-          : "bg-gray-50 hover:bg-gray-100 text-gray-600"
+          : "bg-gray-50 hover:bg-gray-200 text-gray-600"
       }`}
     >
       {added ? (

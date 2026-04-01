@@ -125,7 +125,7 @@ export default function SettingsPage() {
           <div className="flex items-center gap-3">
             <button
               onClick={() => update({ maxDisplayImages: Math.max(2, settings.maxDisplayImages - 1) })}
-              className="w-7 h-7 flex items-center justify-center rounded-full bg-gray-100 hover:bg-gray-200 transition-colors"
+              className="w-7 h-7 flex items-center justify-center rounded-full bg-gray-50 hover:bg-gray-200 transition-colors"
               aria-label="Decrease"
             >
               <Minus className="w-3.5 h-3.5 text-gray-600" />
@@ -135,7 +135,7 @@ export default function SettingsPage() {
             </span>
             <button
               onClick={() => update({ maxDisplayImages: Math.min(20, settings.maxDisplayImages + 1) })}
-              className="w-7 h-7 flex items-center justify-center rounded-full bg-gray-100 hover:bg-gray-200 transition-colors"
+              className="w-7 h-7 flex items-center justify-center rounded-full bg-gray-50 hover:bg-gray-200 transition-colors"
               aria-label="Increase"
             >
               <Plus className="w-3.5 h-3.5 text-gray-600" />
@@ -158,7 +158,7 @@ export default function SettingsPage() {
                 const next = settings.defaultServings - 1;
                 update({ defaultServings: next < 1 ? null : next });
               }}
-              className="w-7 h-7 flex items-center justify-center rounded-full bg-gray-100 hover:bg-gray-200 transition-colors"
+              className="w-7 h-7 flex items-center justify-center rounded-full bg-gray-50 hover:bg-gray-200 transition-colors"
               aria-label="Decrease"
             >
               <Minus className="w-3.5 h-3.5 text-gray-600" />
@@ -168,7 +168,7 @@ export default function SettingsPage() {
             </span>
             <button
               onClick={() => update({ defaultServings: (settings.defaultServings ?? 0) + 1 })}
-              className="w-7 h-7 flex items-center justify-center rounded-full bg-gray-100 hover:bg-gray-200 transition-colors"
+              className="w-7 h-7 flex items-center justify-center rounded-full bg-gray-50 hover:bg-gray-200 transition-colors"
               aria-label="Increase"
             >
               <Plus className="w-3.5 h-3.5 text-gray-600" />
