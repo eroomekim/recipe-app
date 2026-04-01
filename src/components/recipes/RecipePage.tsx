@@ -195,12 +195,26 @@ export default function RecipePage({
       )}
       <div className="px-5">
         <div className="font-sans text-xs text-gray-500 uppercase tracking-wider">Units</div>
-        <div className="flex mt-1">
+        <div className="flex mt-1.5">
           <button
-            onClick={() => setMeasurementOverride(activeMeasurement === "imperial" ? "metric" : "imperial")}
-            className="font-sans text-xs font-semibold uppercase tracking-wider transition-colors text-gray-500 hover:text-black"
+            onClick={() => setMeasurementOverride("imperial")}
+            className={`px-3 py-1 font-sans text-xs font-semibold uppercase tracking-wider transition-colors ${
+              activeMeasurement === "imperial"
+                ? "bg-black text-white"
+                : "bg-gray-50 text-gray-600 hover:bg-gray-200"
+            }`}
           >
-            {activeMeasurement === "imperial" ? "°F · oz" : "°C · g"}
+            °F
+          </button>
+          <button
+            onClick={() => setMeasurementOverride("metric")}
+            className={`px-3 py-1 font-sans text-xs font-semibold uppercase tracking-wider transition-colors ${
+              activeMeasurement === "metric"
+                ? "bg-black text-white"
+                : "bg-gray-50 text-gray-600 hover:bg-gray-200"
+            }`}
+          >
+            °C
           </button>
         </div>
       </div>
