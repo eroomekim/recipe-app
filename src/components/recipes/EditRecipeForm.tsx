@@ -388,17 +388,28 @@ export default function EditRecipeForm({ recipeId, initialData }: EditRecipeForm
           <p className="font-sans text-sm text-red">{error}</p>
         )}
 
-        <div className="flex gap-4 pt-4">
-          <Button onClick={handleSave} loading={saving} className="flex-1">
+        <div className="flex items-center gap-4 pt-4">
+          <Button onClick={handleSave} loading={saving}>
             {saving ? "Saving..." : "Save Changes"}
           </Button>
           <Button
             variant="secondary"
             onClick={() => router.push(`/recipes/${recipeId}`)}
-            className="flex-1"
           >
             Cancel
           </Button>
+          <div className="flex-1" />
+          <button
+            onClick={() => {
+              if (confirm("Are you sure you want to delete this recipe?")) {
+                fetch(apiUrl(`/api/recipes/${recipeId}`), { method: "DELETE" })
+                  .then(() => { router.push("/recipes"); router.refresh(); });
+              }
+            }}
+            className="font-sans text-xs text-gray-400 hover:text-red transition-colors"
+          >
+            Delete recipe
+          </button>
         </div>
       </div>
     </div>
