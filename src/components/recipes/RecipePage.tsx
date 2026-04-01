@@ -35,6 +35,7 @@ export default function RecipePage({
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
   const [selectedIngredients, setSelectedIngredients] = useState<Set<number>>(new Set());
   const [groceryAdded, setGroceryAdded] = useState(false);
+  const [measurementOverride, setMeasurementOverride] = useState<"imperial" | "metric" | null>(null);
 
   // Apply default serving scale from settings
   const defaultScale = useMemo(() => {
@@ -55,15 +56,17 @@ export default function RecipePage({
     ? Math.round(recipe.servings * scaleFactor)
     : null;
 
+  const activeMeasurement = measurementOverride ?? settings.measurementSystem;
+
   const scaledIngredients = useMemo(() => {
     return recipe.ingredients.map((ing) => {
       const scaled = scaleIngredient(
         { text: ing.text, quantity: ing.quantity, unit: ing.unit, name: ing.name },
         scaleFactor
       );
-      // Apply unit conversion if user prefers a different system
+      // Apply unit conversion based on active measurement system
       if (scaled.scaledQuantity !== null && scaled.unit) {
-        const converted = convertUnit(scaled.scaledQuantity, scaled.unit, settings.measurementSystem);
+        const converted = convertUnit(scaled.scaledQuantity, scaled.unit, activeMeasurement);
         if (converted.converted) {
           const parts = [String(converted.quantity)];
           parts.push(converted.unit);
@@ -73,7 +76,7 @@ export default function RecipePage({
       }
       return scaled;
     });
-  }, [recipe.ingredients, scaleFactor, settings.measurementSystem]);
+  }, [recipe.ingredients, scaleFactor, activeMeasurement]);
 
   const allImages = useMemo(() => {
     const stepImages = recipe.instructions
@@ -187,6 +190,20 @@ export default function RecipePage({
           </div>
         </div>
       )}
+      {(recipe.cookTime || recipe.servings || dietaryTags.length > 0) && (
+        <div className="w-px h-10 bg-gray-300 self-center" />
+      )}
+      <div className="px-5">
+        <div className="font-sans text-xs text-gray-500 uppercase tracking-wider">Units</div>
+        <div className="flex mt-1">
+          <button
+            onClick={() => setMeasurementOverride(activeMeasurement === "imperial" ? "metric" : "imperial")}
+            className="font-sans text-xs font-semibold uppercase tracking-wider transition-colors text-gray-500 hover:text-black"
+          >
+            {activeMeasurement === "imperial" ? "°F · oz" : "°C · g"}
+          </button>
+        </div>
+      </div>
     </div>
   );
 
@@ -311,7 +328,7 @@ export default function RecipePage({
                 {String(i + 1).padStart(2, "0")}
               </span>
               <p className="font-serif text-base leading-relaxed text-black">
-                {convertTemperatureInText(inst.text, settings.measurementSystem)}
+                {convertTemperatureInText(inst.text, activeMeasurement)}
               </p>
             </div>
             {inst.imageUrl && (
