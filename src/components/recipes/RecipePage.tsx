@@ -234,21 +234,19 @@ export default function RecipePage({
   );
 
   const actionButtons = (
-    <div className="mb-6">
-      <div className="flex flex-wrap gap-3 mb-3">
-        <button
-          onClick={() => setCooking(true)}
-          className="flex items-center gap-2 px-4 py-2 border border-black text-black font-sans text-xs font-semibold uppercase tracking-wider hover:bg-black hover:text-white transition-colors"
-        >
-          <CookingPot className="w-4 h-4" />
-          Cook
-        </button>
-        <div className="flex items-center gap-2 px-4 py-2 border border-black font-sans text-xs font-semibold uppercase tracking-wider hover:bg-black hover:text-white transition-colors">
-          <FavoriteButton recipeId={recipe.id} initialFavorite={recipe.isFavorite} variant="inline" />
-          Favorite
-        </div>
-        <PrintRecipeButton recipe={recipe} />
+    <div className="flex flex-wrap gap-3 mb-6">
+      <button
+        onClick={() => setCooking(true)}
+        className="flex items-center gap-2 px-4 py-2 border border-black text-black font-sans text-xs font-semibold uppercase tracking-wider hover:bg-black hover:text-white transition-colors"
+      >
+        <CookingPot className="w-4 h-4" />
+        Cook
+      </button>
+      <div className="flex items-center gap-2 px-4 py-2 border border-black font-sans text-xs font-semibold uppercase tracking-wider hover:bg-black hover:text-white transition-colors">
+        <FavoriteButton recipeId={recipe.id} initialFavorite={recipe.isFavorite} variant="inline" />
+        Favorite
       </div>
+      <PrintRecipeButton recipe={recipe} />
       <CookLogButton recipeId={recipe.id} />
     </div>
   );

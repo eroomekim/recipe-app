@@ -85,8 +85,8 @@ export default function CookLogButton({ recipeId }: CookLogButtonProps) {
   }
 
   return (
-    <div>
-      {/* Button — sits in the action row */}
+    <>
+      {/* Button — renders inline with other action buttons */}
       <button
         onClick={() => setFormOpen(!formOpen)}
         className="flex items-center gap-2 px-4 py-2 border border-black text-black font-sans text-xs font-semibold uppercase tracking-wider hover:bg-black hover:text-white transition-colors"
@@ -95,53 +95,55 @@ export default function CookLogButton({ recipeId }: CookLogButtonProps) {
         I Made This
       </button>
 
-      {/* Inline form — full width below button row */}
-      {formOpen && (
-        <div className="mt-4 flex gap-2 w-[calc(100vw-2.5rem)] max-w-article -ml-0 sm:w-auto sm:max-w-none">
-          <input
-            ref={inputRef}
-            type="text"
-            value={note}
-            onChange={(e) => setNote(e.target.value)}
-            onKeyDown={handleKeyDown}
-            placeholder="How did it go? (optional)"
-            className="flex-1 border border-gray-300 px-3 py-2 font-serif text-sm text-black placeholder:text-gray-400 focus:outline-none focus:border-black transition-colors"
-          />
-          <button
-            onClick={handleLog}
-            disabled={saving}
-            className="bg-black text-white font-sans text-xs font-semibold uppercase tracking-wider px-4 py-2 hover:bg-gray-900 transition-colors disabled:opacity-50"
-          >
-            {saving ? "..." : "Log"}
-          </button>
-        </div>
-      )}
+      {/* Form + log — forces new row via basis-full */}
+      {(formOpen || (data && data.totalCooks > 0)) && (
+        <div className="basis-full">
+          {formOpen && (
+            <div className="flex gap-2 mt-1">
+              <input
+                ref={inputRef}
+                type="text"
+                value={note}
+                onChange={(e) => setNote(e.target.value)}
+                onKeyDown={handleKeyDown}
+                placeholder="How did it go? (optional)"
+                className="flex-1 border border-gray-300 px-3 py-2 font-serif text-sm text-black placeholder:text-gray-400 focus:outline-none focus:border-black transition-colors"
+              />
+              <button
+                onClick={handleLog}
+                disabled={saving}
+                className="bg-black text-white font-sans text-xs font-semibold uppercase tracking-wider px-4 py-2 hover:bg-gray-900 transition-colors disabled:opacity-50"
+              >
+                {saving ? "..." : "Log"}
+              </button>
+            </div>
+          )}
 
-      {/* Cook count */}
-      {data && data.totalCooks > 0 && (
-        <div className="mt-3">
-          <button
-            onClick={() => setLogExpanded(!logExpanded)}
-            className="font-sans text-xs text-gray-500 hover:text-black transition-colors flex items-center gap-1"
-          >
-            Made {data.totalCooks} {data.totalCooks === 1 ? "time" : "times"}
-            {data.lastCookedAt && <> · Last made {formatDate(data.lastCookedAt)}</>}
-            {logExpanded ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
-          </button>
+          {data && data.totalCooks > 0 && (
+            <div className={formOpen ? "mt-3" : "mt-1"}>
+              <button
+                onClick={() => setLogExpanded(!logExpanded)}
+                className="font-sans text-xs text-gray-500 hover:text-black transition-colors flex items-center gap-1"
+              >
+                Made {data.totalCooks} {data.totalCooks === 1 ? "time" : "times"}
+                {data.lastCookedAt && <> · Last made {formatDate(data.lastCookedAt)}</>}
+                {logExpanded ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
+              </button>
 
-          {/* Expanded log */}
-          {logExpanded && (
-            <div className="mt-2 space-y-1.5">
-              {data.entries.map((entry) => (
-                <div key={entry.id} className="font-sans text-xs text-gray-500">
-                  <span className="font-semibold text-gray-600">{formatDate(entry.cookedAt)}</span>
-                  {entry.note && <span className="ml-2 font-serif italic">{entry.note}</span>}
+              {logExpanded && (
+                <div className="mt-2 space-y-1.5">
+                  {data.entries.map((entry) => (
+                    <div key={entry.id} className="font-sans text-xs text-gray-500">
+                      <span className="font-semibold text-gray-600">{formatDate(entry.cookedAt)}</span>
+                      {entry.note && <span className="ml-2 font-serif italic">{entry.note}</span>}
+                    </div>
+                  ))}
                 </div>
-              ))}
+              )}
             </div>
           )}
         </div>
       )}
-    </div>
+    </>
   );
 }
