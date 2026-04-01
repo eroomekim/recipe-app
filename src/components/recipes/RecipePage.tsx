@@ -9,7 +9,8 @@ import Divider from "@/components/ui/Divider";
 import ImageLightbox from "./ImageLightbox";
 import NutritionCard from "./NutritionCard";
 import SimilarRecipes from "./SimilarRecipes";
-import { X, ExternalLink, CookingPot, Minus, Plus, Square, CheckSquare, ShoppingCart, Check } from "lucide-react";
+import { X, ExternalLink, CookingPot, Minus, Plus, Square, CheckSquare, ShoppingCart, Check, Pencil } from "lucide-react";
+import Link from "next/link";
 import CookTimeAdjuster from "./CookTimeAdjuster";
 import CookLogButton from "./CookLogButton";
 import { scaleIngredient } from "@/lib/ingredient-scaler";
@@ -125,15 +126,25 @@ export default function RecipePage({
     </h1>
   );
 
-  const sourceBlock = recipe.sourceUrl && (
-    <a
-      href={recipe.sourceUrl}
-      target="_blank"
-      rel="noopener noreferrer"
-      className="font-sans text-xs text-gray-500 hover:text-black transition-colors inline-flex items-center gap-1 mb-4"
-    >
-      View Original <ExternalLink className="w-3 h-3" />
-    </a>
+  const linksBlock = (
+    <div className="flex items-center gap-4 mb-4 mt-3">
+      {recipe.sourceUrl && (
+        <a
+          href={recipe.sourceUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="font-sans text-xs text-gray-500 hover:text-black transition-colors inline-flex items-center gap-1"
+        >
+          View Original <ExternalLink className="w-3 h-3" />
+        </a>
+      )}
+      <Link
+        href={`/recipes/${recipe.id}/edit`}
+        className="font-sans text-xs text-gray-500 hover:text-black transition-colors inline-flex items-center gap-1"
+      >
+        Edit <Pencil className="w-3 h-3" />
+      </Link>
+    </div>
   );
 
   const statsBlock = (recipe.cookTime || recipe.servings) && (
@@ -407,7 +418,7 @@ export default function RecipePage({
         <div className="flex flex-col justify-center px-5 py-6 md:py-8">
           {rubricBlock}
           {titleBlock}
-          {sourceBlock}
+          {linksBlock}
 
           <PersonalNotes
             recipeId={recipe.id}
