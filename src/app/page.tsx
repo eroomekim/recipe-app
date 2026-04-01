@@ -21,7 +21,7 @@ export default async function Home() {
       </p>
       <div className="flex gap-4 mt-8">
         <Link
-          href="/signup"
+          href="/register"
           className="bg-black text-white font-sans text-base font-semibold px-8 py-3 hover:bg-gray-900 transition-colors"
         >
           Register

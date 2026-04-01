@@ -39,11 +39,11 @@ describe("LoginForm", () => {
     expect(screen.getByRole("button", { name: /sign in with google/i })).toBeInTheDocument();
   });
 
-  it("renders link to sign up page", () => {
+  it("renders link to register page", () => {
     render(<LoginForm />);
 
-    const link = screen.getByRole("link", { name: /sign up/i });
-    expect(link).toHaveAttribute("href", "/signup");
+    const link = screen.getByRole("link", { name: /register/i });
+    expect(link).toHaveAttribute("href", "/register");
   });
 
   it("submits email and password and redirects on success", async () => {

@@ -113,8 +113,8 @@ export default function LoginForm() {
 
       <p className="mt-6 text-center font-sans text-sm text-gray-600">
         Don&apos;t have an account?{" "}
-        <Link href="/signup" className="text-black underline">
-          Sign up
+        <Link href="/register" className="text-black underline">
+          Register
         </Link>
       </p>
     </div>
