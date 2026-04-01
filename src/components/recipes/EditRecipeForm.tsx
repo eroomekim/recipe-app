@@ -398,7 +398,6 @@ export default function EditRecipeForm({ recipeId, initialData }: EditRecipeForm
           >
             Cancel
           </Button>
-          <div className="flex-1" />
           <button
             onClick={() => {
               if (confirm("Are you sure you want to delete this recipe?")) {
