@@ -66,6 +66,7 @@ model Recipe {
   substitutions Substitution[]
   collections   RecipeCollection[]
   groceryItems  GroceryItem[]
+  cookLogs      CookLog[]
 
   @@index([userId])
   @@index([createdAt])
@@ -194,6 +195,19 @@ model RecipeDeletion {
   deletedAt DateTime @default(now())
 
   @@index([userId, deletedAt])
+}
+
+model CookLog {
+  id        String   @id @default(cuid())
+  recipeId  String
+  userId    String
+  note      String?
+  cookedAt  DateTime @default(now())
+
+  recipe Recipe @relation(fields: [recipeId], references: [id], onDelete: Cascade)
+
+  @@index([recipeId])
+  @@index([userId])
 }
 
 enum TagType {

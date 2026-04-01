@@ -47,9 +47,9 @@ export default function PersonalNotes({
   const showEmpty = !notes && !adaptations && !editing;
 
   return (
-    <div className="my-5">
+    <div className="my-6">
       {editing === "notes" ? (
-        <div className="pl-5 border-l-2 border-gray-200">
+        <div>
           <label className="block font-sans text-xs font-semibold uppercase tracking-wider text-gray-500 mb-2">
             Our Story
           </label>
@@ -59,7 +59,7 @@ export default function PersonalNotes({
             onChange={(e) => setNotes(e.target.value)}
             rows={3}
             placeholder="What does this recipe mean to you?"
-            className="w-full border border-gray-300 px-3 py-2 font-serif text-base italic text-gray-600 placeholder:text-gray-400 focus:outline-none focus:border-black transition-colors resize-y"
+            className="w-full border border-gray-300 px-3 py-2 font-serif text-lg italic text-gray-600 placeholder:text-gray-400 focus:outline-none focus:border-black transition-colors resize-y"
           />
           <label className="block font-sans text-xs font-semibold uppercase tracking-wider text-gray-500 mb-2 mt-4">
             My Adaptations
@@ -95,11 +95,11 @@ export default function PersonalNotes({
         <>
           {(notes || adaptations) && (
             <div
-              className="pl-5 border-l-2 border-gray-200 cursor-pointer group"
+              className="cursor-pointer group"
               onClick={() => setEditing("notes")}
             >
               {notes && (
-                <p className="font-serif text-base italic leading-relaxed text-gray-600">
+                <p className="font-serif text-lg italic leading-relaxed text-gray-600">
                   {notes}
                 </p>
               )}
@@ -120,9 +120,9 @@ export default function PersonalNotes({
           {showEmpty && (
             <button
               onClick={() => setEditing("notes")}
-              className="pl-5 border-l-2 border-gray-200 block w-full text-left"
+              className="block w-full text-left"
             >
-              <p className="font-serif text-base italic text-gray-400">
+              <p className="font-serif text-lg italic text-gray-400">
                 Add your story...
               </p>
             </button>
