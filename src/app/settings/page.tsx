@@ -6,6 +6,7 @@ import { Minus, Plus } from "lucide-react";
 import Link from "next/link";
 import type { UserSettingsData } from "@/types";
 import { apiUrl } from "@/lib/api";
+import { applyThemeImmediate } from "@/components/ThemeProvider";
 
 interface ExtractionUsage {
   dailyLimit: number;
@@ -61,7 +62,7 @@ export default function SettingsPage() {
             ] as const).map(({ key, label }) => (
               <button
                 key={key}
-                onClick={() => update({ theme: key })}
+                onClick={() => { update({ theme: key }); applyThemeImmediate(key); }}
                 className={`px-4 py-2 font-sans text-xs font-semibold uppercase tracking-wider transition-colors ${
                   settings.theme === key
                     ? "bg-black text-white"
