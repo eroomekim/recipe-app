@@ -181,7 +181,7 @@ export default function EditRecipeForm({ recipeId, initialData }: EditRecipeForm
         {/* Images */}
         <div>
           <label className="block font-sans text-xs font-semibold uppercase tracking-wider text-gray-600 mb-2">
-            Images
+            Images{images.length > 0 && <span className="text-gray-400 ml-1">({images.length})</span>}
           </label>
           {images.length > 0 && (<>
             <div className="flex gap-3 overflow-x-auto pb-3">
