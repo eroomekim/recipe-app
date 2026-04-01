@@ -60,9 +60,6 @@ export default function ImportForm() {
   const [extracting, setExtracting] = useState(false);
   const [extractError, setExtractError] = useState<string | null>(null);
 
-  // Import mode
-  const [activeTab, setActiveTab] = useState<"url" | "image">("url");
-
   // Image upload state
   const [uploadedFiles, setUploadedFiles] = useState<File[]>([]);
   const [uploadPhase, setUploadPhase] = useState<"idle" | "uploading" | "extracting">("idle");
@@ -287,7 +284,7 @@ export default function ImportForm() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           title,
-          sourceUrl: activeTab === "url" ? url : undefined,
+          sourceUrl: url.trim() || undefined,
           cookTime: cookTime ? parseInt(cookTime, 10) : undefined,
           images,
           ingredients: fromHtml(ingredients),
@@ -324,9 +321,10 @@ export default function ImportForm() {
     }
   }
 
-  // Step 1: URL or Image Input
+  // Step 1: URL and Image Input (both visible)
   if (!extracted) {
     const isImageExtracting = uploadPhase !== "idle";
+    const isBusy = extracting || polling || isImageExtracting;
 
     return (
       <div>
@@ -334,157 +332,135 @@ export default function ImportForm() {
           Import a Recipe
         </h1>
 
-        {/* Tab switcher */}
-        <div className="flex border-b border-gray-300 mb-6">
-          <button
-            onClick={() => setActiveTab("url")}
-            className={`flex-1 py-3 font-sans text-base font-bold uppercase tracking-normal transition-colors ${
-              activeTab === "url"
-                ? "text-black border-b-2 border-black"
-                : "text-gray-600 hover:text-black"
-            }`}
-          >
-            Paste URL
-          </button>
-          <button
-            onClick={() => setActiveTab("image")}
-            className={`flex-1 py-3 font-sans text-base font-bold uppercase tracking-normal transition-colors ${
-              activeTab === "image"
-                ? "text-black border-b-2 border-black"
-                : "text-gray-600 hover:text-black"
-            }`}
-          >
-            Upload File
-          </button>
+        {/* URL input section */}
+        <form onSubmit={handleExtract} className="space-y-4">
+          <p className="font-serif text-lg italic text-gray-600 text-center mb-2">
+            Paste a link from your favorite food blog or social platform.
+          </p>
+          <Input
+            type="url"
+            value={url}
+            onChange={(e) => setUrl(e.target.value)}
+            placeholder="Paste a recipe URL..."
+            required={uploadedFiles.length === 0}
+            disabled={isBusy}
+          />
+
+          <p className="font-sans text-xs text-gray-500 text-center">
+            Supports food blogs, YouTube, Instagram, Pinterest, Facebook, and X/Twitter
+          </p>
+
+          <Button type="submit" loading={extracting} disabled={!url.trim() || isBusy} className="w-full">
+            {extracting ? "Extracting recipe..." : "Extract from URL"}
+          </Button>
+
+          {extracting && (
+            <div className="flex items-center justify-center gap-2 text-gray-600 font-sans text-sm">
+              <Spinner />
+              <span>This may take a moment...</span>
+            </div>
+          )}
+
+          {polling && (
+            <div className="space-y-4 text-center">
+              <Spinner />
+              <p className="font-serif text-lg text-gray-600">
+                {extractionStage === "fetching" && "Fetching page..."}
+                {extractionStage === "downloading" && "Downloading video..."}
+                {extractionStage === "transcribing" && "Transcribing video... (this may take a moment)"}
+                {extractionStage === "extracting" && "Extracting recipe from content..."}
+                {(!extractionStage || extractionStage === "detecting") && "Starting extraction..."}
+              </p>
+              <button
+                onClick={() => { setPolling(false); setJobId(null); }}
+                className="font-sans text-xs text-gray-500 hover:text-black transition-colors"
+              >
+                Cancel
+              </button>
+            </div>
+          )}
+        </form>
+
+        {/* Divider */}
+        <div className="flex items-center gap-4 my-8">
+          <div className="flex-1 border-t border-gray-300" />
+          <span className="font-sans text-xs text-gray-500 uppercase tracking-wider">or</span>
+          <div className="flex-1 border-t border-gray-300" />
         </div>
 
-        {activeTab === "url" ? (
-          /* URL tab — existing form */
-          <form onSubmit={handleExtract} className="space-y-4">
-            <p className="font-serif text-lg italic text-gray-600 text-center mb-2">
-              Paste a link from your favorite food blog or social platform and we'll extract the recipe for you.
+        {/* Image upload section */}
+        <form onSubmit={handleImageExtract} className="space-y-4">
+          <p className="font-serif text-lg italic text-gray-600 text-center mb-2">
+            Snap a photo of a cookbook page, screenshot a recipe, or upload a PDF.
+          </p>
+
+          {/* Dropzone */}
+          <div
+            onDragOver={(e) => e.preventDefault()}
+            onDrop={handleFileDrop}
+            className={`border border-dashed border-gray-300 hover:border-black hover:bg-gray-50 transition-colors p-8 text-center cursor-pointer ${isBusy ? "opacity-50 pointer-events-none" : ""}`}
+            onClick={() => document.getElementById("image-file-input")?.click()}
+          >
+            <Upload className="w-8 h-8 mx-auto mb-3 text-gray-500" />
+            <p className="font-sans text-sm text-gray-600">
+              Drag images here or tap to browse
             </p>
-            <Input
-              type="url"
-              value={url}
-              onChange={(e) => setUrl(e.target.value)}
-              placeholder="Paste a recipe URL..."
-              required
+            <p className="font-sans text-xs text-gray-500 mt-1">
+              Up to 5 files, 20MB each
+            </p>
+            <p className="font-sans text-xs text-gray-500 mt-1">
+              Supports JPEG, PNG, WebP, HEIC, and PDF
+            </p>
+            <input
+              id="image-file-input"
+              type="file"
+              accept="image/jpeg,image/png,image/webp,image/heic,image/heif,application/pdf"
+              multiple
+              onChange={handleFileSelect}
+              className="hidden"
             />
+          </div>
 
-            <p className="font-sans text-xs text-gray-500 text-center">
-              Supports food blogs, YouTube, Instagram, Pinterest, Facebook, and X/Twitter
-            </p>
-
-            {extractError && (
-              <p className="font-sans text-sm text-red">{extractError}</p>
-            )}
-
-            <Button type="submit" loading={extracting} className="w-full">
-              {extracting ? "Extracting recipe..." : "Extract Recipe"}
-            </Button>
-
-            {extracting && (
-              <div className="flex items-center justify-center gap-2 text-gray-600 font-sans text-sm">
-                <Spinner />
-                <span>This may take a moment...</span>
-              </div>
-            )}
-
-            {polling && (
-              <div className="space-y-4 text-center">
-                <Spinner />
-                <p className="font-serif text-lg text-gray-600">
-                  {extractionStage === "fetching" && "Fetching page..."}
-                  {extractionStage === "downloading" && "Downloading video..."}
-                  {extractionStage === "transcribing" && "Transcribing video... (this may take a moment)"}
-                  {extractionStage === "extracting" && "Extracting recipe from content..."}
-                  {(!extractionStage || extractionStage === "detecting") && "Starting extraction..."}
-                </p>
-                <button
-                  onClick={() => { setPolling(false); setJobId(null); }}
-                  className="font-sans text-xs text-gray-500 hover:text-black transition-colors"
-                >
-                  Cancel
-                </button>
-              </div>
-            )}
-          </form>
-        ) : (
-          /* Image upload tab */
-          <form onSubmit={handleImageExtract} className="space-y-4">
-            <p className="font-serif text-lg italic text-gray-600 text-center mb-2">
-              Snap a photo of a cookbook page, screenshot a recipe, or upload a PDF — we'll do the rest.
-            </p>
-            {/* Dropzone */}
-            <div
-              onDragOver={(e) => e.preventDefault()}
-              onDrop={handleFileDrop}
-              className="border border-dashed border-gray-300 hover:border-black hover:bg-gray-50 transition-colors p-8 text-center cursor-pointer"
-              onClick={() => document.getElementById("image-file-input")?.click()}
-            >
-              <Upload className="w-8 h-8 mx-auto mb-3 text-gray-500" />
-              <p className="font-sans text-sm text-gray-600">
-                Drag images here or tap to browse
-              </p>
-              <p className="font-sans text-xs text-gray-500 mt-1">
-                Up to 5 files, 20MB each
-              </p>
-              <p className="font-sans text-xs text-gray-500 mt-1">
-                Supports JPEG, PNG, WebP, HEIC, and PDF
-              </p>
-              <input
-                id="image-file-input"
-                type="file"
-                accept="image/jpeg,image/png,image/webp,image/heic,image/heif,application/pdf"
-                multiple
-                onChange={handleFileSelect}
-                className="hidden"
-              />
-            </div>
-
-            {/* Thumbnail strip */}
-            {uploadedFiles.length > 0 && (
-              <div className="flex gap-2 overflow-x-auto pb-2">
-                {uploadedFiles.map((file, i) => (
-                  <div key={`${file.name}-${i}`} className="relative shrink-0">
-                    <div className="w-20 h-20 bg-gray-50 flex flex-col items-center justify-center">
-                      <Upload className="w-5 h-5 text-gray-500 mb-1" />
-                      <span className="font-sans text-[10px] text-gray-600 uppercase truncate max-w-[72px] px-1">
-                        {file.type === "application/pdf" ? "PDF" : file.name.split(".").pop()}
-                      </span>
-                    </div>
-                    <button
-                      type="button"
-                      onClick={() => removeUploadedFile(i)}
-                      className="absolute -top-2 -right-2 w-5 h-5 bg-black text-white flex items-center justify-center"
-                      aria-label="Remove file"
-                    >
-                      <X className="w-3 h-3" />
-                    </button>
+          {/* Thumbnail strip */}
+          {uploadedFiles.length > 0 && (
+            <div className="flex gap-2 overflow-x-auto pb-2">
+              {uploadedFiles.map((file, i) => (
+                <div key={`${file.name}-${i}`} className="relative shrink-0">
+                  <div className="w-20 h-20 bg-gray-50 flex flex-col items-center justify-center">
+                    <Upload className="w-5 h-5 text-gray-500 mb-1" />
+                    <span className="font-sans text-[10px] text-gray-600 uppercase truncate max-w-[72px] px-1">
+                      {file.type === "application/pdf" ? "PDF" : file.name.split(".").pop()}
+                    </span>
                   </div>
-                ))}
-              </div>
-            )}
+                  <button
+                    type="button"
+                    onClick={() => removeUploadedFile(i)}
+                    className="absolute -top-2 -right-2 w-5 h-5 bg-black text-white flex items-center justify-center"
+                    aria-label="Remove file"
+                  >
+                    <X className="w-3 h-3" />
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
 
-            {extractError && (
-              <p className="font-sans text-sm text-red">{extractError}</p>
-            )}
+          <Button
+            type="submit"
+            loading={isImageExtracting}
+            disabled={uploadedFiles.length === 0 || isBusy}
+            className="w-full"
+          >
+            {uploadPhase === "uploading"
+              ? "Uploading images..."
+              : uploadPhase === "extracting"
+              ? "Extracting recipe from image..."
+              : "Extract from Image"}
+          </Button>
+        </form>
 
-            <Button
-              type="submit"
-              loading={isImageExtracting}
-              disabled={uploadedFiles.length === 0}
-              className="w-full"
-            >
-              {uploadPhase === "uploading"
-                ? "Uploading images..."
-                : uploadPhase === "extracting"
-                ? "Extracting recipe from image..."
-                : "Extract Recipe"}
-            </Button>
-
-          </form>
+        {extractError && (
+          <p className="font-sans text-sm text-red mt-4">{extractError}</p>
         )}
       </div>
     );
