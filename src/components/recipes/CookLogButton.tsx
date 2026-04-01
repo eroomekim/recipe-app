@@ -92,7 +92,7 @@ export default function CookLogButton({ recipeId }: CookLogButtonProps) {
         className="flex items-center gap-2 px-4 py-2 border border-black text-black font-sans text-xs font-semibold uppercase tracking-wider hover:bg-black hover:text-white transition-colors"
       >
         <ChefHat className="w-4 h-4" />
-        I Made This
+        Made It
       </button>
 
       {/* Form + log — forces new row via basis-full */}
