@@ -1,22 +1,23 @@
 import { PrismaClient } from "@prisma/client";
 import { PrismaPg } from "@prisma/adapter-pg";
+import pg from "pg";
 
 const globalForPrisma = globalThis as unknown as {
   prisma: PrismaClient | undefined;
 };
 
 function createPrismaClient() {
-  // Strip sslmode from URL — we handle SSL via the ssl config object
-  const rawUrl = process.env.DATABASE_URL ?? "";
-  const connectionString = rawUrl.replace(/[?&]sslmode=[^&]*/g, "").replace(/\?$/, "");
+  const connectionString = process.env.DATABASE_URL;
 
-  const adapter = new PrismaPg({
+  const pool = new pg.Pool({
     connectionString,
-    ssl: process.env.NODE_ENV === "production"
-      ? { rejectUnauthorized: false }
-      : false,
     max: 5,
+    ssl: {
+      rejectUnauthorized: false,
+    },
   });
+
+  const adapter = new PrismaPg(pool);
   return new PrismaClient({ adapter });
 }
 
