@@ -728,10 +728,10 @@ export default function ImportForm() {
         )}
 
         <div className="flex gap-4 pt-4">
-          <Button onClick={handleSave} loading={saving} className="flex-1">
-            {saving ? "Saving..." : "Save to Recipe Book"}
+          <Button onClick={handleSave} loading={saving}>
+            {saving ? "Saving..." : "Save Recipe"}
           </Button>
-          <Button variant="secondary" onClick={handleBack} className="flex-1">
+          <Button variant="secondary" onClick={handleBack}>
             Back
           </Button>
         </div>
