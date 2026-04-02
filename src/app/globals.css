@@ -113,6 +113,30 @@
   }
 }
 
+@keyframes cardFadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-card-in {
+    animation: none !important;
+    opacity: 1 !important;
+  }
+}
+
+.animate-card-in {
+  opacity: 0;
+  animation: cardFadeUp 500ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  animation-delay: var(--stagger, 0ms);
+}
+
 /* Rich text content — restores default HTML styling stripped by Tailwind preflight */
 .prose-content ul {
   list-style-type: disc;

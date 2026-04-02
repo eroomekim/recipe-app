@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import Button from "@/components/ui/Button";
 import Input from "@/components/ui/Input";
@@ -8,7 +8,7 @@ import TagSelector from "@/components/ui/TagSelector";
 import Spinner from "@/components/ui/Spinner";
 import Divider from "@/components/ui/Divider";
 import RichTextEditor from "@/components/ui/RichTextEditor";
-import { X, Upload } from "lucide-react";
+import { X, Upload, GripVertical } from "lucide-react";
 import type { ExtractedRecipe } from "@/types";
 import { apiUrl } from "@/lib/api";
 
@@ -75,6 +75,9 @@ export default function ImportForm() {
   const [cuisines, setCuisines] = useState<string[]>([]);
   const [dietary, setDietary] = useState<string[]>([]);
   const [instructionImages, setInstructionImages] = useState<Map<number, string>>(new Map());
+  const [newImageUrl, setNewImageUrl] = useState("");
+  const dragItem = useRef<number | null>(null);
+  const dragOverItem = useRef<number | null>(null);
   const [saving, setSaving] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
   const [servings, setServings] = useState("");
@@ -245,6 +248,28 @@ export default function ImportForm() {
 
   function removeImage(index: number) {
     setImages(images.filter((_, i) => i !== index));
+  }
+
+  function handleImageDragStart(index: number) {
+    dragItem.current = index;
+  }
+
+  function handleImageDragOver(e: React.DragEvent, index: number) {
+    e.preventDefault();
+    dragOverItem.current = index;
+  }
+
+  function handleImageDrop() {
+    if (dragItem.current === null || dragOverItem.current === null) return;
+    if (dragItem.current === dragOverItem.current) return;
+
+    const reordered = [...images];
+    const [dragged] = reordered.splice(dragItem.current, 1);
+    reordered.splice(dragOverItem.current, 0, dragged);
+    setImages(reordered);
+
+    dragItem.current = null;
+    dragOverItem.current = null;
   }
 
   function handleFileDrop(e: React.DragEvent) {
@@ -480,26 +505,72 @@ export default function ImportForm() {
       )}
 
       {/* Image thumbnails */}
-      {images.length > 0 && (
-        <div className="flex gap-2 overflow-x-auto pb-4 mb-6">
-          {images.map((src, i) => (
-            <div key={i} className="relative shrink-0">
-              <img
-                src={src}
-                alt={`Recipe image ${i + 1}`}
-                className="w-24 h-24 object-cover"
-              />
-              <button
-                onClick={() => removeImage(i)}
-                className="absolute -top-2 -right-2 w-6 h-6 bg-black text-white flex items-center justify-center"
-                aria-label="Remove image"
+      <div>
+        <label className="block font-sans text-xs font-semibold uppercase tracking-wider text-gray-600 mb-2">
+          Images{images.length > 0 && <span className="text-gray-400 ml-1">({images.length})</span>}
+        </label>
+        {images.length > 0 && (<>
+          <div className="flex gap-3 overflow-x-auto pb-3">
+            {images.map((src, i) => (
+              <div
+                key={`${src}-${i}`}
+                draggable
+                onDragStart={() => handleImageDragStart(i)}
+                onDragOver={(e) => handleImageDragOver(e, i)}
+                onDrop={handleImageDrop}
+                className="relative shrink-0 group cursor-grab active:cursor-grabbing"
               >
-                <X className="w-3 h-3" />
-              </button>
-            </div>
-          ))}
+                {/* Drag handle */}
+                <div className="absolute top-1 left-1 z-10 bg-black/50 text-white rounded p-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <GripVertical className="w-3 h-3" />
+                </div>
+                <img
+                  src={src}
+                  alt={`Recipe image ${i + 1}`}
+                  className="w-32 h-32 rounded-lg object-cover"
+                  draggable={false}
+                />
+                <button
+                  onClick={() => removeImage(i)}
+                  className="absolute top-1 right-1 w-6 h-6 bg-black/70 hover:bg-black text-white flex items-center justify-center rounded-full z-10 transition-colors"
+                  aria-label="Remove image"
+                >
+                  <X className="w-3 h-3" />
+                </button>
+                {/* Position indicator */}
+                <span className="absolute bottom-1 right-1 bg-black/50 text-white font-sans text-xs px-1.5 py-0.5 rounded opacity-0 group-hover:opacity-100 transition-opacity">
+                  {i + 1}
+                </span>
+              </div>
+            ))}
+          </div>
+          <p className="font-sans text-xs text-gray-500 mt-2 mb-4">Drag images to reorder, or click the X to remove.</p>
+        </>)}
+        <div className="flex gap-2">
+          <input
+            type="text"
+            value={newImageUrl}
+            onChange={(e) => setNewImageUrl(e.target.value)}
+            placeholder="Paste image URLs (comma or newline separated)..."
+            className="flex-1 border border-gray-300 px-3 py-2 font-sans text-sm text-black placeholder:text-gray-500 focus:outline-none focus:border-black transition-colors"
+          />
+          <button
+            onClick={() => {
+              const urls = newImageUrl
+                .split(/[,\n]+/)
+                .map((u) => u.trim())
+                .filter((u) => u.length > 0);
+              if (urls.length > 0) {
+                setImages([...images, ...urls]);
+                setNewImageUrl("");
+              }
+            }}
+            className="font-sans text-xs font-semibold uppercase tracking-wider bg-gray-50 text-gray-600 px-4 py-2 hover:bg-gray-200 transition-colors"
+          >
+            Add
+          </button>
         </div>
-      )}
+      </div>
 
       <Divider className="my-6" />
 
