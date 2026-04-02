@@ -6,11 +6,16 @@ const globalForPrisma = globalThis as unknown as {
 };
 
 function createPrismaClient() {
-  const connectionString = process.env.DATABASE_URL;
+  // Strip sslmode from URL — we handle SSL via the ssl config object
+  const rawUrl = process.env.DATABASE_URL ?? "";
+  const connectionString = rawUrl.replace(/[?&]sslmode=[^&]*/g, "").replace(/\?$/, "");
+
   const adapter = new PrismaPg({
     connectionString,
-    ssl: { rejectUnauthorized: false },
-    max: 5, // limit pool size for serverless
+    ssl: process.env.NODE_ENV === "production"
+      ? { rejectUnauthorized: false }
+      : false,
+    max: 5,
   });
   return new PrismaClient({ adapter });
 }
