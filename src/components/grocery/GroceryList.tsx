@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Plus, Trash2, CheckCircle, Circle, ShoppingCart } from "lucide-react";
+import { Plus, Trash2, Square, CheckSquare, ShoppingCart } from "lucide-react";
 import { apiUrl } from "@/lib/api";
 
 interface GroceryItem {
@@ -202,9 +202,9 @@ function GroceryRow({
         className="shrink-0 text-gray-400 hover:text-black transition-colors"
       >
         {item.checked ? (
-          <CheckCircle className="w-5 h-5 text-gray-400" />
+          <CheckSquare className="w-5 h-5 text-black" />
         ) : (
-          <Circle className="w-5 h-5" />
+          <Square className="w-5 h-5 text-gray-300" />
         )}
       </button>
       <span
