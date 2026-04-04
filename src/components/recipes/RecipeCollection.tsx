@@ -18,6 +18,8 @@ export default function RecipeCollection({ recipes }: RecipeCollectionProps) {
   const [refreshing, setRefreshing] = useState(false);
   const pullStartY = useRef<number | null>(null);
 
+  const handleSearchFilter = useCallback((filtered: RecipeCardData[] | null) => setSearchFiltered(filtered), []);
+
   const handlePullStart = useCallback((e: React.TouchEvent) => {
     if (window.scrollY === 0) {
       pullStartY.current = e.touches[0].clientY;
@@ -52,7 +54,7 @@ export default function RecipeCollection({ recipes }: RecipeCollectionProps) {
       <SeasonalShelf />
       <FilterBar
         recipes={collectionRecipes}
-        onFilter={(filtered) => setSearchFiltered(filtered)}
+        onFilter={handleSearchFilter}
       />
       <CollectionBar
         onFilter={(ids, label) => {
