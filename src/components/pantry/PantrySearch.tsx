@@ -100,8 +100,9 @@ export default function PantrySearch({ knownIngredients }: PantrySearchProps) {
           value={inputValue}
           onChange={(e) => setInputValue(e.target.value)}
           onKeyDown={handleKeyDown}
-          placeholder={selectedIngredients.length === 0 ? "Type an ingredient..." : "Add another..."}
-          className="w-full font-sans text-sm text-black placeholder:text-gray-500 focus:outline-none"
+          placeholder={selectedIngredients.length === 0 ? "Type an ingredient…" : "Add another…"}
+          aria-label="Search ingredients"
+          className="w-full font-sans text-sm text-black placeholder:text-gray-500 focus-visible:outline-none"
         />
         {/* Autocomplete suggestions */}
         {suggestions.length > 0 && (
@@ -168,6 +169,9 @@ export default function PantrySearch({ knownIngredients }: PantrySearchProps) {
                         <img
                           src={result.recipe.images[0]}
                           alt={result.recipe.title}
+                          width={128}
+                          height={128}
+                          loading="lazy"
                           className="w-full h-full object-cover group-hover:scale-[1.03] transition-transform duration-400"
                         />
                       )}
