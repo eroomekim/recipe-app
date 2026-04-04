@@ -80,7 +80,7 @@ export default function PantrySearch({ knownIngredients }: PantrySearchProps) {
   return (
     <div>
       {/* Input area */}
-      <div className="border border-gray-300 p-3 mb-4 focus-within:border-black transition-colors">
+      <div className="border border-gray-500 p-3 mb-4 focus-within:border-black transition-colors">
         <div className="flex flex-wrap gap-2 mb-2">
           {selectedIngredients.map((name) => (
             <span
@@ -122,7 +122,7 @@ export default function PantrySearch({ knownIngredients }: PantrySearchProps) {
       {/* Threshold slider + search button */}
       <div className="flex items-center gap-4 mb-8">
         <div className="flex-1">
-          <label className="font-sans text-xs text-gray-500 uppercase tracking-wider block mb-1">
+          <label className="font-sans text-xs text-gray-600 uppercase tracking-wider block mb-1">
             Min. coverage: {threshold}%
           </label>
           <input
@@ -148,12 +148,12 @@ export default function PantrySearch({ knownIngredients }: PantrySearchProps) {
       {/* Results */}
       {results !== null && (
         <div>
-          <h2 className="font-sans text-xs font-bold uppercase tracking-wider text-gray-500 mb-4">
+          <h2 className="font-sans text-xs font-bold uppercase tracking-wider text-gray-600 mb-4">
             {results.length} {results.length === 1 ? "Recipe" : "Recipes"} Found
           </h2>
 
           {results.length === 0 ? (
-            <p className="font-serif text-lg text-gray-500 italic py-8 text-center">
+            <p className="font-serif text-lg text-gray-600 italic py-8 text-center">
               No recipes match your ingredients at {threshold}% coverage.
               Try lowering the threshold or adding more ingredients.
             </p>
@@ -185,11 +185,11 @@ export default function PantrySearch({ knownIngredients }: PantrySearchProps) {
                       <span className="font-sans text-xs font-bold text-black">
                         {result.matchedCount}/{result.totalCount} ingredients
                       </span>
-                      <span className="font-sans text-xs text-gray-500">
+                      <span className="font-sans text-xs text-gray-600">
                         {result.coveragePercent}% match
                       </span>
                       {result.recipe.cookTime && (
-                        <span className="font-sans text-xs text-gray-500">
+                        <span className="font-sans text-xs text-gray-600">
                           {result.recipe.cookTime} min
                         </span>
                       )}
@@ -200,7 +200,7 @@ export default function PantrySearch({ knownIngredients }: PantrySearchProps) {
                       <div className="mt-2">
                         <button
                           onClick={() => toggleMissing(result.recipe.id)}
-                          className="font-sans text-xs text-gray-400 hover:text-black transition-colors flex items-center gap-1"
+                          className="font-sans text-xs text-gray-600 hover:text-black transition-colors flex items-center gap-1"
                         >
                           {expandedMissing.has(result.recipe.id) ? (
                             <ChevronUp className="w-3 h-3" />
@@ -212,7 +212,7 @@ export default function PantrySearch({ knownIngredients }: PantrySearchProps) {
                         {expandedMissing.has(result.recipe.id) && (
                           <ul className="mt-1 space-y-0.5">
                             {result.missingIngredients.map((name) => (
-                              <li key={name} className="font-serif text-sm text-gray-500">
+                              <li key={name} className="font-serif text-sm text-gray-600">
                                 {name}
                               </li>
                             ))}

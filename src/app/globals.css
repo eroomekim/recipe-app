@@ -232,6 +232,13 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
+/* Keyboard focus rings — visible to keyboard users, hidden for pointer users */
+button:focus-visible,
+[role="button"]:focus-visible {
+  outline: 2px solid #000000;
+  outline-offset: 2px;
+}
+
 /* Safe area padding for iOS notch/Dynamic Island */
 .safe-top {
   padding-top: env(safe-area-inset-top, 0px);

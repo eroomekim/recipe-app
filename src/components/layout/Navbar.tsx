@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useState, useRef, useEffect } from "react";
 import { createClient } from "@/lib/supabase/client";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import { Menu, Settings, HelpCircle, LogOut } from "lucide-react";
 import MobileMenu from "./MobileMenu";
 
@@ -17,6 +17,7 @@ export default function Navbar({ user }: NavbarProps) {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
+  const pathname = usePathname();
   const supabase = createClient();
 
   async function handleSignOut() {
@@ -58,18 +59,21 @@ export default function Navbar({ user }: NavbarProps) {
             <div className="hidden md:flex items-center gap-6">
               <Link
                 href="/recipes"
+                aria-current={pathname === "/recipes" ? "page" : undefined}
                 className="font-sans text-base font-bold uppercase tracking-normal text-gray-900 hover:text-black transition-colors"
               >
                 Recipes
               </Link>
               <Link
                 href="/grocery"
+                aria-current={pathname === "/grocery" ? "page" : undefined}
                 className="font-sans text-base font-bold uppercase tracking-normal text-gray-900 hover:text-black transition-colors"
               >
                 Groceries
               </Link>
               <Link
                 href="/pantry"
+                aria-current={pathname === "/pantry" ? "page" : undefined}
                 className="font-sans text-base font-bold uppercase tracking-normal text-gray-900 hover:text-black transition-colors"
               >
                 Pantry
@@ -90,6 +94,7 @@ export default function Navbar({ user }: NavbarProps) {
             <div className="flex items-center gap-5">
               <Link
                 href="/import"
+                aria-current={pathname === "/import" ? "page" : undefined}
                 className="hidden md:block font-sans text-base font-bold uppercase tracking-normal text-gray-900 hover:text-black transition-colors"
               >
                 Import
@@ -99,6 +104,7 @@ export default function Navbar({ user }: NavbarProps) {
                 onClick={() => setDropdownOpen(!dropdownOpen)}
                 className="w-8 h-8 bg-gray-900 text-white font-sans text-xs font-semibold flex items-center justify-center rounded-full hover:bg-black transition-colors"
                 aria-label="User menu"
+                aria-expanded={dropdownOpen}
               >
                 {initial}
               </button>
@@ -106,7 +112,7 @@ export default function Navbar({ user }: NavbarProps) {
               {dropdownOpen && (
                 <div className="absolute right-0 top-full mt-2 bg-white border border-gray-200 py-1 min-w-[180px] z-50">
                   <div className="px-4 py-2 border-b border-gray-200">
-                    <span className="font-sans text-xs text-gray-500 block truncate">
+                    <span className="font-sans text-xs text-gray-600 block truncate">
                       {user.email}
                     </span>
                   </div>

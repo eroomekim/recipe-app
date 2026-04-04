@@ -37,17 +37,17 @@ export default function CookTimeAdjuster({ cookTime }: CookTimeAdjusterProps) {
     <div className="relative inline-block" ref={popoverRef}>
       <button
         onClick={() => setPopoverOpen(!popoverOpen)}
-        className="flex items-center gap-1 font-sans text-xs text-gray-500 hover:text-black transition-colors"
+        className="flex items-center gap-1 font-sans text-xs text-gray-600 hover:text-black transition-colors"
       >
         → ~{adjustment.adjustedMinutes} min
-        <span className="text-gray-400">({adjustment.label})</span>
+        <span className="text-gray-600">({adjustment.label})</span>
         <ChevronDown className="w-3 h-3" />
       </button>
 
       {popoverOpen && (
-        <div className="absolute top-full left-0 mt-1 bg-white border border-gray-200 py-1 min-w-[180px] z-50 shadow-sm">
+        <div className="absolute top-full left-0 mt-1 bg-white border border-gray-200 py-1 min-w-[180px] z-50">
           <div className="px-3 py-1.5 border-b border-gray-200">
-            <span className="font-sans text-[10px] font-semibold uppercase tracking-wider text-gray-500">
+            <span className="font-sans text-[10px] font-semibold uppercase tracking-wider text-gray-600">
               Adjust for equipment
             </span>
           </div>
@@ -72,7 +72,7 @@ export default function CookTimeAdjuster({ cookTime }: CookTimeAdjusterProps) {
                 }`}
               >
                 {label}
-                {adj && <span className="text-gray-400 ml-1">~{adj.adjustedMinutes} min</span>}
+                {adj && <span className="text-gray-600 ml-1">~{adj.adjustedMinutes} min</span>}
               </button>
             );
           })}

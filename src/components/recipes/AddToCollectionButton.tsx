@@ -38,7 +38,7 @@ export default function AddToCollectionButton({ recipeId }: Props) {
         <span className="text-black">Save</span>
       </button>
       {open && (
-        <div className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 bg-white border border-gray-200 shadow-lg py-1 min-w-[160px] z-30 rounded-lg">
+        <div className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 bg-white border border-gray-200 py-1 min-w-[160px] z-30">
           {collections.map((c) => (
             <button
               key={c.id}
@@ -49,7 +49,7 @@ export default function AddToCollectionButton({ recipeId }: Props) {
             </button>
           ))}
           {collections.length === 0 && (
-            <p className="px-3 py-2 font-sans text-xs text-gray-400">No collections yet</p>
+            <p className="px-3 py-2 font-sans text-xs text-gray-600">No collections yet</p>
           )}
         </div>
       )}

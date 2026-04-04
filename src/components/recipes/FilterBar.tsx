@@ -185,17 +185,19 @@ export default function FilterBar({ recipes, onFilter }: FilterBarProps) {
       {/* Search + filter toggle */}
       <div className="flex gap-2">
         <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
+          <Search aria-hidden="true" className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
           <input
             type="text"
             value={search}
             onChange={(e) => handleSearch(e.target.value)}
             placeholder="Search recipes..."
-            className="w-full border border-gray-300 pl-10 pr-4 py-2.5 font-sans text-sm text-black placeholder:text-gray-500 focus:outline-none focus:border-black transition-colors"
+            aria-label="Search recipes"
+            className="w-full border border-gray-500 pl-10 pr-4 py-2.5 font-sans text-sm text-black placeholder:text-gray-500 focus:outline-none focus:border-black transition-colors"
           />
         </div>
         <button
           onClick={() => setFiltersOpen(!filtersOpen)}
+          aria-expanded={filtersOpen}
           className={`flex items-center gap-1.5 px-3 py-2.5 border font-sans text-xs font-semibold uppercase tracking-wider transition-colors ${
             filtersOpen || activeFilterCount > 0
               ? "border-black bg-black text-white"
@@ -265,7 +267,7 @@ export default function FilterBar({ recipes, onFilter }: FilterBarProps) {
           {/* Favorites + Meal types */}
           {availableTags.mealTypes.length > 0 && (
             <div>
-              <span className="font-sans text-[10px] font-semibold uppercase tracking-wider text-gray-500 block mb-2">Meal Type</span>
+              <span className="font-sans text-[10px] font-semibold uppercase tracking-wider text-gray-600 block mb-2">Meal Type</span>
               <div className="flex gap-2 flex-wrap items-center">
                 <Tag label="Favorites" active={showFavorites} onClick={handleFavorites} />
                 {availableTags.mealTypes.map((m) => (
@@ -278,7 +280,7 @@ export default function FilterBar({ recipes, onFilter }: FilterBarProps) {
           {/* Cuisines */}
           {availableTags.cuisines.length > 0 && (
             <div>
-              <span className="font-sans text-[10px] font-semibold uppercase tracking-wider text-gray-500 block mb-2">Cuisine</span>
+              <span className="font-sans text-[10px] font-semibold uppercase tracking-wider text-gray-600 block mb-2">Cuisine</span>
               <div className="flex gap-2 flex-wrap">
                 {availableTags.cuisines.map((c) => (
                   <Tag key={c} label={c} active={selectedCuisines.has(c)} onClick={() => toggle(selectedCuisines, setSelectedCuisines, c)} />
@@ -290,7 +292,7 @@ export default function FilterBar({ recipes, onFilter }: FilterBarProps) {
           {/* Dietary */}
           {availableTags.dietary.length > 0 && (
             <div>
-              <span className="font-sans text-[10px] font-semibold uppercase tracking-wider text-gray-500 block mb-2">Dietary</span>
+              <span className="font-sans text-[10px] font-semibold uppercase tracking-wider text-gray-600 block mb-2">Dietary</span>
               <div className="flex gap-2 flex-wrap">
                 {availableTags.dietary.map((d) => (
                   <Tag key={d} label={d} active={selectedDietary.has(d)} onClick={() => toggle(selectedDietary, setSelectedDietary, d)} />
@@ -301,7 +303,7 @@ export default function FilterBar({ recipes, onFilter }: FilterBarProps) {
 
           {/* Cook time */}
           <div>
-            <span className="font-sans text-[10px] font-semibold uppercase tracking-wider text-gray-500 block mb-2">Cook Time</span>
+            <span className="font-sans text-[10px] font-semibold uppercase tracking-wider text-gray-600 block mb-2">Cook Time</span>
             <div className="flex gap-2 flex-wrap">
               {[
                 { key: "under30", label: "Under 30 min" },
@@ -316,7 +318,7 @@ export default function FilterBar({ recipes, onFilter }: FilterBarProps) {
 
           {/* Nutrition */}
           <div>
-            <span className="font-sans text-[10px] font-semibold uppercase tracking-wider text-gray-500 block mb-2">Nutrition</span>
+            <span className="font-sans text-[10px] font-semibold uppercase tracking-wider text-gray-600 block mb-2">Nutrition</span>
             <div className="flex gap-2 flex-wrap">
               {[
                 { key: "under300", label: "Under 300 cal" },

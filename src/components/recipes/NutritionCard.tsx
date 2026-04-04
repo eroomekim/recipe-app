@@ -22,12 +22,12 @@ export default function NutritionCard({ nutrition }: NutritionCardProps) {
   return (
     <div>
       <div className="flex items-baseline gap-2 mb-4">
-        <h2 className="font-sans text-xs font-bold uppercase tracking-wider text-gray-500">
+        <h2 className="font-sans text-xs font-bold uppercase tracking-wider text-gray-600">
           Nutrition
         </h2>
-        <span className="font-sans text-xs text-gray-400">per serving</span>
+        <span className="font-sans text-xs text-gray-600">per serving</span>
         {nutrition.estimated && (
-          <span className="font-sans text-xs text-gray-400 italic">· estimated</span>
+          <span className="font-sans text-xs text-gray-600 italic">· estimated</span>
         )}
       </div>
 
@@ -94,13 +94,13 @@ export default function NutritionCard({ nutrition }: NutritionCardProps) {
             )}
             {nutrition.fiber !== null && (
               <div className="flex justify-between font-sans text-sm pl-4">
-                <span className="text-gray-500">Dietary Fiber</span>
+                <span className="text-gray-600">Dietary Fiber</span>
                 <span>{nutrition.fiber}g</span>
               </div>
             )}
             {nutrition.sugar !== null && (
               <div className="flex justify-between font-sans text-sm pl-4">
-                <span className="text-gray-500">Sugars</span>
+                <span className="text-gray-600">Sugars</span>
                 <span>{nutrition.sugar}g</span>
               </div>
             )}

@@ -30,7 +30,7 @@ export default function SeasonalShelf() {
 
   return (
     <div className="mb-8">
-      <h2 className="font-display text-sm font-normal text-red tracking-normal mb-3">
+      <h2 className="font-display text-sm font-normal text-red-dark tracking-normal mb-3">
         In Season — {monthName}
       </h2>
       <div className="flex gap-4 overflow-x-auto pb-3 -mx-4 px-4 scrollbar-hide">
@@ -53,7 +53,7 @@ export default function SeasonalShelf() {
               {recipe.title}
             </h3>
             {seasonalIngredients.length > 0 && (
-              <p className="font-sans text-xs text-gray-500 mt-1 truncate">
+              <p className="font-sans text-xs text-gray-600 mt-1 truncate">
                 {seasonalIngredients.slice(0, 3).join(", ")}
               </p>
             )}

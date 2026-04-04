@@ -371,7 +371,7 @@ export default function ImportForm() {
             disabled={isBusy}
           />
 
-          <p className="font-sans text-xs text-gray-500 text-center">
+          <p className="font-sans text-xs text-gray-600 text-center">
             Supports food blogs, YouTube, Instagram, Pinterest, Facebook, and X/Twitter
           </p>
 
@@ -398,7 +398,7 @@ export default function ImportForm() {
               </p>
               <button
                 onClick={() => { setPolling(false); setJobId(null); }}
-                className="font-sans text-xs text-gray-500 hover:text-black transition-colors"
+                className="font-sans text-xs text-gray-600 hover:text-black transition-colors"
               >
                 Cancel
               </button>
@@ -409,7 +409,7 @@ export default function ImportForm() {
         {/* Divider */}
         <div className="flex items-center gap-4 my-8">
           <div className="flex-1 border-t border-gray-300" />
-          <span className="font-sans text-xs text-gray-500 uppercase tracking-wider">or</span>
+          <span className="font-sans text-xs text-gray-600 uppercase tracking-wider">or</span>
           <div className="flex-1 border-t border-gray-300" />
         </div>
 
@@ -430,10 +430,10 @@ export default function ImportForm() {
             <p className="font-sans text-sm text-gray-600">
               Drag images here or tap to browse
             </p>
-            <p className="font-sans text-xs text-gray-500 mt-1">
+            <p className="font-sans text-xs text-gray-600 mt-1">
               Up to 5 files, 20MB each
             </p>
-            <p className="font-sans text-xs text-gray-500 mt-1">
+            <p className="font-sans text-xs text-gray-600 mt-1">
               Supports JPEG, PNG, WebP, HEIC, and PDF
             </p>
             <input
@@ -485,7 +485,7 @@ export default function ImportForm() {
         </form>
 
         {extractError && (
-          <p className="font-sans text-sm text-red mt-4">{extractError}</p>
+          <p className="font-sans text-sm text-red-dark mt-4">{extractError}</p>
         )}
       </div>
     );
@@ -499,7 +499,7 @@ export default function ImportForm() {
       </h1>
 
       {platformBadge && platformBadge !== "blog" && (
-        <p className="font-sans text-xs font-semibold uppercase tracking-wider text-gray-500 text-center mb-4">
+        <p className="font-sans text-xs font-semibold uppercase tracking-wider text-gray-600 text-center mb-4">
           Extracted from {platformBadge}
         </p>
       )}
@@ -507,7 +507,7 @@ export default function ImportForm() {
       {/* Image thumbnails */}
       <div>
         <label className="block font-sans text-xs font-semibold uppercase tracking-wider text-gray-600 mb-2">
-          Images{images.length > 0 && <span className="text-gray-400 ml-1">({images.length})</span>}
+          Images{images.length > 0 && <span className="text-gray-600 ml-1">({images.length})</span>}
         </label>
         {images.length > 0 && (<>
           <div className="flex gap-3 overflow-x-auto pb-3">
@@ -544,7 +544,7 @@ export default function ImportForm() {
               </div>
             ))}
           </div>
-          <p className="font-sans text-xs text-gray-500 mt-2 mb-4">Drag images to reorder, or click the X to remove.</p>
+          <p className="font-sans text-xs text-gray-600 mt-2 mb-4">Drag images to reorder, or click the X to remove.</p>
         </>)}
         <div className="flex gap-2">
           <input
@@ -724,7 +724,7 @@ export default function ImportForm() {
         />
 
         {saveError && (
-          <p className="font-sans text-sm text-red">{saveError}</p>
+          <p className="font-sans text-sm text-red-dark">{saveError}</p>
         )}
 
         <div className="flex gap-4 pt-4">

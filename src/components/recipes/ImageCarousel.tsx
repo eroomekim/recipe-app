@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useCallback } from "react";
+import Image from "next/image";
 
 interface ImageCarouselProps {
   images: string[];
@@ -28,28 +29,28 @@ export default function ImageCarousel({
 
   return (
     <div className={`relative overflow-hidden ${className}`}>
-      <img
+      <Image
         src={images[current]}
         alt={`${alt} - image ${current + 1}`}
-        className="w-full h-full object-cover"
+        fill
+        className="object-cover"
+        sizes="(max-width: 960px) 100vw, 680px"
       />
-
-      {overlay && (
-        <div className="absolute bottom-0 left-0 right-0 h-[60%] bg-gradient-to-t from-black/75 via-black/30 to-transparent" />
-      )}
 
       {images.length > 1 && (
         <div className="absolute bottom-4 left-0 right-0 flex justify-center gap-2">
-          {images.map((_, i) => (
-            <button
-              key={i}
-              onClick={() => goTo(i)}
-              className={`w-2.5 h-2.5 rounded-full transition-colors ${
-                i === current ? "bg-white" : "bg-white/40"
-              }`}
-              aria-label={`Go to image ${i + 1}`}
-            />
-          ))}
+          <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full ${overlay ? "bg-black/60" : ""}`}>
+            {images.map((_, i) => (
+              <button
+                key={i}
+                onClick={() => goTo(i)}
+                className={`w-2.5 h-2.5 rounded-full transition-colors ${
+                  i === current ? "bg-white" : "bg-white/40"
+                }`}
+                aria-label={`Go to image ${i + 1}`}
+              />
+            ))}
+          </div>
         </div>
       )}
 

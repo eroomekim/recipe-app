@@ -16,6 +16,7 @@ export default function GroceryList() {
   const [items, setItems] = useState<GroceryItem[]>([]);
   const [newItem, setNewItem] = useState("");
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     fetch(apiUrl("/api/grocery"))
@@ -27,43 +28,63 @@ export default function GroceryList() {
 
   async function addItem() {
     if (!newItem.trim()) return;
+    setError(null);
     const res = await fetch(apiUrl("/api/grocery"), {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ text: newItem.trim() }),
-    });
-    if (res.ok) {
+    }).catch(() => null);
+    if (res && res.ok) {
       const item = await res.json();
       setItems([item, ...items]);
       setNewItem("");
+    } else {
+      setError("Failed to update grocery list. Please try again.");
     }
   }
 
   async function toggleItem(id: string, checked: boolean) {
+    setError(null);
     setItems(items.map((i) => (i.id === id ? { ...i, checked } : i)));
-    await fetch(apiUrl("/api/grocery"), {
+    const res = await fetch(apiUrl("/api/grocery"), {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ id, checked }),
-    });
+    }).catch(() => null);
+    if (!res || !res.ok) {
+      setItems(items.map((i) => (i.id === id ? { ...i, checked: !checked } : i)));
+      setError("Failed to update grocery list. Please try again.");
+    }
   }
 
   async function deleteItem(id: string) {
+    setError(null);
+    const prev = items;
     setItems(items.filter((i) => i.id !== id));
-    await fetch(apiUrl("/api/grocery"), {
+    const res = await fetch(apiUrl("/api/grocery"), {
       method: "DELETE",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ id }),
-    });
+    }).catch(() => null);
+    if (!res || !res.ok) {
+      setItems(prev);
+      setError("Failed to update grocery list. Please try again.");
+    }
   }
 
   async function clearChecked() {
+    setError(null);
+    const prev = items;
     setItems(items.filter((i) => !i.checked));
-    await fetch(apiUrl("/api/grocery"), {
+    const res = await fetch(apiUrl("/api/grocery"), {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ clearChecked: true }),
-    });
+    }).catch(() => null);
+    if (!res || !res.ok) {
+      setItems(prev);
+      setError("Failed to update grocery list. Please try again.");
+    }
   }
 
   const unchecked = items.filter((i) => !i.checked);
@@ -93,14 +114,14 @@ export default function GroceryList() {
   return (
     <div>
       {/* Add item input */}
-      <div className="flex gap-2 mb-8">
+      <div className="flex gap-2 mb-2">
         <input
           type="text"
           value={newItem}
           onChange={(e) => setNewItem(e.target.value)}
           onKeyDown={(e) => e.key === "Enter" && addItem()}
           placeholder="Add an item..."
-          className="flex-1 border border-gray-300 px-4 py-2.5 font-serif text-base text-black placeholder:text-gray-500 focus:outline-none focus:border-black transition-colors"
+          className="flex-1 border border-gray-500 px-4 py-2.5 font-serif text-base text-black placeholder:text-gray-500 focus:outline-none focus:border-black transition-colors"
         />
         <button
           onClick={addItem}
@@ -110,13 +131,29 @@ export default function GroceryList() {
         </button>
       </div>
 
+      {error && (
+        <div className="flex items-center justify-between mb-6 px-3 py-2 border border-red">
+          <span className="font-sans text-xs text-red-dark">{error}</span>
+          <button
+            type="button"
+            onClick={() => setError(null)}
+            className="font-sans text-xs text-red-dark hover:text-black transition-colors ml-4"
+            aria-label="Dismiss error"
+          >
+            Dismiss
+          </button>
+        </div>
+      )}
+
+      {!error && <div className="mb-6" />}
+
       {items.length === 0 && (
         <div className="text-center py-16">
           <ShoppingCart className="w-10 h-10 text-gray-300 mx-auto mb-4" />
-          <p className="font-serif text-lg text-gray-500 italic">
+          <p className="font-serif text-lg text-gray-600 italic">
             Your grocery list is empty
           </p>
-          <p className="font-sans text-xs text-gray-400 mt-2">
+          <p className="font-sans text-xs text-gray-600 mt-2">
             Add items above or add ingredients from a recipe
           </p>
         </div>
@@ -140,7 +177,7 @@ export default function GroceryList() {
 
       {Array.from(grouped.entries()).map(([recipeTitle, groupItems]) => (
         <div key={recipeTitle} className="mb-6">
-          <h3 className="font-sans text-xs font-bold uppercase tracking-wider text-gray-500 mb-2">
+          <h3 className="font-sans text-xs font-bold uppercase tracking-wider text-gray-600 mb-2">
             {recipeTitle}
           </h3>
           <ul className="space-y-1">
@@ -160,12 +197,12 @@ export default function GroceryList() {
       {checked.length > 0 && (
         <div className="mt-8">
           <div className="flex items-center justify-between mb-3">
-            <h3 className="font-sans text-xs font-bold uppercase tracking-wider text-gray-400">
+            <h3 className="font-sans text-xs font-bold uppercase tracking-wider text-gray-600">
               Done ({checked.length})
             </h3>
             <button
               onClick={clearChecked}
-              className="font-sans text-xs text-gray-400 hover:text-black transition-colors"
+              className="font-sans text-xs text-gray-600 hover:text-black transition-colors"
             >
               Clear done
             </button>
@@ -204,12 +241,12 @@ function GroceryRow({
         {item.checked ? (
           <CheckSquare className="w-5 h-5 text-black" />
         ) : (
-          <Square className="w-5 h-5 text-gray-300" />
+          <Square className="w-5 h-5 text-gray-500" />
         )}
       </button>
       <span
         className={`font-serif text-base flex-1 ${
-          item.checked ? "line-through text-gray-400" : "text-black"
+          item.checked ? "line-through text-gray-500" : "text-black"
         }`}
       >
         {item.text}

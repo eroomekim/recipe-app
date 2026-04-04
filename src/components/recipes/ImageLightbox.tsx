@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { X, ChevronLeft, ChevronRight } from "lucide-react";
+import Image from "next/image";
 
 interface ImageLightboxProps {
   images: string[];
@@ -59,10 +60,12 @@ export default function ImageLightbox({
 
       {/* Image area */}
       <div className="flex-1 relative flex items-center justify-center min-h-0 px-4">
-        <img
+        <Image
           src={images[current]}
           alt={`${alt} - image ${current + 1}`}
-          className="max-w-full max-h-full object-contain"
+          fill
+          className="object-contain"
+          sizes="100vw"
         />
 
         {/* Prev/Next buttons */}
@@ -93,11 +96,11 @@ export default function ImageLightbox({
             <button
               key={i}
               onClick={() => setCurrent(i)}
-              className={`shrink-0 w-12 h-12 rounded overflow-hidden transition-opacity ${
+              className={`shrink-0 w-12 h-12 rounded overflow-hidden transition-opacity relative ${
                 i === current ? "opacity-100 ring-2 ring-white" : "opacity-40 hover:opacity-70"
               }`}
             >
-              <img src={src} alt="" className="w-full h-full object-cover" />
+              <Image src={src} alt="" fill className="object-cover" sizes="48px" />
             </button>
           ))}
         </div>

@@ -50,7 +50,7 @@ export default function PersonalNotes({
     <div className="my-6">
       {editing === "notes" ? (
         <div>
-          <label className="block font-sans text-xs font-semibold uppercase tracking-wider text-gray-500 mb-2">
+          <label className="block font-sans text-xs font-semibold uppercase tracking-wider text-gray-600 mb-2">
             Our Story
           </label>
           <textarea
@@ -59,9 +59,9 @@ export default function PersonalNotes({
             onChange={(e) => setNotes(e.target.value)}
             rows={3}
             placeholder="What does this recipe mean to you?"
-            className="w-full border border-gray-300 px-3 py-2 font-serif text-lg italic text-gray-600 placeholder:text-gray-400 focus:outline-none focus:border-black transition-colors resize-y"
+            className="w-full border border-gray-500 px-3 py-2 font-serif text-lg italic text-gray-600 placeholder:text-gray-400 focus:outline-none focus:border-black transition-colors resize-y"
           />
-          <label className="block font-sans text-xs font-semibold uppercase tracking-wider text-gray-500 mb-2 mt-4">
+          <label className="block font-sans text-xs font-semibold uppercase tracking-wider text-gray-600 mb-2 mt-4">
             My Adaptations
           </label>
           <textarea
@@ -69,7 +69,7 @@ export default function PersonalNotes({
             onChange={(e) => setAdaptations(e.target.value)}
             rows={2}
             placeholder="Changes you've made to the original..."
-            className="w-full border border-gray-300 px-3 py-2 font-serif text-sm text-gray-600 placeholder:text-gray-400 focus:outline-none focus:border-black transition-colors resize-y"
+            className="w-full border border-gray-500 px-3 py-2 font-serif text-sm text-gray-600 placeholder:text-gray-400 focus:outline-none focus:border-black transition-colors resize-y"
           />
           <div className="flex gap-2 mt-2">
             <button
@@ -104,14 +104,14 @@ export default function PersonalNotes({
                 </p>
               )}
               {adaptations && (
-                <p className="font-serif text-sm text-gray-500 mt-2">
-                  <span className="font-sans text-xs font-semibold uppercase tracking-wider text-gray-500">
+                <p className="font-serif text-sm text-gray-600 mt-2">
+                  <span className="font-sans text-xs font-semibold uppercase tracking-wider text-gray-600">
                     Adaptations:
                   </span>{" "}
                   {adaptations}
                 </p>
               )}
-              <span className="font-sans text-xs text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity mt-1 block">
+              <span className="font-sans text-xs text-gray-600 opacity-0 group-hover:opacity-100 transition-opacity mt-1 block">
                 Click to edit
               </span>
             </div>
@@ -122,7 +122,7 @@ export default function PersonalNotes({
               onClick={() => setEditing("notes")}
               className="block w-full text-left"
             >
-              <p className="font-serif text-lg italic text-gray-400">
+              <p className="font-serif text-lg italic text-gray-600">
                 Add your story...
               </p>
             </button>

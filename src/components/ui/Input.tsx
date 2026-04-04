@@ -17,11 +17,11 @@ export default function Input({
         </label>
       )}
       <input
-        className={`w-full border border-gray-300 px-4 py-3 font-sans text-base text-black placeholder:text-gray-500 focus:outline-none focus:border-black transition-colors ${error ? "border-red" : ""} ${className}`}
+        className={`w-full border border-gray-500 px-4 py-3 font-sans text-base text-black placeholder:text-gray-500 focus:outline-none focus:border-black transition-colors ${error ? "border-red" : ""} ${className}`}
         {...props}
       />
       {error && (
-        <p className="mt-1 font-sans text-sm text-red">{error}</p>
+        <p className="mt-1 font-sans text-sm text-red-dark">{error}</p>
       )}
     </div>
   );

@@ -108,7 +108,7 @@ export default function RecipeBooklet({
           />
         ) : (
           <div className="flex items-center justify-center h-[70vh]">
-            <p className="font-sans text-sm text-gray-500">Recipe not found</p>
+            <p className="font-sans text-sm text-gray-600">Recipe not found</p>
           </div>
         )}
       </div>

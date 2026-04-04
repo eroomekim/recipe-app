@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { X } from "lucide-react";
 
 interface MobileMenuProps {
@@ -15,6 +16,7 @@ export default function MobileMenu({
   onClose,
   onSignOut,
 }: MobileMenuProps) {
+  const pathname = usePathname();
   // Track whether the component should be in the DOM
   const [mounted, setMounted] = useState(false);
   // Track whether the animation classes are active
@@ -65,6 +67,7 @@ export default function MobileMenu({
           <Link
             href="/recipes"
             onClick={onClose}
+            aria-current={pathname === "/recipes" ? "page" : undefined}
             className="font-sans text-base font-bold uppercase tracking-normal text-gray-900"
           >
             Recipes
@@ -72,6 +75,7 @@ export default function MobileMenu({
           <Link
             href="/import"
             onClick={onClose}
+            aria-current={pathname === "/import" ? "page" : undefined}
             className="font-sans text-base font-bold uppercase tracking-normal text-gray-900"
           >
             Import
@@ -79,6 +83,7 @@ export default function MobileMenu({
           <Link
             href="/grocery"
             onClick={onClose}
+            aria-current={pathname === "/grocery" ? "page" : undefined}
             className="font-sans text-base font-bold uppercase tracking-normal text-gray-900"
           >
             Grocery List
@@ -86,6 +91,7 @@ export default function MobileMenu({
           <Link
             href="/pantry"
             onClick={onClose}
+            aria-current={pathname === "/pantry" ? "page" : undefined}
             className="font-sans text-base font-bold uppercase tracking-normal text-gray-900"
           >
             Pantry

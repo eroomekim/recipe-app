@@ -133,7 +133,7 @@ export default function CookLogButton({ recipeId }: CookLogButtonProps) {
               {logExpanded && (
                 <div className="mt-2 space-y-1.5">
                   {data.entries.map((entry) => (
-                    <div key={entry.id} className="font-sans text-xs text-gray-500">
+                    <div key={entry.id} className="font-sans text-xs text-gray-600">
                       <span className="font-semibold text-gray-600">{formatDate(entry.cookedAt)}</span>
                       {entry.note && <span className="ml-2 font-serif italic">{entry.note}</span>}
                     </div>

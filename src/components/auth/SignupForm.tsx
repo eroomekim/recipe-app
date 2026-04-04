@@ -59,7 +59,7 @@ export default function SignupForm() {
             onChange={(e) => setEmail(e.target.value)}
             placeholder="you@example.com"
             required
-            className="w-full border border-gray-300 px-4 py-3 font-sans text-base text-black placeholder:text-gray-500 focus:outline-none focus:border-black transition-colors"
+            className="w-full border border-gray-500 px-4 py-3 font-sans text-base text-black placeholder:text-gray-500 focus:outline-none focus:border-black transition-colors"
           />
         </div>
 
@@ -74,12 +74,12 @@ export default function SignupForm() {
             placeholder="At least 6 characters"
             required
             minLength={6}
-            className="w-full border border-gray-300 px-4 py-3 font-sans text-base text-black placeholder:text-gray-500 focus:outline-none focus:border-black transition-colors"
+            className="w-full border border-gray-500 px-4 py-3 font-sans text-base text-black placeholder:text-gray-500 focus:outline-none focus:border-black transition-colors"
           />
         </div>
 
         {error && (
-          <p className="font-sans text-sm text-red">{error}</p>
+          <p className="font-sans text-sm text-red-dark">{error}</p>
         )}
 
         <button
@@ -93,7 +93,7 @@ export default function SignupForm() {
 
       <div className="my-6 flex items-center gap-4">
         <div className="flex-1 border-t border-gray-300" />
-        <span className="font-sans text-xs text-gray-500 uppercase tracking-wider">
+        <span className="font-sans text-xs text-gray-600 uppercase tracking-wider">
           or
         </span>
         <div className="flex-1 border-t border-gray-300" />

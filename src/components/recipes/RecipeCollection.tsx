@@ -69,7 +69,7 @@ export default function RecipeCollection({ recipes }: RecipeCollectionProps) {
       </div>
       {displayRecipes.length === 0 ? (
         <div className="text-center py-16">
-          <p className="font-serif text-lg text-gray-500 italic">
+          <p className="font-serif text-lg text-gray-600 italic">
             No recipes match your filters
           </p>
         </div>

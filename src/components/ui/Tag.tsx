@@ -14,8 +14,8 @@ export default function Tag({ label, active = false, onClick }: TagProps) {
     : "bg-gray-50 text-gray-600 hover:bg-gray-200";
 
   return (
-    <span className={`${base} ${styles}`} onClick={onClick} role="button">
+    <button type="button" className={`${base} ${styles}`} onClick={onClick}>
       {label}
-    </span>
+    </button>
   );
 }

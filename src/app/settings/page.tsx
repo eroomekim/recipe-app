@@ -31,7 +31,7 @@ export default function SettingsPage() {
     return (
       <main className="max-w-article mx-auto px-6 py-12">
         <h1 className="font-display text-3xl font-bold leading-none mb-8">Settings</h1>
-        <p className="font-serif text-lg text-gray-500 italic">Loading...</p>
+        <p className="font-serif text-lg text-gray-600 italic">Loading...</p>
       </main>
     );
   }
@@ -42,7 +42,7 @@ export default function SettingsPage() {
 
       {/* Display Preferences */}
       <section className="mb-10">
-        <h2 className="font-sans text-xs font-bold uppercase tracking-wider text-gray-500 mb-6">
+        <h2 className="font-sans text-xs font-bold uppercase tracking-wider text-gray-600 mb-6">
           Display Preferences
         </h2>
 
@@ -50,11 +50,11 @@ export default function SettingsPage() {
         <div className="flex items-center justify-between py-4 border-b border-gray-200">
           <div>
             <div className="font-serif text-base text-black">Theme</div>
-            <div className="font-sans text-xs text-gray-500 mt-0.5">
+            <div className="font-sans text-xs text-gray-600 mt-0.5">
               Choose light, dark, or follow your system setting
             </div>
           </div>
-          <div className="flex">
+          <div role="group" aria-label="Theme" className="flex">
             {([
               { key: "system", label: "System" },
               { key: "light", label: "Light" },
@@ -63,6 +63,7 @@ export default function SettingsPage() {
               <button
                 key={key}
                 onClick={() => { update({ theme: key }); applyThemeImmediate(key); }}
+                aria-pressed={settings.theme === key}
                 className={`px-4 py-2 font-sans text-xs font-semibold uppercase tracking-wider transition-colors ${
                   settings.theme === key
                     ? "bg-black text-white"
@@ -79,14 +80,15 @@ export default function SettingsPage() {
         <div className="flex items-center justify-between py-4 border-b border-gray-200">
           <div>
             <div className="font-serif text-base text-black">Measurement System</div>
-            <div className="font-sans text-xs text-gray-500 mt-0.5">
+            <div className="font-sans text-xs text-gray-600 mt-0.5">
               Convert ingredient units and temperatures when viewing recipes
             </div>
           </div>
           <div className="flex flex-col items-end gap-2">
-            <div className="flex">
+            <div role="group" aria-label="Measurement System" className="flex">
               <button
                 onClick={() => update({ measurementSystem: "imperial" })}
+                aria-pressed={settings.measurementSystem === "imperial"}
                 className={`px-4 py-2 font-sans text-xs font-semibold uppercase tracking-wider transition-colors ${
                   settings.measurementSystem === "imperial"
                     ? "bg-black text-white"
@@ -97,6 +99,7 @@ export default function SettingsPage() {
               </button>
               <button
                 onClick={() => update({ measurementSystem: "metric" })}
+                aria-pressed={settings.measurementSystem === "metric"}
                 className={`px-4 py-2 font-sans text-xs font-semibold uppercase tracking-wider transition-colors ${
                   settings.measurementSystem === "metric"
                     ? "bg-black text-white"
@@ -106,7 +109,7 @@ export default function SettingsPage() {
                 Metric
               </button>
             </div>
-            <div className="font-sans text-[11px] text-gray-400 text-right max-w-[200px]">
+            <div className="font-sans text-[11px] text-gray-600 text-right max-w-[200px]">
               {settings.measurementSystem === "imperial"
                 ? "Cups, tablespoons, ounces, °F"
                 : "Grams, milliliters, liters, °C"}
@@ -118,7 +121,7 @@ export default function SettingsPage() {
         <div className="flex items-center justify-between py-4 border-b border-gray-200">
           <div>
             <div className="font-serif text-base text-black">Max Images to Display</div>
-            <div className="font-sans text-xs text-gray-500 mt-0.5">
+            <div className="font-sans text-xs text-gray-600 mt-0.5">
               Limit the number of images shown per recipe
             </div>
           </div>
@@ -147,7 +150,7 @@ export default function SettingsPage() {
         <div className="flex items-center justify-between py-4 border-b border-gray-200">
           <div>
             <div className="font-serif text-base text-black">Default Serving Size</div>
-            <div className="font-sans text-xs text-gray-500 mt-0.5">
+            <div className="font-sans text-xs text-gray-600 mt-0.5">
               Recipes will open pre-scaled to this serving count
             </div>
           </div>
@@ -179,7 +182,7 @@ export default function SettingsPage() {
 
       {/* Cooking Mode */}
       <section className="mb-10">
-        <h2 className="font-sans text-xs font-bold uppercase tracking-wider text-gray-500 mb-6">
+        <h2 className="font-sans text-xs font-bold uppercase tracking-wider text-gray-600 mb-6">
           Cooking Mode
         </h2>
 
@@ -187,7 +190,7 @@ export default function SettingsPage() {
         <div className="flex items-center justify-between py-4 border-b border-gray-200">
           <div>
             <div className="font-serif text-base text-black">Auto Read Aloud</div>
-            <div className="font-sans text-xs text-gray-500 mt-0.5">
+            <div className="font-sans text-xs text-gray-600 mt-0.5">
               Automatically read steps aloud in guided cooking mode
             </div>
           </div>
@@ -210,7 +213,7 @@ export default function SettingsPage() {
         <div className="flex items-center justify-between py-4 border-b border-gray-200">
           <div>
             <div className="font-serif text-base text-black">Keep Screen Awake</div>
-            <div className="font-sans text-xs text-gray-500 mt-0.5">
+            <div className="font-sans text-xs text-gray-600 mt-0.5">
               Prevent screen from sleeping during cooking mode
             </div>
           </div>
@@ -232,7 +235,7 @@ export default function SettingsPage() {
 
       {/* My Kitchen */}
       <section className="mb-10">
-        <h2 className="font-sans text-xs font-bold uppercase tracking-wider text-gray-500 mb-6">
+        <h2 className="font-sans text-xs font-bold uppercase tracking-wider text-gray-600 mb-6">
           My Kitchen
         </h2>
 
@@ -240,7 +243,7 @@ export default function SettingsPage() {
         <div className="flex items-center justify-between py-4 border-b border-gray-200">
           <div>
             <div className="font-serif text-base text-black">Altitude</div>
-            <div className="font-sans text-xs text-gray-500 mt-0.5">
+            <div className="font-sans text-xs text-gray-600 mt-0.5">
               Adjusts baking times for your elevation
             </div>
           </div>
@@ -261,7 +264,7 @@ export default function SettingsPage() {
         <div className="py-4 border-b border-gray-200">
           <div className="mb-3">
             <div className="font-serif text-base text-black">Equipment</div>
-            <div className="font-sans text-xs text-gray-500 mt-0.5">
+            <div className="font-sans text-xs text-gray-600 mt-0.5">
               Cook times adjust based on your appliances
             </div>
           </div>
@@ -298,7 +301,7 @@ export default function SettingsPage() {
 
       {/* Extraction Usage */}
       <section className="mb-10">
-        <h2 className="font-sans text-xs font-bold uppercase tracking-wider text-gray-500 mb-6">
+        <h2 className="font-sans text-xs font-bold uppercase tracking-wider text-gray-600 mb-6">
           Extraction Usage
         </h2>
 
@@ -318,7 +321,7 @@ export default function SettingsPage() {
                   style={{ width: `${Math.min(100, (usage.totalUsed / usage.dailyLimit) * 100)}%` }}
                 />
               </div>
-              <div className="font-sans text-xs text-gray-500 mt-1.5">
+              <div className="font-sans text-xs text-gray-600 mt-1.5">
                 {usage.remaining} extraction{usage.remaining !== 1 ? "s" : ""} remaining today
               </div>
             </div>
@@ -326,11 +329,11 @@ export default function SettingsPage() {
             {/* Breakdown */}
             <div className="flex gap-8 py-4 border-b border-gray-200">
               <div>
-                <div className="font-sans text-xs text-gray-500 uppercase tracking-wider">URL Extractions</div>
+                <div className="font-sans text-xs text-gray-600 uppercase tracking-wider">URL Extractions</div>
                 <div className="font-sans text-xl font-bold text-black mt-0.5">{usage.blogUsed}</div>
               </div>
               <div>
-                <div className="font-sans text-xs text-gray-500 uppercase tracking-wider">Vision Extractions</div>
+                <div className="font-sans text-xs text-gray-600 uppercase tracking-wider">Vision Extractions</div>
                 <div className="font-sans text-xl font-bold text-black mt-0.5">{usage.socialUsed}</div>
               </div>
             </div>
@@ -338,19 +341,19 @@ export default function SettingsPage() {
             {/* Limit info */}
             <div className="py-4 border-b border-gray-200">
               <div className="font-serif text-base text-black">Daily Limit</div>
-              <div className="font-sans text-xs text-gray-500 mt-0.5">
+              <div className="font-sans text-xs text-gray-600 mt-0.5">
                 {usage.dailyLimit} extractions per day across all types. Resets at midnight.
               </div>
             </div>
           </>
         ) : (
-          <p className="font-serif text-base text-gray-500 italic">Loading usage data...</p>
+          <p className="font-serif text-base text-gray-600 italic">Loading usage data...</p>
         )}
       </section>
 
       <Link
         href="/recipes"
-        className="font-sans text-xs text-gray-500 hover:text-black transition-colors"
+        className="font-sans text-xs text-gray-600 hover:text-black transition-colors"
       >
         &larr; Back to recipes
       </Link>

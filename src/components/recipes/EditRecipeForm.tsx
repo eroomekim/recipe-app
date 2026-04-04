@@ -181,7 +181,7 @@ export default function EditRecipeForm({ recipeId, initialData }: EditRecipeForm
         {/* Images */}
         <div>
           <label className="block font-sans text-xs font-semibold uppercase tracking-wider text-gray-600 mb-2">
-            Images{images.length > 0 && <span className="text-gray-400 ml-1">({images.length})</span>}
+            Images{images.length > 0 && <span className="text-gray-600 ml-1">({images.length})</span>}
           </label>
           {images.length > 0 && (<>
             <div className="flex gap-3 overflow-x-auto pb-3">
@@ -218,7 +218,7 @@ export default function EditRecipeForm({ recipeId, initialData }: EditRecipeForm
                 </div>
               ))}
             </div>
-            <p className="font-sans text-xs text-gray-500 mt-2 mb-4">Drag images to reorder, or click the X to remove.</p>
+            <p className="font-sans text-xs text-gray-600 mt-2 mb-4">Drag images to reorder, or click the X to remove.</p>
           </>)}
           <div className="flex gap-2">
             <input
@@ -385,7 +385,7 @@ export default function EditRecipeForm({ recipeId, initialData }: EditRecipeForm
         </details>
 
         {error && (
-          <p className="font-sans text-sm text-red">{error}</p>
+          <p className="font-sans text-sm text-red-dark">{error}</p>
         )}
 
         <div className="flex items-center gap-4 pt-4">

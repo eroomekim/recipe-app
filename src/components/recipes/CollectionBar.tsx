@@ -107,7 +107,7 @@ export default function CollectionBar({ onFilter, activeFilter }: CollectionBarP
           className="shrink-0 w-28 h-20 rounded-lg border-2 border-dashed border-gray-300 flex flex-col items-center justify-center gap-1 opacity-60 hover:opacity-100 hover:border-gray-500 transition-all"
         >
           <Plus className="w-5 h-5 text-gray-400" />
-          <span className="font-sans text-xs font-semibold uppercase tracking-wider text-gray-400">
+          <span className="font-sans text-xs font-semibold uppercase tracking-wider text-gray-600">
             New
           </span>
         </button>

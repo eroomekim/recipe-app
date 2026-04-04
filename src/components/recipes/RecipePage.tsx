@@ -11,6 +11,7 @@ import NutritionCard from "./NutritionCard";
 import SimilarRecipes from "./SimilarRecipes";
 import { X, ExternalLink, CookingPot, Minus, Plus, Square, CheckSquare, ShoppingCart, Check, Pencil } from "lucide-react";
 import Link from "next/link";
+import Image from "next/image";
 import CookTimeAdjuster from "./CookTimeAdjuster";
 import CookLogButton from "./CookLogButton";
 import { scaleIngredient } from "@/lib/ingredient-scaler";
@@ -115,7 +116,7 @@ export default function RecipePage({
   // ── Shared sub-components ──
 
   const rubricBlock = rubricParts.length > 0 && (
-    <div className="font-display text-sm font-normal text-red tracking-normal mb-1">
+    <div className="font-display text-sm font-normal text-red-dark tracking-normal mb-1">
       {rubricParts.join(" · ")}
     </div>
   );
@@ -133,14 +134,14 @@ export default function RecipePage({
           href={recipe.sourceUrl}
           target="_blank"
           rel="noopener noreferrer"
-          className="font-sans text-xs text-gray-500 hover:text-black transition-colors inline-flex items-center gap-1"
+          className="font-sans text-xs text-gray-600 hover:text-black transition-colors inline-flex items-center gap-1"
         >
           View Original <ExternalLink className="w-3 h-3" />
         </a>
       )}
       <Link
         href={`/recipes/${recipe.id}/edit`}
-        className="font-sans text-xs text-gray-500 hover:text-black transition-colors inline-flex items-center gap-1"
+        className="font-sans text-xs text-gray-600 hover:text-black transition-colors inline-flex items-center gap-1"
       >
         Edit <Pencil className="w-3 h-3" />
       </Link>
@@ -151,7 +152,7 @@ export default function RecipePage({
     <div className="flex items-start gap-0 mt-4 mb-5">
       {recipe.cookTime && (
         <div className="pr-5">
-          <div className="font-sans text-xs text-gray-500 uppercase tracking-wider">Cook Time</div>
+          <div className="font-sans text-xs text-gray-600 uppercase tracking-wider">Cook Time</div>
           <div className="font-sans text-lg font-bold text-black mt-0.5">{recipe.cookTime} mins</div>
           <CookTimeAdjuster cookTime={recipe.cookTime} />
         </div>
@@ -161,7 +162,7 @@ export default function RecipePage({
       )}
       {recipe.servings && (
         <div className="px-5">
-          <div className="font-sans text-xs text-gray-500 uppercase tracking-wider">Serving</div>
+          <div className="font-sans text-xs text-gray-600 uppercase tracking-wider">Serving</div>
           <div className="flex items-center gap-2 mt-0.5">
             <button
               onClick={() => setScaleFactor((s) => Math.max(0.25, s - 0.25))}
@@ -183,7 +184,7 @@ export default function RecipePage({
             {scaleFactor !== 1 && (
               <button
                 onClick={() => setScaleFactor(1)}
-                className="font-sans text-xs text-gray-400 hover:text-black transition-colors ml-1"
+                className="font-sans text-xs text-gray-600 hover:text-black transition-colors ml-1"
               >
                 reset
               </button>
@@ -196,7 +197,7 @@ export default function RecipePage({
       )}
       {dietaryTags.length > 0 && (
         <div className="px-5">
-          <div className="font-sans text-xs text-gray-500 uppercase tracking-wider">Dietary</div>
+          <div className="font-sans text-xs text-gray-600 uppercase tracking-wider">Dietary</div>
           <div className="font-sans text-lg font-bold text-black mt-0.5">
             {dietaryTags.map((t) => t.name).join(", ")}
           </div>
@@ -206,7 +207,7 @@ export default function RecipePage({
         <div className="w-px h-10 bg-gray-300 self-center" />
       )}
       <div className="px-5">
-        <div className="font-sans text-xs text-gray-500 uppercase tracking-wider">Units</div>
+        <div className="font-sans text-xs text-gray-600 uppercase tracking-wider">Units</div>
         <div className="flex mt-1.5">
           <button
             onClick={() => setMeasurementOverride("imperial")}
@@ -254,12 +255,12 @@ export default function RecipePage({
   const ingredientsBlock = (
     <div>
       <div className="flex items-center justify-between mb-4">
-        <h2 className="font-sans text-xs font-bold uppercase tracking-wider text-gray-500">
+        <h2 className="font-sans text-xs font-bold uppercase tracking-wider text-gray-600">
           Ingredients
         </h2>
         <div className="flex items-center gap-3">
           {scaleFactor !== 1 && (
-            <span className="font-sans text-xs text-gray-400">
+            <span className="font-sans text-xs text-gray-600">
               scaled to {currentServings} servings
             </span>
           )}
@@ -306,7 +307,7 @@ export default function RecipePage({
                   setSelectedIngredients(new Set(scaledIngredients.map((_, i) => i)));
                 }
               }}
-              className="font-sans text-xs text-gray-400 hover:text-black transition-colors"
+              className="font-sans text-xs text-gray-600 hover:text-black transition-colors"
             >
               {selectedIngredients.size === scaledIngredients.length ? "Deselect all" : "Select all"}
             </button>
@@ -344,7 +345,7 @@ export default function RecipePage({
 
   const instructionsBlock = (
     <div>
-      <h2 className="font-sans text-xs font-bold uppercase tracking-wider text-gray-500 mb-4">
+      <h2 className="font-sans text-xs font-bold uppercase tracking-wider text-gray-600 mb-4">
         Instructions
       </h2>
       <ol className="space-y-5">
@@ -359,12 +360,13 @@ export default function RecipePage({
               </p>
             </div>
             {inst.imageUrl && (
-              <div className="ml-11 mt-3">
-                <img
+              <div className="ml-11 mt-3 relative aspect-video w-full">
+                <Image
                   src={inst.imageUrl}
                   alt={`Step ${i + 1}`}
-                  loading="lazy"
-                  className="w-full aspect-video object-cover cursor-pointer hover:opacity-95 transition-opacity"
+                  fill
+                  className="object-cover cursor-pointer hover:opacity-95 transition-opacity"
+                  sizes="(max-width: 960px) 100vw, 50vw"
                   onClick={() => {
                     const idx = allImages.indexOf(inst.imageUrl!);
                     setLightboxIndex(idx >= 0 ? idx : 0);
@@ -388,15 +390,17 @@ export default function RecipePage({
           onClick={() => setLightboxIndex(0)}
         >
           {heroImage && (
-            <img
+            <Image
               src={heroImage}
               alt={recipe.title}
-              className="w-full h-full object-cover"
+              fill
+              className="object-cover"
+              sizes="(max-width: 960px) 100vw, 50vw"
             />
           )}
 
           {pageIndex !== undefined && totalPages !== undefined && (
-            <div className="absolute top-4 left-5 bg-black/40 backdrop-blur-sm text-white font-sans text-xs font-semibold tracking-wider uppercase px-2.5 py-1 rounded-full">
+            <div className="absolute top-4 left-5 bg-black/40 backdrop-blur-sm text-white font-sans text-xs font-semibold tracking-wider uppercase px-2.5 py-1">
               {pageIndex + 1} / {totalPages}
             </div>
           )}
@@ -455,7 +459,7 @@ export default function RecipePage({
         {recipe.substitutions.length > 0 && (
           <>
             <Divider className="my-6" />
-            <h2 className="font-sans text-xs font-bold uppercase tracking-wider text-gray-500 mb-3">
+            <h2 className="font-sans text-xs font-bold uppercase tracking-wider text-gray-600 mb-3">
               Substitutions
             </h2>
             <div className="space-y-2">
@@ -464,7 +468,7 @@ export default function RecipePage({
                   <strong className="text-black">{sub.ingredient} →</strong>{" "}
                   {sub.substitute}
                   {sub.notes && (
-                    <span className="text-gray-500"> ({sub.notes})</span>
+                    <span className="text-gray-600"> ({sub.notes})</span>
                   )}
                 </div>
               ))}
@@ -479,25 +483,25 @@ export default function RecipePage({
             <div className="space-y-5">
               {recipe.storageTips && (
                 <div>
-                  <h3 className="font-sans text-xs font-bold uppercase tracking-wider text-gray-500 mb-2">Storage</h3>
+                  <h3 className="font-sans text-xs font-bold uppercase tracking-wider text-gray-600 mb-2">Storage</h3>
                   <div className="font-serif text-base leading-relaxed text-gray-600 prose-content" dangerouslySetInnerHTML={{ __html: recipe.storageTips }} />
                 </div>
               )}
               {recipe.makeAheadNotes && (
                 <div>
-                  <h3 className="font-sans text-xs font-bold uppercase tracking-wider text-gray-500 mb-2">Make Ahead</h3>
+                  <h3 className="font-sans text-xs font-bold uppercase tracking-wider text-gray-600 mb-2">Make Ahead</h3>
                   <div className="font-serif text-base leading-relaxed text-gray-600 prose-content" dangerouslySetInnerHTML={{ __html: recipe.makeAheadNotes }} />
                 </div>
               )}
               {recipe.servingSuggestions && (
                 <div>
-                  <h3 className="font-sans text-xs font-bold uppercase tracking-wider text-gray-500 mb-2">Serving Suggestions</h3>
+                  <h3 className="font-sans text-xs font-bold uppercase tracking-wider text-gray-600 mb-2">Serving Suggestions</h3>
                   <div className="font-serif text-base leading-relaxed text-gray-600 prose-content" dangerouslySetInnerHTML={{ __html: recipe.servingSuggestions }} />
                 </div>
               )}
               {recipe.techniqueNotes && (
                 <div>
-                  <h3 className="font-sans text-xs font-bold uppercase tracking-wider text-gray-500 mb-2">Tips</h3>
+                  <h3 className="font-sans text-xs font-bold uppercase tracking-wider text-gray-600 mb-2">Tips</h3>
                   <div className="font-serif text-base leading-relaxed text-gray-600 prose-content" dangerouslySetInnerHTML={{ __html: recipe.techniqueNotes }} />
                 </div>
               )}
@@ -514,12 +518,14 @@ export default function RecipePage({
                 <button
                   key={i}
                   onClick={() => setLightboxIndex(i + 1)}
-                  className="aspect-square overflow-hidden bg-gray-50 rounded-lg cursor-pointer group"
+                  className="aspect-square overflow-hidden bg-gray-50 rounded-lg cursor-pointer group relative"
                 >
-                  <img
+                  <Image
                     src={src}
                     alt={`${recipe.title} - image ${i + 2}`}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                    fill
+                    className="object-cover group-hover:scale-105 transition-transform duration-300"
+                    sizes="(max-width: 640px) 33vw, (max-width: 960px) 16vw, 120px"
                   />
                 </button>
               ))}

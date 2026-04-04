@@ -29,7 +29,7 @@ export default function SimilarRecipes({ recipeId }: SimilarRecipesProps) {
   return (
     <>
       <Divider className="my-6" />
-      <h2 className="font-sans text-xs font-bold uppercase tracking-wider text-gray-500 mb-4">
+      <h2 className="font-sans text-xs font-bold uppercase tracking-wider text-gray-600 mb-4">
         Similar Recipes
       </h2>
       <div className="flex gap-4 overflow-x-auto pb-3 -mx-5 px-5 scrollbar-hide">
@@ -51,7 +51,7 @@ export default function SimilarRecipes({ recipeId }: SimilarRecipesProps) {
             <h3 className="font-display text-sm leading-tight font-bold text-black group-hover:opacity-80 transition-opacity line-clamp-2">
               {recipe.title}
             </h3>
-            <span className="font-sans text-xs text-gray-500 mt-1 block">
+            <span className="font-sans text-xs text-gray-600 mt-1 block">
               {recipe.sharedIngredientCount} shared ingredient{recipe.sharedIngredientCount !== 1 ? "s" : ""}
             </span>
           </Link>

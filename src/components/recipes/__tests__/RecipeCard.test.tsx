@@ -32,7 +32,7 @@ describe("RecipeCard", () => {
     render(<RecipeCard recipe={recipe} />);
 
     const img = screen.getByAltText("Braised Short Ribs");
-    expect(img).toHaveAttribute("src", "https://example.com/ribs.jpg");
+    expect(img.getAttribute("src")).toContain("example.com%2Fribs.jpg");
     cleanup();
   });
 
