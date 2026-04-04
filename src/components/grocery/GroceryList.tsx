@@ -120,14 +120,16 @@ export default function GroceryList() {
           value={newItem}
           onChange={(e) => setNewItem(e.target.value)}
           onKeyDown={(e) => e.key === "Enter" && addItem()}
-          placeholder="Add an item..."
-          className="flex-1 border border-gray-500 px-4 py-2.5 font-serif text-base text-black placeholder:text-gray-500 focus:outline-none focus:border-black transition-colors"
+          placeholder="Add an item…"
+          aria-label="New grocery item"
+          className="flex-1 border border-gray-500 px-4 py-2.5 font-serif text-base text-black placeholder:text-gray-500 focus-visible:outline-none focus-visible:border-black transition-colors"
         />
         <button
           onClick={addItem}
+          aria-label="Add item to grocery list"
           className="bg-black text-white px-4 py-2.5 hover:bg-gray-900 transition-colors"
         >
-          <Plus className="w-5 h-5" />
+          <Plus className="w-5 h-5" aria-hidden="true" />
         </button>
       </div>
 
