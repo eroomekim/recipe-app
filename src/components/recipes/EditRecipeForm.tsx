@@ -201,6 +201,9 @@ export default function EditRecipeForm({ recipeId, initialData }: EditRecipeForm
                   <img
                     src={src}
                     alt={`Recipe image ${i + 1}`}
+                    width={128}
+                    height={128}
+                    loading="lazy"
                     className="w-32 h-32 rounded-lg object-cover"
                     draggable={false}
                   />
@@ -225,8 +228,9 @@ export default function EditRecipeForm({ recipeId, initialData }: EditRecipeForm
               type="text"
               value={newImageUrl}
               onChange={(e) => setNewImageUrl(e.target.value)}
-              placeholder="Paste image URLs (comma or newline separated)..."
-              className="flex-1 border border-gray-300 px-3 py-2 font-sans text-sm text-black placeholder:text-gray-500 focus:outline-none focus:border-black transition-colors"
+              placeholder="Paste image URLs (comma or newline separated)…"
+              aria-label="Add image URLs"
+              className="flex-1 border border-gray-300 px-3 py-2 font-sans text-sm text-black placeholder:text-gray-500 focus-visible:outline-none focus-visible:border-black transition-colors"
             />
             <button
               onClick={() => {
@@ -250,7 +254,7 @@ export default function EditRecipeForm({ recipeId, initialData }: EditRecipeForm
               className="font-sans text-xs font-semibold uppercase tracking-wider bg-gray-50 text-gray-600 px-4 py-2 hover:bg-gray-200 transition-colors flex items-center gap-1.5"
             >
               {uploading ? <Spinner /> : <Upload className="w-3.5 h-3.5" />}
-              {uploading ? "Uploading..." : "Upload"}
+              {uploading ? "Uploading…" : "Upload"}
             </button>
             <input
               id="edit-image-upload"
@@ -294,7 +298,7 @@ export default function EditRecipeForm({ recipeId, initialData }: EditRecipeForm
           label="Ingredients"
           value={ingredients}
           onChange={setIngredients}
-          placeholder="Add ingredients..."
+          placeholder="Add ingredients…"
           minHeight={200}
         />
 
@@ -302,7 +306,7 @@ export default function EditRecipeForm({ recipeId, initialData }: EditRecipeForm
           label="Instructions"
           value={instructions}
           onChange={setInstructions}
-          placeholder="Add instructions..."
+          placeholder="Add instructions…"
           minHeight={250}
         />
 
@@ -357,28 +361,28 @@ export default function EditRecipeForm({ recipeId, initialData }: EditRecipeForm
               label="Storage Tips"
               value={storageTips}
               onChange={setStorageTips}
-              placeholder="How to store leftovers..."
+              placeholder="How to store leftovers…"
               minHeight={100}
             />
             <RichTextEditor
               label="Make-Ahead Notes"
               value={makeAheadNotes}
               onChange={setMakeAheadNotes}
-              placeholder="Prep-ahead instructions..."
+              placeholder="Prep-ahead instructions…"
               minHeight={100}
             />
             <RichTextEditor
               label="Serving Suggestions"
               value={servingSuggestions}
               onChange={setServingSuggestions}
-              placeholder="What to serve with..."
+              placeholder="What to serve with…"
               minHeight={100}
             />
             <RichTextEditor
               label="Technique Notes"
               value={techniqueNotes}
               onChange={setTechniqueNotes}
-              placeholder="Tips and tricks..."
+              placeholder="Tips and tricks…"
               minHeight={100}
             />
           </div>
@@ -390,7 +394,7 @@ export default function EditRecipeForm({ recipeId, initialData }: EditRecipeForm
 
         <div className="flex items-center gap-4 pt-4">
           <Button onClick={handleSave} loading={saving}>
-            {saving ? "Saving..." : "Save Changes"}
+            {saving ? "Saving…" : "Save Changes"}
           </Button>
           <Button
             variant="secondary"
