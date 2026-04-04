@@ -90,7 +90,7 @@ describe("LoginForm", () => {
     fireEvent.submit(screen.getByRole("button", { name: /sign in$/i }));
 
     await waitFor(() => {
-      expect(screen.getByText("Signing in...")).toBeInTheDocument();
+      expect(screen.getByText("Signing in…")).toBeInTheDocument();
     });
   });
 });

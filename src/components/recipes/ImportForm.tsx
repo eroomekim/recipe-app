@@ -529,6 +529,7 @@ export default function ImportForm() {
                   alt={`Recipe image ${i + 1}`}
                   width={128}
                   height={128}
+                  loading="lazy"
                   className="w-32 h-32 rounded-lg object-cover"
                   draggable={false}
                 />

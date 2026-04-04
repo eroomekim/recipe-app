@@ -178,7 +178,7 @@ export default function FilterBar({ recipes, onFilter }: FilterBarProps) {
             type="text"
             value={search}
             onChange={(e) => handleSearch(e.target.value)}
-            placeholder="Search recipes..."
+            placeholder="Search recipes…"
             aria-label="Search recipes"
             className="w-full border border-gray-500 pl-10 pr-4 py-2.5 font-sans text-sm text-black placeholder:text-gray-500 focus-visible:outline-none focus-visible:border-black transition-colors"
           />

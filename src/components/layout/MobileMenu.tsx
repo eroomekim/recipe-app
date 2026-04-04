@@ -45,7 +45,7 @@ export default function MobileMenu({
       const timer = setTimeout(() => setMounted(false), reducedMotion ? 0 : 300);
       return () => clearTimeout(timer);
     }
-  }, [open]);
+  }, [open, reducedMotion]);
 
   if (!mounted) return null;
 
