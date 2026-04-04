@@ -1,8 +1,12 @@
-import { describe, it, expect, vi } from "vitest";
+import { describe, it, expect } from "vitest";
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import FilterBar from "../FilterBar";
 import { makeRecipeCard } from "@/test/fixtures";
+
+// The navigation mock stores URL search params on globalThis.__navSearch
+const getSearchParams = () =>
+  new URLSearchParams((globalThis as Record<string, unknown>).__navSearch as string);
 
 describe("FilterBar", () => {
   const recipes = [
@@ -16,26 +20,22 @@ describe("FilterBar", () => {
   ];
 
   it("renders search input and filter button", () => {
-    render(<FilterBar recipes={recipes} onFilter={vi.fn()} />);
+    render(<FilterBar recipes={recipes} />);
 
     expect(screen.getByPlaceholderText(/search recipes/i)).toBeInTheDocument();
     expect(screen.getByText(/filters/i)).toBeInTheDocument();
   });
 
-  it("filters recipes by search text", async () => {
-    const onFilter = vi.fn();
-    render(<FilterBar recipes={recipes} onFilter={onFilter} />);
+  it("updates URL with search query on input", async () => {
+    render(<FilterBar recipes={recipes} />);
 
     await userEvent.type(screen.getByPlaceholderText(/search recipes/i), "Pasta");
 
-    expect(onFilter).toHaveBeenCalled();
-    const lastCall = onFilter.mock.calls[onFilter.mock.calls.length - 1][0];
-    expect(lastCall).toHaveLength(1);
-    expect(lastCall[0].title).toBe("Pasta Carbonara");
+    expect(getSearchParams().get("q")).toBe("Pasta");
   });
 
   it("opens filter panel and shows meal type tags", async () => {
-    render(<FilterBar recipes={recipes} onFilter={vi.fn()} />);
+    render(<FilterBar recipes={recipes} />);
 
     await userEvent.click(screen.getByText(/filters/i));
 
@@ -44,64 +44,49 @@ describe("FilterBar", () => {
     expect(screen.getByText("Lunch")).toBeInTheDocument();
   });
 
-  it("filters by meal type when tag is clicked", async () => {
-    const onFilter = vi.fn();
-    render(<FilterBar recipes={recipes} onFilter={onFilter} />);
+  it("updates URL with meal type when tag is clicked", async () => {
+    render(<FilterBar recipes={recipes} />);
 
     await userEvent.click(screen.getByText(/filters/i));
     await userEvent.click(screen.getByText("Breakfast"));
 
-    const lastCall = onFilter.mock.calls[onFilter.mock.calls.length - 1][0];
-    expect(lastCall).toHaveLength(1);
-    expect(lastCall[0].title).toBe("Pancakes");
+    expect(getSearchParams().get("meal")).toBe("Breakfast");
   });
 
-  it("filters by cuisine", async () => {
-    const onFilter = vi.fn();
-    render(<FilterBar recipes={recipes} onFilter={onFilter} />);
+  it("updates URL with cuisine when tag is clicked", async () => {
+    render(<FilterBar recipes={recipes} />);
 
     await userEvent.click(screen.getByText(/filters/i));
     await userEvent.click(screen.getByText("Italian"));
 
-    const lastCall = onFilter.mock.calls[onFilter.mock.calls.length - 1][0];
-    expect(lastCall).toHaveLength(1);
-    expect(lastCall[0].title).toBe("Pasta Carbonara");
+    expect(getSearchParams().get("cuisine")).toBe("Italian");
   });
 
-  it("filters by favorites", async () => {
-    const onFilter = vi.fn();
-    render(<FilterBar recipes={recipes} onFilter={onFilter} />);
+  it("updates URL with favs=1 when Favorites is clicked", async () => {
+    render(<FilterBar recipes={recipes} />);
 
     await userEvent.click(screen.getByText(/filters/i));
     await userEvent.click(screen.getByText("Favorites"));
 
-    const lastCall = onFilter.mock.calls[onFilter.mock.calls.length - 1][0];
-    expect(lastCall).toHaveLength(1);
-    expect(lastCall[0].title).toBe("Pancakes");
+    expect(getSearchParams().get("favs")).toBe("1");
   });
 
   it("shows active filter count on badge", async () => {
-    render(<FilterBar recipes={recipes} onFilter={vi.fn()} />);
+    render(<FilterBar recipes={recipes} />);
 
     await userEvent.click(screen.getByText(/filters/i));
     await userEvent.click(screen.getByText("Dinner"));
 
-    // Badge with count "1" should appear
     expect(screen.getByText("1")).toBeInTheDocument();
   });
 
-  it("clears all filters", async () => {
-    const onFilter = vi.fn();
-    render(<FilterBar recipes={recipes} onFilter={onFilter} />);
+  it("clears URL params when clear all is clicked", async () => {
+    render(<FilterBar recipes={recipes} />);
 
-    // Apply a filter
     await userEvent.click(screen.getByText(/filters/i));
     await userEvent.click(screen.getByText("Dinner"));
-
-    // Clear
     await userEvent.click(screen.getByText(/clear all/i));
 
-    const lastCall = onFilter.mock.calls[onFilter.mock.calls.length - 1][0];
-    expect(lastCall).toHaveLength(4); // all recipes returned
+    expect(getSearchParams().get("meal")).toBeNull();
   });
 });
