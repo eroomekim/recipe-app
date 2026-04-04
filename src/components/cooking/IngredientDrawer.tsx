@@ -25,39 +25,39 @@ export default function IngredientDrawer({
       {/* Handle bar */}
       <button
         onClick={() => setExpanded(!expanded)}
-        className="w-full bg-gray-900 border-t border-white/10 py-2 flex items-center justify-center"
+        className="w-full bg-gray-50 border-t border-black/10 py-2 flex items-center justify-center"
       >
-        <div className="w-10 h-1 bg-white/30 rounded-full" />
+        <div className="w-10 h-1 bg-black/30 rounded-full" />
       </button>
 
       {/* Drawer content */}
       {expanded && (
-        <div className="bg-gray-900 border-t border-white/10 max-h-[50vh] overflow-y-auto px-6 py-4">
+        <div className="bg-gray-50 border-t border-black/10 max-h-[50vh] overflow-y-auto px-6 py-4">
           {/* Scale controls */}
           {originalServings && (
-            <div className="flex items-center gap-3 mb-4 pb-4 border-b border-white/10">
-              <span className="font-sans text-xs font-semibold uppercase tracking-wider text-white/50">
+            <div className="flex items-center gap-3 mb-4 pb-4 border-b border-black/10">
+              <span className="font-sans text-xs font-semibold uppercase tracking-wider text-black/50">
                 Servings
               </span>
               <button
                 onClick={() => onScaleChange(Math.max(0.5, scaleFactor - 0.5))}
-                className="w-8 h-8 flex items-center justify-center bg-white/10 text-white rounded-full hover:bg-white/20 transition-colors"
+                className="w-8 h-8 flex items-center justify-center bg-black/10 text-black rounded-full hover:bg-black/20 transition-colors"
               >
                 −
               </button>
-              <span className="font-sans text-base font-bold text-white tabular-nums min-w-[2rem] text-center">
+              <span className="font-sans text-base font-bold tabular-nums min-w-[2rem] text-center">
                 {Math.round(originalServings * scaleFactor)}
               </span>
               <button
                 onClick={() => onScaleChange(scaleFactor + 0.5)}
-                className="w-8 h-8 flex items-center justify-center bg-white/10 text-white rounded-full hover:bg-white/20 transition-colors"
+                className="w-8 h-8 flex items-center justify-center bg-black/10 text-black rounded-full hover:bg-black/20 transition-colors"
               >
                 +
               </button>
               {scaleFactor !== 1 && (
                 <button
                   onClick={() => onScaleChange(1)}
-                  className="font-sans text-xs text-white/40 hover:text-white ml-2 transition-colors"
+                  className="font-sans text-xs text-black/40 hover:text-black ml-2 transition-colors"
                 >
                   Reset
                 </button>
@@ -72,7 +72,7 @@ export default function IngredientDrawer({
                 key={i}
                 onClick={() => onToggle(i)}
                 className={`font-serif text-base cursor-pointer transition-colors ${
-                  ing.checked ? "text-white/30 line-through" : "text-white"
+                  ing.checked ? "text-black/30 line-through" : "text-black"
                 }`}
               >
                 {ing.scaledText}

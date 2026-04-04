@@ -24,11 +24,11 @@ export default function CookingStep({ stepNumber, totalSteps, text, measurementS
 
   return (
     <div className="flex flex-col items-center justify-center h-full px-6 text-center">
-      <div className="font-sans text-xs font-semibold uppercase tracking-wider text-white/50 mb-8">
+      <div className="font-sans text-xs font-semibold uppercase tracking-wider text-black/50 mb-8">
         Step {stepNumber} of {totalSteps}
       </div>
 
-      <p className="font-serif text-xl md:text-2xl leading-relaxed text-white max-w-[600px]">
+      <p className="font-serif text-xl md:text-2xl leading-relaxed text-black max-w-[600px]">
         {convertTemperatureInText(text, measurementSystem)}
       </p>
 

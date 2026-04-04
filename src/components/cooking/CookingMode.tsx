@@ -130,10 +130,10 @@ export default function CookingMode({ recipe, onExit, defaultAutoReadAloud = fal
   }, [goNext, goPrev, onExit]);
 
   return (
-    <div className="fixed inset-0 z-50 bg-black text-white flex flex-col">
+    <div className="fixed inset-0 z-50 bg-white text-black flex flex-col">
       {/* Top bar */}
-      <div className="flex items-center justify-between px-5 py-3 border-b border-white/10">
-        <h1 className="font-display text-base font-bold text-white truncate max-w-[60%]">
+      <div className="flex items-center justify-between px-5 py-3 border-b border-black/10">
+        <h1 className="font-display text-base font-bold truncate max-w-[60%]">
           {recipe.title}
         </h1>
         <div className="flex items-center gap-4">
@@ -143,7 +143,7 @@ export default function CookingMode({ recipe, onExit, defaultAutoReadAloud = fal
               <button
                 onClick={() => setAutoReadAloud(!autoReadAloud)}
                 className={`font-sans text-xs font-semibold uppercase tracking-wider transition-colors ${
-                  autoReadAloud ? "text-white" : "text-white/30 hover:text-white/60"
+                  autoReadAloud ? "text-black" : "text-black/30 hover:text-black/60"
                 }`}
               >
                 {autoReadAloud ? "Read ●" : "Read"}
@@ -153,14 +153,14 @@ export default function CookingMode({ recipe, onExit, defaultAutoReadAloud = fal
           <button
             onClick={() => setGuidedMode(!guidedMode)}
             className={`font-sans text-xs font-semibold uppercase tracking-wider transition-colors ${
-              guidedMode ? "text-red" : "text-white/50 hover:text-white"
+              guidedMode ? "text-red" : "text-black/50 hover:text-black"
             }`}
           >
             {guidedMode ? "Guided On" : "Guided"}
           </button>
           <button
             onClick={onExit}
-            className="font-sans text-xs font-semibold uppercase tracking-wider text-white/50 hover:text-white transition-colors"
+            className="font-sans text-xs font-semibold uppercase tracking-wider text-black/50 hover:text-black transition-colors"
           >
             Exit
           </button>
@@ -203,14 +203,14 @@ export default function CookingMode({ recipe, onExit, defaultAutoReadAloud = fal
           <button
             onClick={goPrev}
             disabled={currentStep === 0}
-            className="font-sans text-sm text-white/40 disabled:invisible hover:text-white transition-colors"
+            className="font-sans text-sm text-black/40 disabled:invisible hover:text-black transition-colors"
           >
             ← Prev
           </button>
           <button
             onClick={goNext}
             disabled={currentStep === recipe.instructions.length - 1}
-            className="font-sans text-sm text-white/40 disabled:invisible hover:text-white transition-colors"
+            className="font-sans text-sm text-black/40 disabled:invisible hover:text-black transition-colors"
           >
             Next →
           </button>
