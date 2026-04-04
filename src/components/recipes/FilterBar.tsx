@@ -27,23 +27,29 @@ export default function FilterBar({ recipes, onFilter }: FilterBarProps) {
   const router = useRouter();
   const pathname = usePathname();
 
-  // Derive all filter state from URL
+  // Derive stable primitive strings from URL params first — avoids new object
+  // references on every render when searchParams identity changes in Next.js.
   const search = searchParams.get("q") ?? "";
-  const selectedMealTypes = useMemo(
-    () => new Set(searchParams.get("meal")?.split(",").filter(Boolean) ?? []),
-    [searchParams]
-  );
-  const selectedCuisines = useMemo(
-    () => new Set(searchParams.get("cuisine")?.split(",").filter(Boolean) ?? []),
-    [searchParams]
-  );
-  const selectedDietary = useMemo(
-    () => new Set(searchParams.get("diet")?.split(",").filter(Boolean) ?? []),
-    [searchParams]
-  );
+  const mealParam = searchParams.get("meal") ?? "";
+  const cuisineParam = searchParams.get("cuisine") ?? "";
+  const dietParam = searchParams.get("diet") ?? "";
   const showFavorites = searchParams.get("favs") === "1";
   const cookTimeRange = searchParams.get("cookTime") ?? null;
   const nutritionFilter = searchParams.get("nutrition") ?? null;
+
+  // Derive Sets from stable primitive strings (not from searchParams directly).
+  const selectedMealTypes = useMemo(
+    () => new Set(mealParam.split(",").filter(Boolean)),
+    [mealParam]
+  );
+  const selectedCuisines = useMemo(
+    () => new Set(cuisineParam.split(",").filter(Boolean)),
+    [cuisineParam]
+  );
+  const selectedDietary = useMemo(
+    () => new Set(dietParam.split(",").filter(Boolean)),
+    [dietParam]
+  );
 
   const [filtersOpen, setFiltersOpen] = useState(false);
 
@@ -166,7 +172,7 @@ export default function FilterBar({ recipes, onFilter }: FilterBarProps) {
       return true;
     });
     onFilter(filtered);
-  }, [recipes, search, showFavorites, selectedMealTypes, selectedCuisines, selectedDietary, cookTimeRange, nutritionFilter, onFilter]);
+  }, [recipes, search, mealParam, cuisineParam, dietParam, showFavorites, cookTimeRange, nutritionFilter, onFilter]);
 
   return (
     <div className="mb-8 space-y-3">
