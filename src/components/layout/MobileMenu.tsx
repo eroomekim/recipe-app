@@ -21,6 +21,16 @@ export default function MobileMenu({
   const [mounted, setMounted] = useState(false);
   // Track whether the animation classes are active
   const [visible, setVisible] = useState(false);
+  // Track user's motion preference
+  const [reducedMotion, setReducedMotion] = useState(false);
+
+  useEffect(() => {
+    const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
+    setReducedMotion(mq.matches);
+    const handler = (e: MediaQueryListEvent) => setReducedMotion(e.matches);
+    mq.addEventListener("change", handler);
+    return () => mq.removeEventListener("change", handler);
+  }, []);
 
   useEffect(() => {
     if (open) {
@@ -32,7 +42,7 @@ export default function MobileMenu({
     } else {
       setVisible(false);
       // Wait for animation to finish before unmounting
-      const timer = setTimeout(() => setMounted(false), 300);
+      const timer = setTimeout(() => setMounted(false), reducedMotion ? 0 : 300);
       return () => clearTimeout(timer);
     }
   }, [open]);
@@ -43,17 +53,17 @@ export default function MobileMenu({
     <div className="fixed inset-0 z-[60] md:hidden">
       {/* Backdrop */}
       <div
-        className={`absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity duration-300 ${
-          visible ? "opacity-100" : "opacity-0"
-        }`}
+        className={`absolute inset-0 bg-black/60 backdrop-blur-sm ${
+          reducedMotion ? "" : "transition-opacity duration-300"
+        } ${visible ? "opacity-100" : "opacity-0"}`}
         onClick={onClose}
       />
 
       {/* Slide-out panel */}
       <div
-        className={`absolute left-0 top-0 bottom-0 w-64 bg-white p-6 flex flex-col gap-6 transition-transform duration-300 ease-out-expo ${
-          visible ? "translate-x-0" : "-translate-x-full"
-        }`}
+        className={`absolute left-0 top-0 bottom-0 w-64 bg-white p-6 flex flex-col gap-6 ${
+          reducedMotion ? "" : "transition-transform duration-300 ease-out-expo"
+        } ${visible ? "translate-x-0" : "-translate-x-full"}`}
       >
         <button
           onClick={onClose}

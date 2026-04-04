@@ -129,6 +129,11 @@
     animation: none !important;
     opacity: 1 !important;
   }
+  .animate-slideUp {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
 }
 
 .animate-card-in {
