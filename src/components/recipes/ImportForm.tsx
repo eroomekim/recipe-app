@@ -366,7 +366,7 @@ export default function ImportForm() {
             type="url"
             value={url}
             onChange={(e) => setUrl(e.target.value)}
-            placeholder="Paste a recipe URL..."
+            placeholder="Paste a recipe URL…"
             required={uploadedFiles.length === 0}
             disabled={isBusy}
           />
@@ -376,13 +376,13 @@ export default function ImportForm() {
           </p>
 
           <Button type="submit" loading={extracting} disabled={!url.trim() || isBusy} className="w-full">
-            {extracting ? "Extracting recipe..." : "Extract from URL"}
+            {extracting ? "Extracting recipe…" : "Extract from URL"}
           </Button>
 
           {extracting && (
             <div className="flex items-center justify-center gap-2 text-gray-600 font-sans text-sm">
               <Spinner />
-              <span>This may take a moment...</span>
+              <span>This may take a moment…</span>
             </div>
           )}
 
@@ -390,11 +390,11 @@ export default function ImportForm() {
             <div className="space-y-4 text-center">
               <Spinner />
               <p className="font-serif text-lg text-gray-600">
-                {extractionStage === "fetching" && "Fetching page..."}
-                {extractionStage === "downloading" && "Downloading video..."}
-                {extractionStage === "transcribing" && "Transcribing video... (this may take a moment)"}
-                {extractionStage === "extracting" && "Extracting recipe from content..."}
-                {(!extractionStage || extractionStage === "detecting") && "Starting extraction..."}
+                {extractionStage === "fetching" && "Fetching page…"}
+                {extractionStage === "downloading" && "Downloading video…"}
+                {extractionStage === "transcribing" && "Transcribing video… (this may take a moment)"}
+                {extractionStage === "extracting" && "Extracting recipe from content…"}
+                {(!extractionStage || extractionStage === "detecting") && "Starting extraction…"}
               </p>
               <button
                 onClick={() => { setPolling(false); setJobId(null); }}
@@ -477,9 +477,9 @@ export default function ImportForm() {
             className="w-full"
           >
             {uploadPhase === "uploading"
-              ? "Uploading images..."
+              ? "Uploading images…"
               : uploadPhase === "extracting"
-              ? "Extracting recipe from image..."
+              ? "Extracting recipe from image…"
               : "Extract from Image"}
           </Button>
         </form>
@@ -527,6 +527,8 @@ export default function ImportForm() {
                 <img
                   src={src}
                   alt={`Recipe image ${i + 1}`}
+                  width={128}
+                  height={128}
                   className="w-32 h-32 rounded-lg object-cover"
                   draggable={false}
                 />
@@ -551,8 +553,9 @@ export default function ImportForm() {
             type="text"
             value={newImageUrl}
             onChange={(e) => setNewImageUrl(e.target.value)}
-            placeholder="Paste image URLs (comma or newline separated)..."
-            className="flex-1 border border-gray-300 px-3 py-2 font-sans text-sm text-black placeholder:text-gray-500 focus:outline-none focus:border-black transition-colors"
+            placeholder="Paste image URLs (comma or newline separated)…"
+            aria-label="Add image URLs"
+            className="flex-1 border border-gray-300 px-3 py-2 font-sans text-sm text-black placeholder:text-gray-500 focus-visible:outline-none focus-visible:border-black transition-colors"
           />
           <button
             onClick={() => {
@@ -586,7 +589,7 @@ export default function ImportForm() {
           label="Ingredients"
           value={ingredients}
           onChange={setIngredients}
-          placeholder="Add ingredients..."
+          placeholder="Add ingredients…"
           minHeight={200}
         />
 
@@ -594,7 +597,7 @@ export default function ImportForm() {
           label="Instructions"
           value={instructions}
           onChange={setInstructions}
-          placeholder="Add instructions..."
+          placeholder="Add instructions…"
           minHeight={250}
         />
 
@@ -631,7 +634,8 @@ export default function ImportForm() {
                   setSubstitutions(updated);
                 }}
                 placeholder="Original ingredient"
-                className="flex-1 border border-gray-300 px-3 py-2 font-serif text-sm text-black focus:outline-none focus:border-black transition-colors"
+                aria-label={`Substitution ${i + 1} original ingredient`}
+                className="flex-1 border border-gray-300 px-3 py-2 font-serif text-sm text-black focus-visible:outline-none focus-visible:border-black transition-colors"
               />
               <span className="text-gray-500 py-2">→</span>
               <input
@@ -642,7 +646,8 @@ export default function ImportForm() {
                   setSubstitutions(updated);
                 }}
                 placeholder="Substitute"
-                className="flex-1 border border-gray-300 px-3 py-2 font-serif text-sm text-black focus:outline-none focus:border-black transition-colors"
+                aria-label={`Substitution ${i + 1} replacement`}
+                className="flex-1 border border-gray-300 px-3 py-2 font-serif text-sm text-black focus-visible:outline-none focus-visible:border-black transition-colors"
               />
               <button
                 onClick={() => setSubstitutions(substitutions.filter((_, j) => j !== i))}
@@ -729,7 +734,7 @@ export default function ImportForm() {
 
         <div className="flex gap-4 pt-4">
           <Button onClick={handleSave} loading={saving}>
-            {saving ? "Saving..." : "Save Recipe"}
+            {saving ? "Saving…" : "Save Recipe"}
           </Button>
           <Button variant="secondary" onClick={handleBack}>
             Back
