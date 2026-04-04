@@ -50,31 +50,44 @@ export default function SignupForm() {
 
       <form onSubmit={handleSignup} className="space-y-4">
         <div>
-          <label className="block font-sans text-xs font-semibold uppercase tracking-wider text-gray-600 mb-1">
+          <label
+            htmlFor="signup-email"
+            className="block font-sans text-xs font-semibold uppercase tracking-wider text-gray-600 mb-1"
+          >
             Email
           </label>
           <input
+            id="signup-email"
+            name="email"
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             placeholder="you@example.com"
+            autoComplete="email"
+            spellCheck={false}
             required
-            className="w-full border border-gray-500 px-4 py-3 font-sans text-base text-black placeholder:text-gray-500 focus:outline-none focus:border-black transition-colors"
+            className="w-full border border-gray-500 px-4 py-3 font-sans text-base text-black placeholder:text-gray-500 focus-visible:outline-none focus-visible:border-black transition-colors"
           />
         </div>
 
         <div>
-          <label className="block font-sans text-xs font-semibold uppercase tracking-wider text-gray-600 mb-1">
+          <label
+            htmlFor="signup-password"
+            className="block font-sans text-xs font-semibold uppercase tracking-wider text-gray-600 mb-1"
+          >
             Password
           </label>
           <input
+            id="signup-password"
+            name="password"
             type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             placeholder="At least 6 characters"
+            autoComplete="new-password"
             required
             minLength={6}
-            className="w-full border border-gray-500 px-4 py-3 font-sans text-base text-black placeholder:text-gray-500 focus:outline-none focus:border-black transition-colors"
+            className="w-full border border-gray-500 px-4 py-3 font-sans text-base text-black placeholder:text-gray-500 focus-visible:outline-none focus-visible:border-black transition-colors"
           />
         </div>
 
@@ -87,7 +100,7 @@ export default function SignupForm() {
           disabled={loading}
           className="w-full bg-black text-white font-sans text-base font-semibold px-8 py-3 hover:bg-gray-900 transition-colors disabled:opacity-50"
         >
-          {loading ? "Creating account..." : "Create Account"}
+          {loading ? "Creating account…" : "Create Account"}
         </button>
       </form>
 
