@@ -314,7 +314,7 @@ export default function RecipePage({
           )}
         </div>
       </div>
-      <ul className="space-y-1">
+      <ul className="space-y-1" aria-label="Ingredients">
         {scaledIngredients.map((ing, i) => {
           const isSelected = selectedIngredients.has(i);
           return (
@@ -326,6 +326,18 @@ export default function RecipePage({
                 else next.add(i);
                 setSelectedIngredients(next);
               }}
+              onKeyDown={(e) => {
+                if (e.key === " " || e.key === "Enter") {
+                  e.preventDefault();
+                  const next = new Set(selectedIngredients);
+                  if (isSelected) next.delete(i);
+                  else next.add(i);
+                  setSelectedIngredients(next);
+                }
+              }}
+              role="button"
+              tabIndex={0}
+              aria-pressed={isSelected}
               className={`font-serif text-base leading-relaxed flex items-start gap-2.5 py-1.5 px-2 -mx-2 rounded-lg cursor-pointer transition-colors ${
                 isSelected ? "bg-gray-50 text-black" : "text-black hover:bg-gray-50"
               }`}
