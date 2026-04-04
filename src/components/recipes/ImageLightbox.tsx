@@ -96,6 +96,8 @@ export default function ImageLightbox({
             <button
               key={i}
               onClick={() => setCurrent(i)}
+              aria-label={`View image ${i + 1} of ${images.length}`}
+              aria-pressed={i === current}
               className={`shrink-0 w-12 h-12 rounded overflow-hidden transition-opacity relative ${
                 i === current ? "opacity-100 ring-2 ring-white" : "opacity-40 hover:opacity-70"
               }`}
