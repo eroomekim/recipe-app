@@ -2,6 +2,7 @@ import { createClient } from "@/lib/supabase/server";
 import { prisma } from "@/lib/prisma";
 import { ensureUser } from "@/lib/auth";
 import { redirect } from "next/navigation";
+import { Suspense } from "react";
 import RecipeCollection from "@/components/recipes/RecipeCollection";
 import Link from "next/link";
 import type { RecipeCardData } from "@/types";
@@ -89,7 +90,9 @@ export default async function RecipesPage() {
 
   return (
     <main className="max-w-[1200px] mx-auto px-4 py-8">
-      <RecipeCollection recipes={recipeCards} />
+      <Suspense fallback={<div className="py-8 text-center font-sans text-sm text-gray-600">Loading…</div>}>
+        <RecipeCollection recipes={recipeCards} />
+      </Suspense>
     </main>
   );
 }

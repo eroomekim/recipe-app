@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect, useCallback } from "react";
+import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import { Search, SlidersHorizontal, X } from "lucide-react";
 import Tag from "@/components/ui/Tag";
 import type { RecipeCardData } from "@/types";
@@ -22,13 +23,44 @@ interface FilterBarProps {
 }
 
 export default function FilterBar({ recipes, onFilter }: FilterBarProps) {
-  const [search, setSearch] = useState("");
-  const [selectedMealTypes, setSelectedMealTypes] = useState<Set<string>>(new Set());
-  const [selectedCuisines, setSelectedCuisines] = useState<Set<string>>(new Set());
-  const [selectedDietary, setSelectedDietary] = useState<Set<string>>(new Set());
-  const [showFavorites, setShowFavorites] = useState(false);
-  const [cookTimeRange, setCookTimeRange] = useState<string | null>(null);
-  const [nutritionFilter, setNutritionFilter] = useState<string | null>(null);
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const pathname = usePathname();
+
+  // Derive all filter state from URL
+  const search = searchParams.get("q") ?? "";
+  const selectedMealTypes = useMemo(
+    () => new Set(searchParams.get("meal")?.split(",").filter(Boolean) ?? []),
+    [searchParams]
+  );
+  const selectedCuisines = useMemo(
+    () => new Set(searchParams.get("cuisine")?.split(",").filter(Boolean) ?? []),
+    [searchParams]
+  );
+  const selectedDietary = useMemo(
+    () => new Set(searchParams.get("diet")?.split(",").filter(Boolean) ?? []),
+    [searchParams]
+  );
+  const showFavorites = searchParams.get("favs") === "1";
+  const cookTimeRange = searchParams.get("cookTime") ?? null;
+  const nutritionFilter = searchParams.get("nutrition") ?? null;
+
+  const [filtersOpen, setFiltersOpen] = useState(false);
+
+  const updateParams = useCallback(
+    (updates: Record<string, string | null>) => {
+      const params = new URLSearchParams(searchParams.toString());
+      for (const [key, value] of Object.entries(updates)) {
+        if (value === null || value === "") {
+          params.delete(key);
+        } else {
+          params.set(key, value);
+        }
+      }
+      router.replace(`${pathname}?${params.toString()}`, { scroll: false });
+    },
+    [searchParams, router, pathname]
+  );
 
   // Determine which tags actually exist in the user's recipes
   const availableTags = useMemo(() => {
@@ -52,133 +84,89 @@ export default function FilterBar({ recipes, onFilter }: FilterBarProps) {
   const hasActiveFilters =
     search || selectedMealTypes.size > 0 || selectedCuisines.size > 0 || selectedDietary.size > 0 || showFavorites || cookTimeRange || nutritionFilter;
 
-  function toggle(set: Set<string>, setFn: (s: Set<string>) => void, value: string) {
-    const next = new Set(set);
-    if (next.has(value)) next.delete(value);
-    else next.add(value);
-    setFn(next);
-    applyFilters(search, selectedMealTypes, selectedCuisines, selectedDietary, showFavorites, next, value, set, setFn);
+  const activeFilterCount =
+    selectedMealTypes.size + selectedCuisines.size + selectedDietary.size +
+    (showFavorites ? 1 : 0) + (cookTimeRange ? 1 : 0) + (nutritionFilter ? 1 : 0);
+
+  function handleSearch(value: string) {
+    updateParams({ q: value || null });
   }
 
-  function applyFilters(
-    searchVal: string,
-    mealTypes: Set<string>,
-    cuisines: Set<string>,
-    dietary: Set<string>,
-    favs: boolean,
-    // For the toggle that just changed, pass updated set
-    changedSet?: Set<string>,
-    changedValue?: string,
-    originalSet?: Set<string>,
-    setFn?: (s: Set<string>) => void,
-    cookTime?: string | null,
-    nutrition?: string | null,
-  ) {
-    // Determine effective sets (the toggled one needs the updated version)
-    const effectiveMealTypes = setFn === setSelectedMealTypes && changedSet ? changedSet : mealTypes;
-    const effectiveCuisines = setFn === setSelectedCuisines && changedSet ? changedSet : cuisines;
-    const effectiveDietary = setFn === setSelectedDietary && changedSet ? changedSet : dietary;
-    const effectiveCookTime = cookTime !== undefined ? cookTime : cookTimeRange;
-    const effectiveNutrition = nutrition !== undefined ? nutrition : nutritionFilter;
+  function handleFavorites() {
+    updateParams({ favs: showFavorites ? null : "1" });
+  }
 
+  function handleCookTime(range: string) {
+    updateParams({ cookTime: cookTimeRange === range ? null : range });
+  }
+
+  function handleNutrition(value: string) {
+    updateParams({ nutrition: nutritionFilter === value ? null : value });
+  }
+
+  function toggleMealType(value: string) {
+    const next = new Set(selectedMealTypes);
+    if (next.has(value)) next.delete(value); else next.add(value);
+    updateParams({ meal: next.size > 0 ? Array.from(next).join(",") : null });
+  }
+
+  function toggleCuisine(value: string) {
+    const next = new Set(selectedCuisines);
+    if (next.has(value)) next.delete(value); else next.add(value);
+    updateParams({ cuisine: next.size > 0 ? Array.from(next).join(",") : null });
+  }
+
+  function toggleDietary(value: string) {
+    const next = new Set(selectedDietary);
+    if (next.has(value)) next.delete(value); else next.add(value);
+    updateParams({ diet: next.size > 0 ? Array.from(next).join(",") : null });
+  }
+
+  function clearAll() {
+    router.replace(pathname, { scroll: false });
+  }
+
+  useEffect(() => {
     const filtered = recipes.filter((r) => {
-      // Search
-      if (searchVal) {
-        const q = searchVal.toLowerCase();
+      if (search) {
+        const q = search.toLowerCase();
         const matchesTitle = r.title.toLowerCase().includes(q);
         const matchesTags = r.tags.some((t) => t.name.toLowerCase().includes(q));
         if (!matchesTitle && !matchesTags) return false;
       }
-
-      // Favorites
-      if (favs && !r.isFavorite) return false;
-
-      // Meal type filter
-      if (effectiveMealTypes.size > 0) {
-        const hasMatch = r.tags.some((t) => t.type === "MEAL_TYPE" && effectiveMealTypes.has(t.name));
-        if (!hasMatch) return false;
+      if (showFavorites && !r.isFavorite) return false;
+      if (selectedMealTypes.size > 0) {
+        if (!r.tags.some((t) => t.type === "MEAL_TYPE" && selectedMealTypes.has(t.name))) return false;
       }
-
-      // Cuisine filter
-      if (effectiveCuisines.size > 0) {
-        const hasMatch = r.tags.some((t) => t.type === "CUISINE" && effectiveCuisines.has(t.name));
-        if (!hasMatch) return false;
+      if (selectedCuisines.size > 0) {
+        if (!r.tags.some((t) => t.type === "CUISINE" && selectedCuisines.has(t.name))) return false;
       }
-
-      // Dietary filter
-      if (effectiveDietary.size > 0) {
-        const hasMatch = r.tags.some((t) => t.type === "DIETARY" && effectiveDietary.has(t.name));
-        if (!hasMatch) return false;
+      if (selectedDietary.size > 0) {
+        if (!r.tags.some((t) => t.type === "DIETARY" && selectedDietary.has(t.name))) return false;
       }
-
-      // Cook time range filter
-      if (effectiveCookTime) {
+      if (cookTimeRange) {
         const ct = r.cookTime;
         if (ct === null) return false;
-        if (effectiveCookTime === "under30" && ct > 30) return false;
-        if (effectiveCookTime === "30to60" && (ct < 30 || ct > 60)) return false;
-        if (effectiveCookTime === "60to120" && (ct < 60 || ct > 120)) return false;
-        if (effectiveCookTime === "over120" && ct < 120) return false;
+        if (cookTimeRange === "under30" && ct > 30) return false;
+        if (cookTimeRange === "30to60" && (ct < 30 || ct > 60)) return false;
+        if (cookTimeRange === "60to120" && (ct < 60 || ct > 120)) return false;
+        if (cookTimeRange === "over120" && ct < 120) return false;
       }
-
-      // Nutrition filter
-      if (effectiveNutrition) {
+      if (nutritionFilter) {
         const n = r.nutrition;
         if (!n || n.calories === null) return false;
-        if (effectiveNutrition === "under300" && n.calories > 300) return false;
-        if (effectiveNutrition === "300to500" && (n.calories < 300 || n.calories > 500)) return false;
-        if (effectiveNutrition === "500to700" && (n.calories < 500 || n.calories > 700)) return false;
-        if (effectiveNutrition === "over700" && n.calories < 700) return false;
-        if (effectiveNutrition === "highProtein" && (n.protein === null || n.protein < 25)) return false;
-        if (effectiveNutrition === "lowCarb" && (n.carbs === null || n.carbs > 20)) return false;
-        if (effectiveNutrition === "lowCalorie" && n.calories > 400) return false;
+        if (nutritionFilter === "under300" && n.calories > 300) return false;
+        if (nutritionFilter === "300to500" && (n.calories < 300 || n.calories > 500)) return false;
+        if (nutritionFilter === "500to700" && (n.calories < 500 || n.calories > 700)) return false;
+        if (nutritionFilter === "over700" && n.calories < 700) return false;
+        if (nutritionFilter === "highProtein" && (n.protein === null || n.protein < 25)) return false;
+        if (nutritionFilter === "lowCarb" && (n.carbs === null || n.carbs > 20)) return false;
+        if (nutritionFilter === "lowCalorie" && n.calories > 400) return false;
       }
-
       return true;
     });
-
     onFilter(filtered);
-  }
-
-  function clearAll() {
-    setSearch("");
-    setSelectedMealTypes(new Set());
-    setSelectedCuisines(new Set());
-    setSelectedDietary(new Set());
-    setShowFavorites(false);
-    setCookTimeRange(null);
-    setNutritionFilter(null);
-    onFilter(recipes);
-  }
-
-  function handleCookTime(range: string) {
-    const next = cookTimeRange === range ? null : range;
-    setCookTimeRange(next);
-    applyFilters(search, selectedMealTypes, selectedCuisines, selectedDietary, showFavorites, undefined, undefined, undefined, undefined, next);
-  }
-
-  function handleSearch(value: string) {
-    setSearch(value);
-    applyFilters(value, selectedMealTypes, selectedCuisines, selectedDietary, showFavorites);
-  }
-
-  function handleFavorites() {
-    const next = !showFavorites;
-    setShowFavorites(next);
-    applyFilters(search, selectedMealTypes, selectedCuisines, selectedDietary, next);
-  }
-
-  function handleNutrition(value: string) {
-    const next = nutritionFilter === value ? null : value;
-    setNutritionFilter(next);
-    applyFilters(search, selectedMealTypes, selectedCuisines, selectedDietary, showFavorites, undefined, undefined, undefined, undefined, undefined, next);
-  }
-
-  const [filtersOpen, setFiltersOpen] = useState(false);
-
-  const activeFilterCount =
-    selectedMealTypes.size + selectedCuisines.size + selectedDietary.size +
-    (showFavorites ? 1 : 0) + (cookTimeRange ? 1 : 0) + (nutritionFilter ? 1 : 0);
+  }, [recipes, search, showFavorites, selectedMealTypes, selectedCuisines, selectedDietary, cookTimeRange, nutritionFilter, onFilter]);
 
   return (
     <div className="mb-8 space-y-3">
@@ -192,7 +180,7 @@ export default function FilterBar({ recipes, onFilter }: FilterBarProps) {
             onChange={(e) => handleSearch(e.target.value)}
             placeholder="Search recipes..."
             aria-label="Search recipes"
-            className="w-full border border-gray-500 pl-10 pr-4 py-2.5 font-sans text-sm text-black placeholder:text-gray-500 focus:outline-none focus:border-black transition-colors"
+            className="w-full border border-gray-500 pl-10 pr-4 py-2.5 font-sans text-sm text-black placeholder:text-gray-500 focus-visible:outline-none focus-visible:border-black transition-colors"
           />
         </div>
         <button
@@ -219,13 +207,13 @@ export default function FilterBar({ recipes, onFilter }: FilterBarProps) {
         <div className="flex items-center gap-2 flex-wrap">
           {showFavorites && <Tag label="Favorites" active onClick={handleFavorites} />}
           {Array.from(selectedMealTypes).map((m) => (
-            <Tag key={m} label={m} active onClick={() => toggle(selectedMealTypes, setSelectedMealTypes, m)} />
+            <Tag key={m} label={m} active onClick={() => toggleMealType(m)} />
           ))}
           {Array.from(selectedCuisines).map((c) => (
-            <Tag key={c} label={c} active onClick={() => toggle(selectedCuisines, setSelectedCuisines, c)} />
+            <Tag key={c} label={c} active onClick={() => toggleCuisine(c)} />
           ))}
           {Array.from(selectedDietary).map((d) => (
-            <Tag key={d} label={d} active onClick={() => toggle(selectedDietary, setSelectedDietary, d)} />
+            <Tag key={d} label={d} active onClick={() => toggleDietary(d)} />
           ))}
           {cookTimeRange && (
             <Tag
@@ -271,7 +259,7 @@ export default function FilterBar({ recipes, onFilter }: FilterBarProps) {
               <div className="flex gap-2 flex-wrap items-center">
                 <Tag label="Favorites" active={showFavorites} onClick={handleFavorites} />
                 {availableTags.mealTypes.map((m) => (
-                  <Tag key={m} label={m} active={selectedMealTypes.has(m)} onClick={() => toggle(selectedMealTypes, setSelectedMealTypes, m)} />
+                  <Tag key={m} label={m} active={selectedMealTypes.has(m)} onClick={() => toggleMealType(m)} />
                 ))}
               </div>
             </div>
@@ -283,7 +271,7 @@ export default function FilterBar({ recipes, onFilter }: FilterBarProps) {
               <span className="font-sans text-[10px] font-semibold uppercase tracking-wider text-gray-600 block mb-2">Cuisine</span>
               <div className="flex gap-2 flex-wrap">
                 {availableTags.cuisines.map((c) => (
-                  <Tag key={c} label={c} active={selectedCuisines.has(c)} onClick={() => toggle(selectedCuisines, setSelectedCuisines, c)} />
+                  <Tag key={c} label={c} active={selectedCuisines.has(c)} onClick={() => toggleCuisine(c)} />
                 ))}
               </div>
             </div>
@@ -295,7 +283,7 @@ export default function FilterBar({ recipes, onFilter }: FilterBarProps) {
               <span className="font-sans text-[10px] font-semibold uppercase tracking-wider text-gray-600 block mb-2">Dietary</span>
               <div className="flex gap-2 flex-wrap">
                 {availableTags.dietary.map((d) => (
-                  <Tag key={d} label={d} active={selectedDietary.has(d)} onClick={() => toggle(selectedDietary, setSelectedDietary, d)} />
+                  <Tag key={d} label={d} active={selectedDietary.has(d)} onClick={() => toggleDietary(d)} />
                 ))}
               </div>
             </div>
