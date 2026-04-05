@@ -25,23 +25,22 @@ export default function IngredientDrawer({
   return (
     <>
       {/* Backdrop */}
-      {expanded && (
-        <div
-          className="fixed inset-0 z-40"
-          onClick={onClose}
-        />
-      )}
+      <div
+        className={`fixed inset-0 z-40 transition-opacity duration-300 ${
+          expanded ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
+        }`}
+        onClick={onClose}
+      />
 
-        {/* Drawer — slides up */}
-      <div className="fixed bottom-0 left-0 right-0 z-50">
+      {/* Slide-up drawer — overflow-hidden clips the animation */}
+      <div className="fixed bottom-0 left-0 right-0 z-50 overflow-hidden">
         <div
-          className={`bg-gray-50 border-t border-black/10 max-h-[60vh] overflow-y-auto transition-transform duration-300 ease-out-expo ${
+          className={`bg-gray-50 border-t border-black/10 transition-transform duration-300 ease-out-expo ${
             expanded ? "translate-y-0" : "translate-y-full"
           }`}
-          aria-hidden={!expanded}
         >
-          {/* Drawer header */}
-          <div className="sticky top-0 bg-gray-50 flex items-center justify-between px-6 py-4 border-b border-black/10">
+          {/* Header */}
+          <div className="flex items-center justify-between px-6 py-4 border-b border-black/10">
             <span className="font-sans text-xs font-semibold uppercase tracking-wider text-black/50">
               Ingredients
             </span>
@@ -54,7 +53,8 @@ export default function IngredientDrawer({
             </button>
           </div>
 
-          <div className="px-6 py-4">
+          {/* Scrollable content */}
+          <div className="max-h-[50vh] overflow-y-auto px-6 py-4">
             {/* Scale controls */}
             {originalServings && (
               <div className="flex items-center gap-3 mb-4 pb-4 border-b border-black/10">
@@ -88,7 +88,7 @@ export default function IngredientDrawer({
             )}
 
             {/* Ingredients list */}
-            <ul className="space-y-2">
+            <ul className="space-y-2 pb-2">
               {ingredients.map((ing, i) => (
                 <li
                   key={i}
