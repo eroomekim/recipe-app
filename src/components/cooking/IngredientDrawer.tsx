@@ -33,6 +33,7 @@ export default function IngredientDrawer({
       )}
 
         {/* Drawer — slides up */}
+      <div className="fixed bottom-0 left-0 right-0 z-50">
         <div
           className={`bg-gray-50 border-t border-black/10 max-h-[60vh] overflow-y-auto transition-transform duration-300 ease-out-expo ${
             expanded ? "translate-y-0" : "translate-y-full"
