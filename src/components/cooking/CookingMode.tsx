@@ -23,6 +23,7 @@ export default function CookingMode({ recipe, onExit, defaultAutoReadAloud = fal
   const [checkedIngredients, setCheckedIngredients] = useState<Set<number>>(new Set());
   const [guidedMode, setGuidedMode] = useState(false);
   const [autoReadAloud, setAutoReadAloud] = useState(defaultAutoReadAloud);
+  const [ingredientsOpen, setIngredientsOpen] = useState(false);
   const wakeLock = useWakeLock();
 
   // Request wake lock on mount (if enabled)
@@ -198,14 +199,20 @@ export default function CookingMode({ recipe, onExit, defaultAutoReadAloud = fal
           />
         )}
 
-        {/* Visible nav arrows */}
-        <div className="absolute bottom-4 left-0 right-0 flex justify-between px-6">
+        {/* Visible nav arrows + ingredients trigger */}
+        <div className="absolute bottom-4 left-0 right-0 flex justify-between items-center px-6">
           <button
             onClick={goPrev}
             disabled={currentStep === 0}
             className="font-sans text-sm text-black/40 disabled:invisible hover:text-black transition-colors"
           >
             ← Prev
+          </button>
+          <button
+            onClick={() => setIngredientsOpen(true)}
+            className="font-sans text-xs font-semibold uppercase tracking-wider text-black/40 hover:text-black transition-colors"
+          >
+            Ingredients
           </button>
           <button
             onClick={goNext}
@@ -224,6 +231,8 @@ export default function CookingMode({ recipe, onExit, defaultAutoReadAloud = fal
         scaleFactor={scaleFactor}
         originalServings={recipe.servings}
         onScaleChange={setScaleFactor}
+        expanded={ingredientsOpen}
+        onClose={() => setIngredientsOpen(false)}
       />
     </div>
   );

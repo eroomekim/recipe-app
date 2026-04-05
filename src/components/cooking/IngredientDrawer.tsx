@@ -1,6 +1,5 @@
 "use client";
 
-import { useState } from "react";
 import { X } from "lucide-react";
 import type { ScaledIngredient } from "@/types";
 
@@ -10,6 +9,8 @@ interface IngredientDrawerProps {
   scaleFactor: number;
   originalServings: number | null;
   onScaleChange: (factor: number) => void;
+  expanded: boolean;
+  onClose: () => void;
 }
 
 export default function IngredientDrawer({
@@ -18,33 +19,18 @@ export default function IngredientDrawer({
   scaleFactor,
   originalServings,
   onScaleChange,
+  expanded,
+  onClose,
 }: IngredientDrawerProps) {
-  const [expanded, setExpanded] = useState(false);
-
   return (
     <>
       {/* Backdrop */}
       {expanded && (
         <div
           className="fixed inset-0 z-40"
-          onClick={() => setExpanded(false)}
+          onClick={onClose}
         />
       )}
-
-      <div className="fixed bottom-0 left-0 right-0 z-50">
-        {/* Trigger label */}
-        {!expanded && (
-          <button
-            onClick={() => setExpanded(true)}
-            className="w-full bg-gray-50 border-t border-black/10 py-3 flex items-center justify-center gap-2"
-            aria-label="Show ingredients"
-          >
-            <span className="font-sans text-xs font-semibold uppercase tracking-wider text-black/50">
-              Ingredients
-            </span>
-            <div className="w-6 h-px bg-black/20" />
-          </button>
-        )}
 
         {/* Drawer — slides up */}
         <div
@@ -59,7 +45,7 @@ export default function IngredientDrawer({
               Ingredients
             </span>
             <button
-              onClick={() => setExpanded(false)}
+              onClick={onClose}
               className="w-7 h-7 flex items-center justify-center text-black/40 hover:text-black transition-colors"
               aria-label="Close ingredients"
             >
