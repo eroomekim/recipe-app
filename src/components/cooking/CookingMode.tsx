@@ -204,7 +204,7 @@ export default function CookingMode({ recipe, onExit, defaultAutoReadAloud = fal
           <button
             onClick={goPrev}
             disabled={currentStep === 0}
-            className="font-sans text-sm text-black/40 disabled:invisible hover:text-black transition-colors"
+            className="font-sans text-xs font-semibold uppercase tracking-wider text-black/40 disabled:invisible hover:text-black transition-colors"
           >
             ← PREV
           </button>
@@ -217,7 +217,7 @@ export default function CookingMode({ recipe, onExit, defaultAutoReadAloud = fal
           <button
             onClick={goNext}
             disabled={currentStep === recipe.instructions.length - 1}
-            className="font-sans text-sm text-black/40 disabled:invisible hover:text-black transition-colors"
+            className="font-sans text-xs font-semibold uppercase tracking-wider text-black/40 disabled:invisible hover:text-black transition-colors"
           >
             NEXT →
           </button>
