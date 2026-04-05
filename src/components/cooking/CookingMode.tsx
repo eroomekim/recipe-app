@@ -206,7 +206,7 @@ export default function CookingMode({ recipe, onExit, defaultAutoReadAloud = fal
             disabled={currentStep === 0}
             className="font-sans text-sm text-black/40 disabled:invisible hover:text-black transition-colors"
           >
-            ← Prev
+            ← PREV
           </button>
           <button
             onClick={() => setIngredientsOpen(true)}
@@ -219,7 +219,7 @@ export default function CookingMode({ recipe, onExit, defaultAutoReadAloud = fal
             disabled={currentStep === recipe.instructions.length - 1}
             className="font-sans text-sm text-black/40 disabled:invisible hover:text-black transition-colors"
           >
-            Next →
+            NEXT →
           </button>
         </div>
       </div>
