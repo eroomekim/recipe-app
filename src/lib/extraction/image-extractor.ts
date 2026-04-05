@@ -94,9 +94,13 @@ Return ONLY valid JSON matching this exact shape:
 }
 
 Rules:
-- The image may be rotated or sideways. Examine it in all orientations to read the text correctly.
+- The image may be rotated or sideways. Try all orientations to read the text correctly.
+- Recipe cards often list ingredients in TWO COLUMNS side by side. Read the LEFT column top-to-bottom first, then the RIGHT column top-to-bottom. Include every ingredient from both columns.
+- Capture EVERY ingredient and EVERY step — do not summarise, truncate, or skip any.
+- If text is partially cut off at the edges, include what is legible and note "[partially cut off]" at the end of that item.
 - If multiple images are provided, combine them into a single complete recipe.
 - Only extract what is explicitly written. Do NOT invent ingredients or steps.
+- Each instruction step should be its own string in the array, even if the original runs them together.
 - Use null for suggestedCookTimeMinutes and servings if not stated.
 - Use empty string for text fields and empty array for list fields if not available.
 - Suggest meal types from: Breakfast, Lunch, Dinner, Snack, Dessert, Appetizer, Sandwich, Salad, Sauce, Dressing.
@@ -147,8 +151,8 @@ async function callVision(
   contentBlocks: Anthropic.Messages.ContentBlockParam[]
 ): Promise<string> {
   const message = await getClient().messages.create({
-    model: "claude-sonnet-4-20250514",
-    max_tokens: 4096,
+    model: "claude-sonnet-4-6",
+    max_tokens: 8192,
     messages: [{ role: "user", content: contentBlocks }],
   });
   return message.content[0].type === "text" ? message.content[0].text : "";
