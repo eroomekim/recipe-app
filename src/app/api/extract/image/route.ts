@@ -2,8 +2,6 @@ import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { prisma } from "@/lib/prisma";
 import sharp from "sharp";
-// @ts-expect-error — heic-convert has no type declarations
-import heicConvert from "heic-convert";
 import {
   validateImageFiles,
   extractRecipeFromImages,
@@ -42,6 +40,9 @@ async function logImageExtraction(
 const HEIC_TYPES = new Set(["image/heic", "image/heif"]);
 
 async function convertHeicToJpeg(buffer: Buffer): Promise<Buffer> {
+  // Dynamic import so a load failure only affects HEIC files, not the whole route
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  const heicConvert = require("heic-convert");
   const result = await heicConvert({
     buffer,
     format: "JPEG",
