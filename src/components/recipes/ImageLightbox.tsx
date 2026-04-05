@@ -43,18 +43,18 @@ export default function ImageLightbox({
   }, []);
 
   return (
-    <div className="fixed inset-0 z-50 bg-black flex flex-col">
+    <div className="fixed inset-0 z-50 bg-white text-black flex flex-col">
       {/* Top bar */}
-      <div className="flex items-center justify-between px-4 py-3 shrink-0">
-        <span className="font-sans text-xs font-semibold text-white/60 tracking-wider uppercase">
+      <div className="flex items-center justify-between px-5 py-5 border-b border-black/10 shrink-0">
+        <span className="font-sans text-xs font-semibold text-black/50 tracking-wider uppercase">
           {current + 1} / {images.length}
         </span>
         <button
           onClick={onClose}
-          className="w-8 h-8 flex items-center justify-center text-white/60 hover:text-white transition-colors"
+          className="px-3 py-3 text-black/50 hover:text-black transition-colors"
           aria-label="Close"
         >
-          <X className="w-5 h-5" />
+          <X className="w-4 h-4" />
         </button>
       </div>
 
@@ -73,14 +73,14 @@ export default function ImageLightbox({
           <>
             <button
               onClick={goPrev}
-              className="absolute left-2 top-1/2 -translate-y-1/2 w-10 h-10 flex items-center justify-center bg-white/10 hover:bg-white/20 text-white rounded-full transition-colors"
+              className="absolute left-2 top-1/2 -translate-y-1/2 w-10 h-10 flex items-center justify-center bg-black/10 hover:bg-black/20 text-black rounded-full transition-colors"
               aria-label="Previous image"
             >
               <ChevronLeft className="w-5 h-5" />
             </button>
             <button
               onClick={goNext}
-              className="absolute right-2 top-1/2 -translate-y-1/2 w-10 h-10 flex items-center justify-center bg-white/10 hover:bg-white/20 text-white rounded-full transition-colors"
+              className="absolute right-2 top-1/2 -translate-y-1/2 w-10 h-10 flex items-center justify-center bg-black/10 hover:bg-black/20 text-black rounded-full transition-colors"
               aria-label="Next image"
             >
               <ChevronRight className="w-5 h-5" />
@@ -91,7 +91,7 @@ export default function ImageLightbox({
 
       {/* Thumbnail strip */}
       {images.length > 1 && (
-        <div className="flex items-center justify-center gap-2 px-4 py-3 overflow-x-auto shrink-0">
+        <div className="flex items-center justify-center gap-2 px-4 py-5 border-t border-black/10 overflow-x-auto shrink-0">
           {images.map((src, i) => (
             <button
               key={i}
@@ -99,7 +99,7 @@ export default function ImageLightbox({
               aria-label={`View image ${i + 1} of ${images.length}`}
               aria-pressed={i === current}
               className={`shrink-0 w-12 h-12 rounded overflow-hidden transition-opacity relative ${
-                i === current ? "opacity-100 ring-2 ring-white" : "opacity-40 hover:opacity-70"
+                i === current ? "opacity-100 ring-2 ring-black" : "opacity-30 hover:opacity-60"
               }`}
             >
               <Image src={src} alt="" fill className="object-cover" sizes="48px" />
