@@ -133,7 +133,7 @@ export default function CookingMode({ recipe, onExit, defaultAutoReadAloud = fal
   return (
     <div className="fixed inset-0 z-50 bg-white text-black flex flex-col">
       {/* Top bar */}
-      <div className="flex items-center justify-between px-5 py-3 border-b border-black/10">
+      <div className="flex items-center justify-between px-5 py-5 border-b border-black/10">
         <h1 className="font-display text-base font-bold truncate max-w-[60%]">
           {recipe.title}
         </h1>
@@ -200,7 +200,7 @@ export default function CookingMode({ recipe, onExit, defaultAutoReadAloud = fal
         )}
 
         {/* Visible nav arrows + ingredients trigger */}
-        <div className="absolute bottom-4 left-0 right-0 flex justify-between items-center px-6">
+        <div className="absolute bottom-0 left-0 right-0 flex justify-between items-center px-6 py-5">
           <button
             onClick={goPrev}
             disabled={currentStep === 0}
