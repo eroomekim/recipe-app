@@ -32,8 +32,8 @@ export default function IngredientDrawer({
         onClick={onClose}
       />
 
-      {/* Slide-up drawer — overflow-hidden clips the animation */}
-      <div className="fixed bottom-0 left-0 right-0 z-50 overflow-hidden">
+      {/* Slide-up drawer */}
+      <div className={`fixed bottom-0 left-0 right-0 z-50 overflow-hidden ${expanded ? "pointer-events-auto" : "pointer-events-none"}`}>
         <div
           className={`bg-gray-50 border-t border-black/10 transition-transform duration-300 ease-out-expo ${
             expanded ? "translate-y-0" : "translate-y-full"
