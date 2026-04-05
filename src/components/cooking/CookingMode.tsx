@@ -143,7 +143,7 @@ export default function CookingMode({ recipe, onExit, defaultAutoReadAloud = fal
               <VoiceControl enabled={guidedMode} onCommand={handleVoiceCommand} />
               <button
                 onClick={() => setAutoReadAloud(!autoReadAloud)}
-                className={`font-sans text-xs font-semibold uppercase tracking-wider transition-colors ${
+                className={`font-sans text-xs font-semibold uppercase tracking-wider px-3 py-3 transition-colors ${
                   autoReadAloud ? "text-black" : "text-black/30 hover:text-black/60"
                 }`}
               >
@@ -153,7 +153,7 @@ export default function CookingMode({ recipe, onExit, defaultAutoReadAloud = fal
           )}
           <button
             onClick={() => setGuidedMode(!guidedMode)}
-            className={`font-sans text-xs font-semibold uppercase tracking-wider transition-colors ${
+            className={`font-sans text-xs font-semibold uppercase tracking-wider px-3 py-3 transition-colors ${
               guidedMode ? "text-red" : "text-black/50 hover:text-black"
             }`}
           >
@@ -161,7 +161,7 @@ export default function CookingMode({ recipe, onExit, defaultAutoReadAloud = fal
           </button>
           <button
             onClick={onExit}
-            className="font-sans text-xs font-semibold uppercase tracking-wider text-black/50 hover:text-black transition-colors"
+            className="font-sans text-xs font-semibold uppercase tracking-wider px-3 py-3 text-black/50 hover:text-black transition-colors"
           >
             Exit
           </button>
@@ -204,20 +204,20 @@ export default function CookingMode({ recipe, onExit, defaultAutoReadAloud = fal
           <button
             onClick={goPrev}
             disabled={currentStep === 0}
-            className="font-sans text-xs font-semibold uppercase tracking-wider text-black/40 disabled:invisible hover:text-black transition-colors"
+            className="font-sans text-xs font-semibold uppercase tracking-wider px-3 py-3 text-black/40 disabled:invisible hover:text-black transition-colors"
           >
             ← PREV
           </button>
           <button
             onClick={() => setIngredientsOpen(true)}
-            className="font-sans text-xs font-semibold uppercase tracking-wider text-black/40 hover:text-black transition-colors"
+            className="font-sans text-xs font-semibold uppercase tracking-wider px-3 py-3 text-black/40 hover:text-black transition-colors"
           >
             Ingredients
           </button>
           <button
             onClick={goNext}
             disabled={currentStep === recipe.instructions.length - 1}
-            className="font-sans text-xs font-semibold uppercase tracking-wider text-black/40 disabled:invisible hover:text-black transition-colors"
+            className="font-sans text-xs font-semibold uppercase tracking-wider px-3 py-3 text-black/40 disabled:invisible hover:text-black transition-colors"
           >
             NEXT →
           </button>
