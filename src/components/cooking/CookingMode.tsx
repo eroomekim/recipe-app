@@ -199,27 +199,31 @@ export default function CookingMode({ recipe, onExit, defaultAutoReadAloud = fal
           />
         )}
 
-        {/* Visible nav arrows + ingredients trigger */}
-        <div className="absolute bottom-0 left-0 right-0 flex justify-between items-center px-6 py-5">
-          <button
-            onClick={goPrev}
-            disabled={currentStep === 0}
-            className="font-sans text-xs font-semibold uppercase tracking-wider px-3 py-3 text-black/40 disabled:invisible hover:text-black transition-colors"
-          >
-            ← PREV
-          </button>
+        {/* Prev — left side, vertically centered */}
+        <button
+          onClick={goPrev}
+          disabled={currentStep === 0}
+          className="absolute left-6 top-1/2 -translate-y-1/2 font-sans text-xs font-semibold uppercase tracking-wider px-3 py-3 text-black/40 disabled:invisible hover:text-black transition-colors"
+        >
+          ← Prev
+        </button>
+
+        {/* Next — right side, vertically centered */}
+        <button
+          onClick={goNext}
+          disabled={currentStep === recipe.instructions.length - 1}
+          className="absolute right-6 top-1/2 -translate-y-1/2 font-sans text-xs font-semibold uppercase tracking-wider px-3 py-3 text-black/40 disabled:invisible hover:text-black transition-colors"
+        >
+          Next →
+        </button>
+
+        {/* Ingredients trigger — bottom center */}
+        <div className="absolute bottom-0 left-0 right-0 flex justify-center px-6 py-5">
           <button
             onClick={() => setIngredientsOpen(true)}
             className="font-sans text-xs font-semibold uppercase tracking-wider px-3 py-3 text-black/40 hover:text-black transition-colors"
           >
             Ingredients
-          </button>
-          <button
-            onClick={goNext}
-            disabled={currentStep === recipe.instructions.length - 1}
-            className="font-sans text-xs font-semibold uppercase tracking-wider px-3 py-3 text-black/40 disabled:invisible hover:text-black transition-colors"
-          >
-            NEXT →
           </button>
         </div>
       </div>
