@@ -448,19 +448,29 @@ export default function ImportForm() {
 
           {/* Thumbnail strip */}
           {uploadedFiles.length > 0 && (
-            <div className="flex gap-2 overflow-x-auto pb-2">
+            <div className="flex gap-3 overflow-x-auto pb-2">
               {uploadedFiles.map((file, i) => (
-                <div key={`${file.name}-${i}`} className="relative shrink-0">
-                  <div className="w-20 h-20 bg-gray-50 flex flex-col items-center justify-center">
-                    <Upload className="w-5 h-5 text-gray-500 mb-1" />
-                    <span className="font-sans text-[10px] text-gray-600 uppercase truncate max-w-[72px] px-1">
-                      {file.type === "application/pdf" ? "PDF" : file.name.split(".").pop()}
-                    </span>
-                  </div>
+                <div key={`${file.name}-${i}`} className="relative shrink-0 group">
+                  {file.type === "application/pdf" || !file.type.startsWith("image/") ? (
+                    <div className="w-32 h-32 rounded-lg bg-gray-50 flex flex-col items-center justify-center">
+                      <Upload className="w-5 h-5 text-gray-500 mb-1" />
+                      <span className="font-sans text-[10px] text-gray-600 uppercase">
+                        {file.type === "application/pdf" ? "PDF" : file.name.split(".").pop()}
+                      </span>
+                    </div>
+                  ) : (
+                    <img
+                      src={URL.createObjectURL(file)}
+                      alt={file.name}
+                      width={128}
+                      height={128}
+                      className="w-32 h-32 rounded-lg object-cover"
+                    />
+                  )}
                   <button
                     type="button"
                     onClick={() => removeUploadedFile(i)}
-                    className="absolute -top-2 -right-2 w-5 h-5 bg-black text-white flex items-center justify-center"
+                    className="absolute top-1 right-1 w-6 h-6 bg-black/70 hover:bg-black text-white flex items-center justify-center rounded-full z-10 transition-colors"
                     aria-label="Remove file"
                   >
                     <X className="w-3 h-3" />

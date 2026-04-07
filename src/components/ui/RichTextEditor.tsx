@@ -24,6 +24,19 @@ export default function RichTextEditor({
   // Track the initial value to force re-mount when populated externally
   const [editorKey, setEditorKey] = useState(0);
   const lastExternalValue = useRef(value);
+  const [isDark, setIsDark] = useState(false);
+
+  useEffect(() => {
+    const check = () =>
+      setIsDark(document.documentElement.classList.contains("dark"));
+    check();
+    const observer = new MutationObserver(check);
+    observer.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ["class"],
+    });
+    return () => observer.disconnect();
+  }, []);
 
   useEffect(() => {
     // If value changed externally (not from onBlur), re-mount the editor
@@ -36,6 +49,7 @@ export default function RichTextEditor({
   const config = useMemo(
     () => ({
       readonly: false,
+      theme: isDark ? "dark" : "default",
       placeholder,
       height: minHeight,
       toolbarButtonSize: "small" as const,
@@ -96,7 +110,7 @@ export default function RichTextEditor({
         lineHeight: "1.6",
       },
     }),
-    [placeholder, minHeight]
+    [placeholder, minHeight, isDark]
   );
 
   return (
@@ -108,7 +122,7 @@ export default function RichTextEditor({
       )}
       <JoditEditor
         ref={editor}
-        key={editorKey}
+        key={`${editorKey}-${isDark}`}
         value={value}
         config={config}
         onBlur={(newContent: string) => {

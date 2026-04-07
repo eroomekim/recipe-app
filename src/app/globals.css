@@ -180,6 +180,52 @@
   color: var(--color-red-dark);
 }
 
+/* Jodit dark theme — override default dark palette to match app design system */
+.jodit_theme_dark,
+.jodit-dialog_theme_dark {
+  /* Container and panel backgrounds */
+  --jd-dark-background-color: #111111;      /* editor body: gray-50 dark */
+  --jd-dark-background-darknes: #000000;    /* deepest bg: pure black */
+  --jd-dark-background-ligher: #2A2A2A;     /* hover bg: gray-200 dark */
+  /* Toolbar */
+  --jd-dark-toolbar-color: #181818;         /* toolbar bg: gray-950 dark */
+  /* Borders: jodit also hard-codes --jd-color-border in its own dark rule,
+     so we repeat it here at the same specificity to win by source order */
+  --jd-dark-border-color: #333333;
+  --jd-color-border: #333333;
+  /* Text and icons */
+  --jd-dark-text-color: #E0E0E0;
+  --jd-dark-icon-color: #E0E0E0;
+  --jd-color-text-icons: rgba(224, 224, 224, 0.85);
+  /* Button interactions */
+  --jd-color-background-button-hover: #2A2A2A;
+  --jd-dark-color-border-selected: #DF3331;
+  --jd-color-background-active: #DF3331;
+  --jd-color-background-selection: #3a1412; /* text selection: dark red tint */
+}
+
+/* Jodit's dark hover logic sets icon color = --jd-dark-background-color (the bg
+   color), designed for its medium-gray bg. On our black bg that makes icons
+   invisible on hover. Override to keep icons light. */
+.jodit_theme_dark .jodit-toolbar-button:hover:not([disabled]),
+.jodit_theme_dark .jodit-toolbar-button__button:hover:not([disabled]),
+.jodit_theme_dark .jodit-toolbar-button__text:hover:not([disabled]),
+.jodit_theme_dark .jodit-toolbar-button__trigger:hover:not([disabled]),
+.jodit_theme_dark .jodit-toolbar-select:hover:not([disabled]),
+.jodit_theme_dark .jodit-toolbar-select__button:hover:not([disabled]),
+.jodit_theme_dark .jodit-ui-button:hover:not([disabled]),
+.jodit_theme_dark .jodit-ui-button__button:hover:not([disabled]) {
+  --jd-color-text: #E0E0E0;
+  --jd-color-icon: #E0E0E0;
+  color: #E0E0E0;
+  background-color: #2A2A2A;
+}
+.jodit_theme_dark .jodit-toolbar-button:hover:not([disabled]) svg,
+.jodit_theme_dark .jodit-toolbar-button__button:hover:not([disabled]) svg,
+.jodit_theme_dark .jodit-ui-button:hover:not([disabled]) svg {
+  fill: #E0E0E0;
+}
+
 /* Jodit editor — restore default HTML styling stripped by Tailwind reset */
 .jodit-wysiwyg ul {
   list-style-type: disc;
