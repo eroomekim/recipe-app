@@ -1,9 +1,10 @@
 import type { Metadata, Viewport } from "next";
-import { Playfair_Display, Libre_Baskerville, Inter } from "next/font/google";
+import { Playfair_Display, Libre_Baskerville, Inter, Geist } from "next/font/google";
 import { createClient } from "@/lib/supabase/server";
 import Navbar from "@/components/layout/Navbar";
 import ThemeProvider from "@/components/ThemeProvider";
 import "./globals.css";
+import { cn } from "@/lib/utils";
 
 const themeScript = `(function(){var t=localStorage.getItem("theme-resolved");if(t==="dark")document.documentElement.classList.add("dark")})();`;
 
@@ -21,11 +22,7 @@ const libreBaskerville = Libre_Baskerville({
   display: "swap",
 });
 
-const inter = Inter({
-  subsets: ["latin"],
-  variable: "--font-sans",
-  display: "swap",
-});
+const geist = Geist({subsets:['latin'],variable:'--font-sans'});
 
 export const viewport: Viewport = {
   width: "device-width",
@@ -60,13 +57,13 @@ export default async function RootLayout({
   } = await supabase.auth.getUser();
 
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="en" suppressHydrationWarning className={cn("font-sans", geist.variable)}>
       <head>
         <script dangerouslySetInnerHTML={{ __html: themeScript }} />
       </head>
       <body
         suppressHydrationWarning
-        className={`${playfair.variable} ${libreBaskerville.variable} ${inter.variable}`}
+        className={`${playfair.variable} ${libreBaskerville.variable} ${geist.variable}`}
       >
         <ThemeProvider />
         <Navbar user={user ? { email: user.email! } : null} />
