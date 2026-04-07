@@ -230,7 +230,7 @@ export default function EditRecipeForm({ recipeId, initialData }: EditRecipeForm
               onChange={(e) => setNewImageUrl(e.target.value)}
               placeholder="Paste image URLs (comma or newline separated)…"
               aria-label="Add image URLs"
-              className="flex-1 border border-gray-300 px-3 py-2 font-sans text-sm text-black placeholder:text-gray-500 focus-visible:outline-none focus-visible:border-black transition-colors"
+              className="flex-1 border border-gray-500 px-3 py-2 font-sans text-sm text-black placeholder:text-gray-500 focus-visible:outline-none focus-visible:border-black transition-colors"
             />
             <button
               onClick={() => {
