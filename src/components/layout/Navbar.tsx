@@ -6,6 +6,7 @@ import { createClient } from "@/lib/supabase/client";
 import { useRouter, usePathname } from "next/navigation";
 import { Menu, Settings, HelpCircle, LogOut } from "lucide-react";
 import MobileMenu from "./MobileMenu";
+import SettingsModal from "@/components/settings/SettingsModal";
 
 
 interface NavbarProps {
@@ -15,6 +16,7 @@ interface NavbarProps {
 export default function Navbar({ user }: NavbarProps) {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [settingsOpen, setSettingsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
   const pathname = usePathname();
@@ -116,14 +118,13 @@ export default function Navbar({ user }: NavbarProps) {
                       {user.email}
                     </span>
                   </div>
-                  <Link
-                    href="/settings"
-                    onClick={() => setDropdownOpen(false)}
-                    className="flex items-center gap-2.5 px-4 py-2.5 font-sans text-sm text-gray-900 hover:bg-gray-50 transition-colors"
+                  <button
+                    onClick={() => { setDropdownOpen(false); setSettingsOpen(true); }}
+                    className="flex items-center gap-2.5 w-full px-4 py-2.5 font-sans text-sm text-gray-900 hover:bg-gray-50 transition-colors"
                   >
                     <Settings className="w-4 h-4 text-gray-500" />
                     Settings
-                  </Link>
+                  </button>
                   <Link
                     href="/help"
                     onClick={() => setDropdownOpen(false)}
@@ -160,8 +161,11 @@ export default function Navbar({ user }: NavbarProps) {
           open={mobileOpen}
           onClose={() => setMobileOpen(false)}
           onSignOut={handleSignOut}
+          onOpenSettings={() => { setMobileOpen(false); setSettingsOpen(true); }}
         />
       )}
+
+      <SettingsModal open={settingsOpen} onClose={() => setSettingsOpen(false)} />
     </>
   );
 }

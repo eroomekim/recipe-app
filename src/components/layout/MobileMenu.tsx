@@ -9,12 +9,14 @@ interface MobileMenuProps {
   open: boolean;
   onClose: () => void;
   onSignOut: () => void;
+  onOpenSettings?: () => void;
 }
 
 export default function MobileMenu({
   open,
   onClose,
   onSignOut,
+  onOpenSettings,
 }: MobileMenuProps) {
   const pathname = usePathname();
   // Track whether the component should be in the DOM
@@ -53,7 +55,7 @@ export default function MobileMenu({
     <div className="fixed inset-0 z-[60] md:hidden">
       {/* Backdrop */}
       <div
-        className={`absolute inset-0 bg-black/60 backdrop-blur-sm ${
+        className={`absolute inset-0 bg-[rgba(0,0,0,0.6)] backdrop-blur-sm ${
           reducedMotion ? "" : "transition-opacity duration-300"
         } ${visible ? "opacity-100" : "opacity-0"}`}
         onClick={onClose}
@@ -110,13 +112,12 @@ export default function MobileMenu({
 
         <hr className="border-t border-gray-300" />
 
-        <Link
-          href="/settings"
-          onClick={onClose}
-          className="font-sans text-xs font-semibold uppercase tracking-wider text-gray-600"
+        <button
+          onClick={onOpenSettings}
+          className="font-sans text-xs font-semibold uppercase tracking-wider text-gray-600 text-left"
         >
           Settings
-        </Link>
+        </button>
 
         <button
           onClick={() => {

@@ -2,7 +2,7 @@
 "use client";
 
 import { useState } from "react";
-import Button from "@/components/ui/Button";
+import Button from "@/components/ui/button";
 import Input from "@/components/ui/Input";
 import type { CollectionData } from "@/types";
 import { apiUrl } from "@/lib/api";
@@ -36,7 +36,7 @@ export default function CreateCollectionModal({ onClose, onCreated }: Props) {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
-      <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={onClose} />
+      <div className="absolute inset-0 bg-[rgba(0,0,0,0.6)] backdrop-blur-sm" onClick={onClose} />
       <div className="relative z-10 bg-white p-6 w-[90vw] max-w-[400px] rounded-[8px] animate-slideUp">
         <h2 className="font-display text-xl font-bold mb-4">New Collection</h2>
         <Input
