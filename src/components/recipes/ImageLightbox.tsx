@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { X, ChevronLeft, ChevronRight } from "lucide-react";
 import Image from "next/image";
 
@@ -42,6 +42,21 @@ export default function ImageLightbox({
     return () => { document.body.style.overflow = ""; };
   }, []);
 
+  const touchStartX = useRef<number | null>(null);
+
+  const handleTouchStart = useCallback((e: React.TouchEvent) => {
+    touchStartX.current = e.touches[0].clientX;
+  }, []);
+
+  const handleTouchEnd = useCallback((e: React.TouchEvent) => {
+    if (touchStartX.current === null) return;
+    const delta = e.changedTouches[0].clientX - touchStartX.current;
+    touchStartX.current = null;
+    if (Math.abs(delta) < 40) return;
+    if (delta < 0) goNext();
+    else goPrev();
+  }, [goNext, goPrev]);
+
   return (
     <div className="fixed inset-0 z-50 bg-white text-black flex flex-col">
       {/* Top bar */}
@@ -59,7 +74,11 @@ export default function ImageLightbox({
       </div>
 
       {/* Image area */}
-      <div className="flex-1 relative flex items-center justify-center min-h-0 px-4">
+      <div
+        className="flex-1 relative flex items-center justify-center min-h-0 px-4"
+        onTouchStart={handleTouchStart}
+        onTouchEnd={handleTouchEnd}
+      >
         <Image
           src={images[current]}
           alt={`${alt} - image ${current + 1}`}
