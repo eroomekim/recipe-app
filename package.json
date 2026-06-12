@@ -2,7 +2,7 @@
   "name": "recipe-app",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "server.js",
   "directories": {
     "doc": "docs"
   },
@@ -10,10 +10,14 @@
     "dev": "next dev --webpack",
     "build": "prisma generate && next build",
     "start": "next start",
+    "start:passenger": "node server.js",
     "lint": "next lint",
     "test": "vitest run",
     "test:watch": "vitest",
     "postinstall": "prisma generate"
+  },
+  "engines": {
+    "node": ">=20.9.0"
   },
   "keywords": [],
   "author": "",
